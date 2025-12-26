@@ -185,7 +185,7 @@ with open(json_file, "w") as f:
     await interaction.response.send_message(f"Giveaway lancé dans {target_channel.mention}! 🎉", ephemeral=True)
 ''
 
-@bot.event()
+@bot.event
 async def on_message(message):
     content = message.content[1:]
     parts = content.split()
