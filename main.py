@@ -5,6 +5,7 @@ import os
 from discord import app_commands
 import datetime
 from types import FunctionType
+from google import genai
 
 # --------- CONFIG ---------
 TOKEN = "MTQzNjQyMDI1Njk4OTA1MzExMw.Ghan8_.v-fREaSEJyTW_Yxw00c2YA3XcQ506Fgbh3McoI"
@@ -17,6 +18,8 @@ GIVEAWAYS_JSON_FILE = "giveaways.json"
 
 intents = discord.Intents.default()
 intents.members = True
+
+client = genai.Client()
 
 bot = commands.Bot(command_prefix="!", intents=intents)
 
@@ -181,6 +184,15 @@ with open(json_file, "w") as f:
     await target_channel.send(content=f"Giveaway 🎉\n{text}\nMention(s) : {mention.mention}", embed=embed, view=giveaway_button)
     await interaction.response.send_message(f"Giveaway lancé dans {target_channel.mention}! 🎉", ephemeral=True)
 ''
+
+@bot.event()
+async def on_message(message):
+    content = message.content[1:]
+    parts = content.split()
+    command = parts[0].lower()
+    args = parts[1:]
+
+    print(command, args)
 #
 # --------- LANCEMENT DU BOT ---------
 bot.run(TOKEN)
