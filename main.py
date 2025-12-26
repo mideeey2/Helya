@@ -5,7 +5,7 @@ import os
 from discord import app_commands
 import datetime
 from types import FunctionType
-from google import genai
+import google.generativeai as genai
 
 # --------- CONFIG ---------
 TOKEN = "MTQzNjQyMDI1Njk4OTA1MzExMw.Ghan8_.v-fREaSEJyTW_Yxw00c2YA3XcQ506Fgbh3McoI"
