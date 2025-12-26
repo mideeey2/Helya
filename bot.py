@@ -181,6 +181,6 @@ with open(json_file, "w") as f:
     await target_channel.send(content=f"Giveaway 🎉\n{text}\nMention(s) : {mention.mention}", embed=embed, view=giveaway_button)
     await interaction.response.send_message(f"Giveaway lancé dans {target_channel.mention}! 🎉", ephemeral=True)
 ''
-
+#
 # --------- LANCEMENT DU BOT ---------
 bot.run(TOKEN)
