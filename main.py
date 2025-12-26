@@ -19,7 +19,7 @@ GIVEAWAYS_JSON_FILE = "giveaways.json"
 intents = discord.Intents.default()
 intents.members = True
 
-client = genai.Client()
+# client = genai.Client()
 
 bot = commands.Bot(command_prefix="!", intents=intents)
 
