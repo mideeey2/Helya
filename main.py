@@ -131,10 +131,10 @@ async def on_member_join(member):
         invites_count[inviter_id] += 1
         save_invites()  # sauvegarder dans le fichier JSON
 
-        personal_invites_button = Button(color=discord.ButtonStyle.green, label="Voir mes invitations", onclick_code="get_invites_count(user)")
+        personal_invites_button = Button(color=discord.ButtonStyle.green, label="Voir mes invitations", onclick_code="interaction.response.send_message(get_invites_count(user), ephemeral=True)", json_file=None, interaction_msg=None)
         await channel.send(
             content=f"# <a:tada:1453048315779481752> Bienvenue {member.mention} <a:tada:1453048315779481752>",
-            embed=discord.Embed(title=f"{member} vient de rejoindre le serveur!", description=f"il a été invité par <@{inviter.id}> qui a désormais {invites_count[inviter_id]} invitations! <a:pepeclap:1453682464181588065>", color=0x00ff00),
+            embed=discord.Embed(title=f"{member} vient de rejoindre le serveur!", description=f"Il a été invité par <@{inviter.id}> qui a désormais {invites_count[inviter_id]} invitations! <a:pepeclap:1453682464181588065>", color=0x00ff00),
             view=personal_invites_button
         )
     else:
