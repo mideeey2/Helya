@@ -57,6 +57,7 @@ class Button(discord.ui.View):
         namespace={}
         namespace["json_file"]=self.json_file
         namespace["user"]=interaction.user
+        namespace["interaction"]=interaction
         exec(self.onclick_code, namespace)
         return True
 
