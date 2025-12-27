@@ -70,6 +70,7 @@ class Button(discord.ui.View):
         namespace["user"]=interaction.user
         namespace["interaction"]=interaction
         exec(self.onclick_code, namespace)
+        interaction.response.send_message(self.interaction_msg, ephemeral=True)
         return True
 
 # --------- DICTIONNAIRES ---------
