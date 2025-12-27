@@ -27,14 +27,23 @@ def save_giveaways(data):
     with open(GIVEAWAYS_JSON_FILE, "w") as f:
         json.dump(data, f)
 
+def get_invites_count(user):
+    if user:
+        user_id = str(user.id)
+        count = invites_count.get(user_id, 0)
+        return f"{user.mention} a fait {count} invitations."
+    else:
+        user_id = str(user.id)
+        count = invites_count.get(user_id, 0)
+        return f"Tu as fait {count} invitations."
 button=None
 button_fonctions = []
 class Button(discord.ui.View):
     label, color = None, None
-    def __init__ (self, label, color, interaction_msg, onclick_code:str, json_file:str=None, timeout=None):
+    def __init__ (self, label, color, json_file:str=None, timeout=None, interaction_msg=None, onclick_code:str=None):
         super().__init__(timeout=timeout)
-        label=label
-        color=color
+        self.label=label
+        self.color=color
         self.onclick_code=onclick_code
         self.interaction_msg=interaction_msg
         self.json_file=json_file
@@ -43,11 +52,11 @@ class Button(discord.ui.View):
         button.callback = self.on_click
         self.add_item(button)
 
-    async def on_click(self, interaction: discord.Interaction, button: discord.ui.Button=button):
+    async def on_click(self, interaction: discord.Interaction):
         await interaction.response.send_message(self.interaction_msg, ephemeral=True)
         namespace={}
         namespace["json_file"]=self.json_file
-        namespace["user"]=interaction.user.display_name
+        namespace["user"]=interaction.user
         exec(self.onclick_code, namespace)
         return True
 
@@ -122,9 +131,11 @@ async def on_member_join(member):
         invites_count[inviter_id] += 1
         save_invites()  # sauvegarder dans le fichier JSON
 
+        personal_invites_button = Button(color=discord.ButtonStyle.green, label="Voir mes invitations", onclick_code="get_invites_count(user)")
         await channel.send(
-            f"🎟️ {member.mention} a été invité par **{inviter.mention}** !\n"
-            f"📊 Il a maintenant **{invites_count[inviter_id]} invitations**."
+            content=f"<a:tada:1453048315779481752> Bienvenue {member.mention} <a:tada:1453048315779481752>",
+            embed=discord.Embed(title=f"Un nouveau membre a rejoint, il a été invité par {inviter.mention} qui a désormais {invites_count[inviter_id]} invitations! <a:pepeclap:1453682464181588065>", color=0x00ff00),
+            view=personal_invites_button
         )
     else:
         await channel.send(f"👀 {member.mention} a rejoint, impossible de déterminer l'invitation utilisée.")
@@ -132,14 +143,7 @@ async def on_member_join(member):
 # --------- COMMANDE SLASH /invites ---------
 @bot.tree.command(name="invites", description="Voir le nombre d'invitations que vous avez faites.")
 async def invites(interaction: discord.Interaction, user: discord.Member = None):
-    if user:
-        user_id = str(user.id)
-        count = invites_count.get(user_id, 0)
-        await interaction.response.send_message(f"{user.mention} a fait {count} invitations.")
-    else:
-        user_id = str(interaction.user.id)
-        count = invites_count.get(user_id, 0)
-        await interaction.response.send_message(f"Tu as fait {count} invitations.")
+    await interaction.response.send_message(get_invites_count(user or interaction.user))
 
 @bot.tree.command(name="topinvites", description="Voir le classement des invitations.")
 async def top_invites(interaction: discord.Interaction):
