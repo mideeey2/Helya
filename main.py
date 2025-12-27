@@ -23,6 +23,16 @@ intents.members = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
 
+# --------- CHARGER LES INVITES DU FICHIER ---------
+if os.path.exists(INVITES_JSON_FILE):
+    with open(INVITES_JSON_FILE, "r") as f:
+        invites_count = json.load(f)
+
+# --------- FONCTION POUR SAUVEGARDER ---------
+def save_invites():
+    with open(INVITES_JSON_FILE, "w") as f:
+        json.dump(invites_count, f)
+
 def save_giveaways(data):
     with open(GIVEAWAYS_JSON_FILE, "w") as f:
         json.dump(data, f)
@@ -36,6 +46,7 @@ def get_invites_count(user):
         user_id = str(user.id)
         count = invites_count.get(user_id, 0)
         return f"Tu as fait {count} invitations."
+    
 button=None
 button_fonctions = []
 class Button(discord.ui.View):
@@ -64,16 +75,6 @@ class Button(discord.ui.View):
 # --------- DICTIONNAIRES ---------
 invites_cache = {}  # guild_id : list(invites)
 invites_count = {}  # inviter_id : nombre total d'invites
-
-# --------- CHARGER LES INVITES DU FICHIER ---------
-if os.path.exists(INVITES_JSON_FILE):
-    with open(INVITES_JSON_FILE, "r") as f:
-        invites_count = json.load(f)
-
-# --------- FONCTION POUR SAUVEGARDER ---------
-def save_invites():
-    with open(INVITES_JSON_FILE, "w") as f:
-        json.dump(invites_count, f)
 
 # --------- AU LANCEMENT DU BOT ---------
 @bot.event
