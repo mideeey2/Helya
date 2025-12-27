@@ -64,13 +64,11 @@ class Button(discord.ui.View):
         self.add_item(button)
 
     async def on_click(self, interaction: discord.Interaction):
-        namespace={}
-        namespace["json_file"]=self.json_file
-        namespace["user"]=interaction.user
-        namespace["interaction"]=interaction
-        exec(self.onclick_code, namespace)
         if self.interaction_msg:
             await interaction.response.send_message(self.interaction_msg, ephemeral=True)
+        elif self.onclick_code:
+            await interaction.response.send_message(self.interaction_msg, ephemeral=True)
+            
         return True
 
 # --------- DICTIONNAIRES ---------
@@ -133,20 +131,7 @@ async def on_member_join(member):
             invites_count[inviter_id] = 0
         invites_count[inviter_id] += 1
         save_invites()  # sauvegarder dans le fichier JSON
-        personal_invites_button_onclick = """
-if os.path.exists("invites.json"):
-    with open("invites.json", "r") as f:
-        invites_count = json.load(f)
-    if user:
-        user_id = str(user.id)
-        count = invites_count.get(user_id, 0)
-        await interaction.response.send_message(f"{user.mention} a fait {{count}} invitations.", ephemeral=True)
-    else:
-        user_id = str(user.id)
-        count = invites_count.get(user_id, 0)
-        await interaction.response.send_message(f"Tu as fait {{count}} invitations.", ephemeral=True)
-"""
-        personal_invites_button = Button(color=discord.ButtonStyle.green, label="Voir mes invitations", onclick_code=personal_invites_button_onclick, json_file=None)
+        personal_invites_button = Button(color=discord.ButtonStyle.green, label="Voir mes invitations", onclick_code=get_invites_count(member), json_file=None)
         await channel.send(
             content=f"# <a:tada:1453048315779481752> Bienvenue {member.mention} <a:tada:1453048315779481752>",
             embed=discord.Embed(title=f"{member} vient de rejoindre le serveur!", description=f"Il a été invité par <@{inviter.id}> qui a désormais {invites_count[inviter_id]} invitations! <a:pepeclap:1453682464181588065>", color=0x00ff00),
