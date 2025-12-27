@@ -134,11 +134,11 @@ async def on_member_join(member):
         personal_invites_button = Button(color=discord.ButtonStyle.green, label="Voir mes invitations", onclick_code="get_invites_count(user)")
         await channel.send(
             content=f"<a:tada:1453048315779481752> Bienvenue {member.mention} <a:tada:1453048315779481752>",
-            embed=discord.Embed(title=f"Un nouveau membre a rejoint, il a été invité par {inviter.mention} qui a désormais {invites_count[inviter_id]} invitations! <a:pepeclap:1453682464181588065>", color=0x00ff00),
+            embed=discord.Embed(title=f"Un nouveau membre a rejoint, il a été invité par {inviter} qui a désormais {invites_count[inviter_id]} invitations! <a:pepeclap:1453682464181588065>", color=0x00ff00),
             view=personal_invites_button
         )
     else:
-        await channel.send(f"👀 {member.mention} a rejoint, impossible de déterminer l'invitation utilisée.")
+        await channel.send(f"👀 {member.mention} a rejoint, mais je suis incapable de déterminer qui l'a invité.")
 
 # --------- COMMANDE SLASH /invites ---------
 @bot.tree.command(name="invites", description="Voir le nombre d'invitations que vous avez faites.")
