@@ -71,7 +71,7 @@ class Button(discord.ui.View):
         namespace["interaction"]=interaction
         exec(self.onclick_code, namespace)
         if self.interaction_msg:
-            interaction.response.send_message(self.interaction_msg, ephemeral=True)
+            await interaction.response.send_message(self.interaction_msg, ephemeral=True)
         return True
 
 # --------- DICTIONNAIRES ---------
