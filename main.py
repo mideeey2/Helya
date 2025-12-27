@@ -70,7 +70,8 @@ class Button(discord.ui.View):
         namespace["user"]=interaction.user
         namespace["interaction"]=interaction
         exec(self.onclick_code, namespace)
-        interaction.response.send_message(self.interaction_msg, ephemeral=True)
+        if self.interaction_msg:
+            interaction.response.send_message(self.interaction_msg, ephemeral=True)
         return True
 
 # --------- DICTIONNAIRES ---------
@@ -146,7 +147,7 @@ async def on_member_join(member):
                 count = invites_count.get(user_id, 0)
                 await interaction.response.send_message(f"Tu as fait {count} invitations.", ephemeral=True)
         """
-        personal_invites_button = Button(color=discord.ButtonStyle.green, label="Voir mes invitations", onclick_code=personal_invites_button_onclick, json_file=None, interaction_msg="coucou")
+        personal_invites_button = Button(color=discord.ButtonStyle.green, label="Voir mes invitations", onclick_code=personal_invites_button_onclick, json_file=None)
         await channel.send(
             content=f"# <a:tada:1453048315779481752> Bienvenue {member.mention} <a:tada:1453048315779481752>",
             embed=discord.Embed(title=f"{member} vient de rejoindre le serveur!", description=f"Il a été invité par <@{inviter.id}> qui a désormais {invites_count[inviter_id]} invitations! <a:pepeclap:1453682464181588065>", color=0x00ff00),
