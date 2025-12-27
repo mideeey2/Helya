@@ -64,7 +64,6 @@ class Button(discord.ui.View):
         self.add_item(button)
 
     async def on_click(self, interaction: discord.Interaction):
-        await interaction.response.send_message(self.interaction_msg, ephemeral=True)
         namespace={}
         namespace["json_file"]=self.json_file
         namespace["user"]=interaction.user
