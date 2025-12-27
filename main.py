@@ -133,6 +133,9 @@ async def on_member_join(member):
         invites_count[inviter_id] += 1
         save_invites()  # sauvegarder dans le fichier JSON
         personal_invites_button_onclick = """
+        if os.path.exists("invites.json"):
+            with open("invites.json", "r") as f:
+                invites_count = json.load(f)
         def get_invites_count(user):
             if user:
                 user_id = str(user.id)
