@@ -134,7 +134,7 @@ async def on_member_join(member):
         personal_invites_button = Button(color=discord.ButtonStyle.green, label="Voir mes invitations", onclick_code="get_invites_count(user)")
         await channel.send(
             content=f"# <a:tada:1453048315779481752> Bienvenue {member.mention} <a:tada:1453048315779481752>",
-            embed=discord.Embed(title=f"{member.display_name} vient de rejoindre le serveur", description=f"il a été invité par <@{inviter.id}> qui a désormais {invites_count[inviter_id]} invitations! <a:pepeclap:1453682464181588065>", color=0x00ff00),
+            embed=discord.Embed(title=f"{member} vient de rejoindre le serveur!", description=f"il a été invité par <@{inviter.id}> qui a désormais {invites_count[inviter_id]} invitations! <a:pepeclap:1453682464181588065>", color=0x00ff00),
             view=personal_invites_button
         )
     else:
@@ -189,14 +189,14 @@ with open(json_file, "w") as f:
     await interaction.response.send_message(f"Giveaway lancé dans {target_channel.mention}! 🎉", ephemeral=True)
 ''
 
-@bot.event
-async def on_message(message):
-    content = message.content[1:]
-    parts = content.split()
-    command = parts[0].lower()
-    args = parts[1:]
+# @bot.event
+# async def on_message(message):
+#     content = message.content[1:]
+#     parts = content.split()
+#     command = parts[0].lower()
+#     args = parts[1:]
 
-    print(command, args)
+#     print(command, args)
 #
 # --------- LANCEMENT DU BOT ---------
 bot.run(TOKEN)
