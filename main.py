@@ -143,7 +143,7 @@ async def on_member_join(member):
                 count = invites_count.get(user_id, 0)
                 return f"Tu as fait {count} invitations."
         await interaction.response.send_message(get_invites_count(user), ephemeral=True)"""
-        personal_invites_button = Button(color=discord.ButtonStyle.green, label="Voir mes invitations", onclick_code="", json_file=None, interaction_msg=None)
+        personal_invites_button = Button(color=discord.ButtonStyle.green, label="Voir mes invitations", onclick_code=personal_invites_button_onclick, json_file=None, interaction_msg=None)
         await channel.send(
             content=f"# <a:tada:1453048315779481752> Bienvenue {member.mention} <a:tada:1453048315779481752>",
             embed=discord.Embed(title=f"{member} vient de rejoindre le serveur!", description=f"Il a été invité par <@{inviter.id}> qui a désormais {invites_count[inviter_id]} invitations! <a:pepeclap:1453682464181588065>", color=0x00ff00),
