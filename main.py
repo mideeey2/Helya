@@ -193,7 +193,7 @@ async def on_member_remove(member:discord.Member):
 
 @bot.command()
 async def leave(ctx, member: discord.Member):
-    ctx.channel.send("test...")
+    await ctx.channel.send("test...")
 
 @bot.command()
 async def join(ctx, member: discord.Member):
