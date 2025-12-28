@@ -140,7 +140,7 @@ async def on_member_join(member):
     else:
         await channel.send(f"👀 {member.mention} a rejoint, mais je suis incapable de déterminer qui l'a invité.")
 
-@bot.command
+@bot.command()
 async def join(ctx, member: discord.Member):
     # if ctx.author.id != 1071516026484822096:
     #     print("not join")
@@ -153,7 +153,7 @@ async def join(ctx, member: discord.Member):
         content=f"# <a:tada:1453048315779481752> Bienvenue {member.mention} <a:tada:1453048315779481752>",
         view=personal_invites_button
     )
-    
+
 # --------- COMMANDE SLASH /invites ---------
 @bot.tree.command(name="invites", description="Voir le nombre d'invitations que vous avez faites.")
 async def invites(interaction: discord.Interaction, user: discord.Member = None):
