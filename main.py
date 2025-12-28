@@ -18,6 +18,7 @@ GIVEAWAYS_JSON_FILE = "giveaways.json"
 
 intents = discord.Intents.default()
 intents.members = True
+intents.message_content = True
 
 # client = genai.Client()
 
