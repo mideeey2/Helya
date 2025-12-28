@@ -141,12 +141,50 @@ async def on_member_join(member):
         await channel.send(f"👀 {member.mention} a rejoint, mais je suis incapable de déterminer qui l'a invité.")
 
 @bot.command
-async def join(ctx, member: discord.Member, message:discord.Message):
-    if not message.author.id == "1071516026484822096":
+async def join(ctx, member: discord.Member):
+    if ctx.author.id != 1071516026484822096:
         print("not join")
         return
     print("join")
-    await on_member_join(member)
+    guild = member.guild
+    before = invites_cache.get(guild.id, [])
+    try:
+        after = await guild.invites()
+    except discord.Forbidden:
+        after = before
+
+    used_invite = None
+    for new in after:
+        for old in before:
+            if new.code == old.code and new.uses > old.uses:
+                used_invite = new
+                break
+
+    # mise à jour du cache
+    invites_cache[guild.id] = after
+
+    channel = bot.get_channel(INVITES_CHANNEL_ID)
+    if not channel:
+        print("⚠️ Salon introuvable ou ID incorrect")
+        return
+
+    if used_invite:
+        inviter = used_invite.inviter
+        inviter_id = str(inviter.id)
+
+        # mettre à jour le nombre d'invites
+        if inviter_id not in invites_count:
+            invites_count[inviter_id] = 0
+        invites_count[inviter_id] += 1
+        save_invites()  # sauvegarder dans le fichier JSON
+        personal_invites_button = Button(color=discord.ButtonStyle.green, label="Voir mes invitations", onclick_code=get_invites_count(member), json_file=None)
+        await channel.send(
+            content=f"# <a:tada:1453048315779481752> Bienvenue {member.mention} <a:tada:1453048315779481752>",
+            embed=discord.Embed(title=f"{member} vient de rejoindre le serveur!", description=f"Il a été invité par <@{inviter.id}> qui a désormais {invites_count[inviter_id]} invitations! <a:pepeclap:1453682464181588065>", color=0x00ff00),
+            view=personal_invites_button
+        )
+    else:
+        await channel.send(f"👀 {member.mention} a rejoint, mais je suis incapable de déterminer qui l'a invité.")
 
 # --------- COMMANDE SLASH /invites ---------
 @bot.tree.command(name="invites", description="Voir le nombre d'invitations que vous avez faites.")
