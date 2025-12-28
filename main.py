@@ -210,38 +210,7 @@ async def on_member_remove(member:discord.Member):
 
 @bot.command()
 async def leave(ctx, member: discord.Member):
-    channel = bot.get_channel(LEAVS_CHANNEL_ID)
-    guild = member.guild
-    before = invites_cache.get(guild.id, [])
-    try:
-        after = await guild.invites()
-    except discord.Forbidden:
-        after = before
-
-    used_invite = None
-    for new in after:
-        for old in before:
-            if new.code == old.code and new.uses > old.uses:
-                used_invite = new
-                break
-
-    # mise à jour du cache
-    invites_cache[guild.id] = after
-    if not channel:
-        print("⚠️ Salon introuvable ou ID incorrect")
-        return
-    if used_invite:
-        inviter = used_invite.inviter
-        invites_count[inviter.id] -= 1
-        save_invites()
-        await channel.send(
-            content="Un membre vient de quitter le serveur.",
-            embed=discord.Embed(
-                title=f"{member} vient de quitter le serveur.",
-                description=f"Il a été invité par <@{inviter.id}> qui a désormais {invites_count[inviter.id]} invitations.",
-                color=discord.Color.red()
-            )
-        )
+    await ctx.channel.send("leave")
 
 @bot.command()
 async def join(ctx, member: discord.Member):
