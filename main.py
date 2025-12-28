@@ -179,10 +179,13 @@ async def top_invites(interaction: discord.Interaction):
 
 @bot.event
 async def on_message(message):
-    if message.author != bot.user :
-        if message.channel.id == CHAT_CHANNEL_ID:
-            if "trade" in message.content.lower().content:
-                message.delete()
+    if message.author == bot.user:
+        return
+    if message.channel.id == CHAT_CHANNEL_ID:
+        if "trade" in message.content.lower():
+            await message.delete()
+
+    await bot.process_commands(message)
 
 @bot.tree.command(name="giveaway", description="Lancer un giveaway.")
 @app_commands.checks.has_permissions(administrator=True)
