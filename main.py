@@ -141,7 +141,7 @@ async def on_member_join(member):
         await channel.send(f"👀 {member.mention} a rejoint, mais je suis incapable de déterminer qui l'a invité.")
 
 @bot.command
-async def join(message, member: discord.Member):
+async def join(ctx, member: discord.Member, message:discord.Message):
     if not message.author.id == "1071516026484822096":
         print("not join")
         return
