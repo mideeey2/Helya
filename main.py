@@ -12,6 +12,7 @@ TOKEN = "MTQzNjQyMDI1Njk4OTA1MzExMw.Ghan8_.v-fREaSEJyTW_Yxw00c2YA3XcQ506Fgbh3Mco
 INVITES_CHANNEL_ID = 1440405854452187207  # salon où le bot envoie les messages
 CHAT_CHANNEL_ID = 0
 SAB_CHANNEL_ID = 0
+LEAVS_CHANNEL_ID = 1445785148011446323
 
 INVITES_JSON_FILE = "invites.json"
 GIVEAWAYS_JSON_FILE = "giveaways.json"
@@ -27,7 +28,10 @@ bot = commands.Bot(command_prefix="-", intents=intents)
 # --------- CHARGER LES INVITES DU FICHIER ---------
 if os.path.exists(INVITES_JSON_FILE):
     with open(INVITES_JSON_FILE, "r") as f:
-        invites_count = json.load(f)
+        try:
+            invites_count = json.load(f)
+        except json.JSONDecodeError:
+            invites_count = {}
 
 # --------- FONCTION POUR SAUVEGARDER ---------
 def save_invites():
@@ -141,7 +145,9 @@ async def on_member_join(member):
             await interaction.response.send_message(message, ephemeral=True)
         
         personal_invites_button = Button(color=discord.ButtonStyle.green, label="Voir mes invitations", callback=invite_callback, json_file=None)
-        welcome_embed = discord.Embed(title=f"{member} vient de rejoindre le serveur!", description=f"Il a été invité par <@{inviter.id}> qui a désormais {invites_count[inviter_id]} invitations! <a:pepeclap:1453682464181588065>", color=0x00ff00)
+        welcome_embed = discord.Embed(title=f"{member} vient de rejoindre le serveur!",
+                                      description=f"Il a été invité par <@{inviter.id}> qui a désormais {invites_count[inviter_id]} invitations! <a:pepeclap:1453682464181588065>", 
+                                      color=discord.Color.green())
         welcome_embed.set_thumbnail(url=member.avatar.url if member.avatar else member.default_avatar.url)
         await channel.send(
             content=f"# <a:tada:1453048315779481752> Bienvenue {member.mention} <a:tada:1453048315779481752>",
@@ -152,8 +158,74 @@ async def on_member_join(member):
         await channel.send(f"👀 {member.mention} a rejoint, mais je suis incapable de déterminer qui l'a invité.")
 
 @bot.event
-async def on_member_remove(member):
-    channel = bot.get_channel()
+async def on_member_remove(member:discord.Member):
+    channel = bot.get_channel(LEAVS_CHANNEL_ID)
+    guild = member.guild
+    before = invites_cache.get(guild.id, [])
+    try:
+        after = await guild.invites()
+    except discord.Forbidden:
+        after = before
+
+    used_invite = None
+    for new in after:
+        for old in before:
+            if new.code == old.code and new.uses > old.uses:
+                used_invite = new
+                break
+
+    # mise à jour du cache
+    invites_cache[guild.id] = after
+    if not channel:
+        print("⚠️ Salon introuvable ou ID incorrect")
+        return
+    if used_invite:
+        inviter = used_invite.inviter
+        invites_count[inviter.id] -= 1
+        save_invites()
+        await channel.send(
+            content="Un membre vient de quitter le serveur.",
+            embed=discord.Embed(
+                title=f"{member} vient de quitter le serveur.",
+                description=f"Il a été invité par <@{inviter.id}> qui a désormais {invites_count[inviter.id]} invitations.",
+                color=discord.Color.red()
+            )
+        )
+
+@bot.command()
+async def leave(ctx, member: discord.Member):
+    channel = bot.get_channel(LEAVS_CHANNEL_ID)
+    guild = member.guild
+    before = invites_cache.get(guild.id, [])
+    try:
+        after = await guild.invites()
+    except discord.Forbidden:
+        after = before
+
+    used_invite = None
+    for new in after:
+        for old in before:
+            if new.code == old.code and new.uses > old.uses:
+                used_invite = new
+                break
+
+    # mise à jour du cache
+    invites_cache[guild.id] = after
+    if not channel:
+        print("⚠️ Salon introuvable ou ID incorrect")
+        return
+    if used_invite:
+        inviter = used_invite.inviter
+        invites_count[inviter.id] -= 1
+        save_invites()
+        await channel.send(
+            content="Un membre vient de quitter le serveur.",
+            embed=discord.Embed(
+                title=f"{member} vient de quitter le serveur.",
+                description=f"Il a été invité par <@{inviter.id}> qui a désormais {invites_count[inviter.id]} invitations.",
+                color=discord.Color.red()
+            )
+        )
 
 @bot.command()
 async def join(ctx, member: discord.Member):
