@@ -5,6 +5,7 @@ import os
 from discord import app_commands
 import datetime
 from types import FunctionType
+from discord.utils import utcnow
 
 # --------- CONFIG ---------
 TOKEN = "MTQzNjQyMDI1Njk4OTA1MzExMw.Ghan8_.v-fREaSEJyTW_Yxw00c2YA3XcQ506Fgbh3McoI"
@@ -287,7 +288,7 @@ with open(json_file, "w") as f:
 @bot.command()
 async def mute(ctx, member:discord.Member, duration:int, raison:str="Aucun raison fournie"):
     if ctx.author.guild_permissions.administrator:
-        date = datetime.datetime.now() + datetime.timedelta(minutes=duration)
+        date = utcnow() + datetime.timedelta(minutes=duration)
         timestamp = date.timestamp()
         await member.edit(timed_out_until=date)
         await ctx.channel.send(f"{member.mention} a été mute pendant {duration} minutes pour la raison `{raison}`.")
