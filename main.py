@@ -288,10 +288,10 @@ with open(json_file, "w") as f:
 async def mute(ctx, member:discord.Member, duration:int, raison:str="Aucun raison fournie"):
     if ctx.author.guild_permissions.administrator:
         date = datetime.datetime.now() + datetime.timedelta(minutes=duration)
-        timestamp = date.timestamp(date)
-        await member.timed_out_until(date)
+        timestamp = date.timestamp()
+        await member.edit(timed_out_until=date)
         await ctx.channel.send(f"{member.mention} a été mute pendant {duration} minutes pour la raison `{raison}`.")
-        await member.create_dm().send(f"Vous avez été mute sur le serveur {bot.server.name} jusqu'au <t:{int(timestamp)}:F> pour la raison `{raison}`")
+        await member.send(f"Vous avez été mute sur le serveur {bot.server.name} jusqu'au <t:{int(timestamp)}:F> pour la raison `{raison}`")
     else:
         await ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande.")
                          
