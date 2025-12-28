@@ -284,6 +284,15 @@ with open(json_file, "w") as f:
     await interaction.response.send_message(f"Giveaway lancé dans {target_channel.mention}! 🎉", ephemeral=True)
 ''
 
+@bot.command()
+async def mute(ctx, member:discord.Member, duration:int, raison:str="Aucun raison fournie"):
+    if not ctx.author.guild_permissions.administrator:
+        date = datetime.datetime.now() + datetime.timedelta(minutes=duration)
+        timestamp = date.timestamp(date)
+        await member.timed_out_until(date)
+        await ctx.send(f"{member.mention} a été mute pendant {duration} minutes pour la raison `{raison}`.")
+        await member.create_dm().send(f"Vous avez été mute sur le serveur {bot.server.name} jusqu'au <t:{int(timestamp)}:F> pour la raison `{raison}`")
+                         
 # @bot.event
 # async def on_message(message):
 #     content = message.content[1:]
