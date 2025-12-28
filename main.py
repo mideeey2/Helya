@@ -142,9 +142,9 @@ async def on_member_join(member):
 
 @bot.command
 async def join(ctx, member: discord.Member):
-    if ctx.author.id != 1071516026484822096:
-        print("not join")
-        return
+    # if ctx.author.id != 1071516026484822096:
+    #     print("not join")
+    #     return
     print("join")
     guild = member.guild
     before = invites_cache.get(guild.id, [])
@@ -163,7 +163,7 @@ async def join(ctx, member: discord.Member):
     # mise à jour du cache
     invites_cache[guild.id] = after
 
-    channel = bot.get_channel(INVITES_CHANNEL_ID)
+    channel = bot.get_channel(1445785148011446323)
     if not channel:
         print("⚠️ Salon introuvable ou ID incorrect")
         return
@@ -180,7 +180,6 @@ async def join(ctx, member: discord.Member):
         personal_invites_button = Button(color=discord.ButtonStyle.green, label="Voir mes invitations", onclick_code=get_invites_count(member), json_file=None)
         await channel.send(
             content=f"# <a:tada:1453048315779481752> Bienvenue {member.mention} <a:tada:1453048315779481752>",
-            embed=discord.Embed(title=f"{member} vient de rejoindre le serveur!", description=f"Il a été invité par <@{inviter.id}> qui a désormais {invites_count[inviter_id]} invitations! <a:pepeclap:1453682464181588065>", color=0x00ff00),
             view=personal_invites_button
         )
     else:
