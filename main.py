@@ -140,6 +140,12 @@ async def on_member_join(member):
     else:
         await channel.send(f"👀 {member.mention} a rejoint, mais je suis incapable de déterminer qui l'a invité.")
 
+@bot.command
+async def join(message, member: discord.Member):
+    if not message.author.id == "1071516026484822096":
+        return
+    await on_member_join(member)
+
 # --------- COMMANDE SLASH /invites ---------
 @bot.tree.command(name="invites", description="Voir le nombre d'invitations que vous avez faites.")
 async def invites(interaction: discord.Interaction, user: discord.Member = None):
