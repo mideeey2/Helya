@@ -52,20 +52,23 @@ button=None
 button_fonctions = []
 class Button(discord.ui.View):
     label, color = None, None
-    def __init__ (self, label, color, json_file:str=None, timeout=None, interaction_msg=None, onclick_code=None):
+    def __init__ (self, label, color, json_file:str=None, timeout=None, interaction_msg=None, onclick_code=None, callback=None):
         super().__init__(timeout=timeout)
         self.label=label
         self.color=color
         self.onclick_code=onclick_code
         self.interaction_msg=interaction_msg
         self.json_file=json_file
+        self.callback=callback
 
         button = discord.ui.Button(label=label, style=color, custom_id="button")
         button.callback = self.on_click
         self.add_item(button)
 
     async def on_click(self, interaction: discord.Interaction):
-        if self.interaction_msg:
+        if self.callback:
+            await self.callback(interaction)
+        elif self.interaction_msg:
             await interaction.response.send_message(self.interaction_msg, ephemeral=True)
         elif self.onclick_code:
             await interaction.response.send_message(self.interaction_msg, ephemeral=True)
@@ -132,7 +135,12 @@ async def on_member_join(member):
             invites_count[inviter_id] = 0
         invites_count[inviter_id] += 1
         save_invites()  # sauvegarder dans le fichier JSON
-        personal_invites_button = Button(color=discord.ButtonStyle.green, label="Voir mes invitations", interaction_msg=get_invites_count(member), json_file=None)
+        
+        async def invite_callback(interaction: discord.Interaction):
+            message = get_invites_count(interaction.user)
+            await interaction.response.send_message(message, ephemeral=True)
+        
+        personal_invites_button = Button(color=discord.ButtonStyle.green, label="Voir mes invitations", callback=invite_callback, json_file=None)
         await channel.send(
             content=f"# <a:tada:1453048315779481752> Bienvenue {member.mention} <a:tada:1453048315779481752>",
             embed=discord.Embed(title=f"{member} vient de rejoindre le serveur!", description=f"Il a été invité par <@{inviter.id}> qui a désormais {invites_count[inviter_id]} invitations! <a:pepeclap:1453682464181588065>", color=0x00ff00),
@@ -149,7 +157,12 @@ async def join(ctx, member: discord.Member):
     print("join")
         # mettre à jour le nombre d'invites
     channel = bot.get_channel(1445785148011446323)
-    personal_invites_button = Button(color=discord.ButtonStyle.green, label="Voir mes invitations", interaction_msg=get_invites_count(member), json_file=None)
+    
+    async def invite_callback(interaction: discord.Interaction):
+        message = get_invites_count(interaction.user)
+        await interaction.response.send_message(message, ephemeral=True)
+    
+    personal_invites_button = Button(color=discord.ButtonStyle.green, label="Voir mes invitations", callback=invite_callback, json_file=None)
     await channel.send(
         content=f"# <a:tada:1453048315779481752> Bienvenue {member.mention} <a:tada:1453048315779481752>",
         view=personal_invites_button
