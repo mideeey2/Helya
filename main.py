@@ -15,6 +15,7 @@ LEAVS_CHANNEL_ID = 1445785148011446323
 
 INVITES_JSON_FILE = "invites.json"
 GIVEAWAYS_JSON_FILE = "giveaways.json"
+MEMBER_INVITER_FILE = "member_inviter.json"
 
 intents = discord.Intents.default()
 intents.members = True
@@ -31,6 +32,18 @@ if os.path.exists(INVITES_JSON_FILE):
             invites_count = json.load(f)
         except json.JSONDecodeError:
             invites_count = {}
+else:
+    invites_count = {}
+
+# charger mapping member -> inviter
+if os.path.exists(MEMBER_INVITER_FILE):
+    with open(MEMBER_INVITER_FILE, "r") as f:
+        try:
+            member_inviter = json.load(f)
+        except json.JSONDecodeError:
+            member_inviter = {}
+else:
+    member_inviter = {}
 
 # --------- FONCTION POUR SAUVEGARDER ---------
 def save_invites():
@@ -41,8 +54,12 @@ def save_giveaways(data):
     with open(GIVEAWAYS_JSON_FILE, "w") as f:
         json.dump(data, f)
 
-def get_invites_count(user):
-    if user:
+def save_member_inviter():
+    with open(MEMBER_INVITER_FILE, "w") as f:
+        json.dump(member_inviter, f)
+
+def get_invites_count(user, personal:bool=False):
+    if not personal:
         user_id = str(user.id)
         count = invites_count.get(user_id, 0)
         return f"{user.mention} a fait {count} invitations."
@@ -140,7 +157,7 @@ async def on_member_join(member):
         save_invites()  # sauvegarder dans le fichier JSON
         
         async def invite_callback(interaction: discord.Interaction):
-            message = get_invites_count(interaction.user)
+            message = get_invites_count(interaction.user, True)
             await interaction.response.send_message(message, ephemeral=True)
         
         personal_invites_button = Button(color=discord.ButtonStyle.green, label="Voir mes invitations", callback=invite_callback, json_file=None)
@@ -237,7 +254,7 @@ async def join(ctx, member: discord.Member):
     channel = bot.get_channel(ctx.channel.id)
     
     async def invite_callback(interaction: discord.Interaction):
-        message = get_invites_count(interaction.user)
+        message = get_invites_count(interaction.user, True)
         await interaction.response.send_message(message, ephemeral=True)
     
     personal_invites_button = Button(color=discord.ButtonStyle.green, label="Voir mes invitations", callback=invite_callback, json_file=None)
@@ -249,7 +266,7 @@ async def join(ctx, member: discord.Member):
 # --------- COMMANDE SLASH /invites ---------
 @bot.tree.command(name="invites", description="Voir le nombre d'invitations que vous avez faites.")
 async def invites(interaction: discord.Interaction, user: discord.Member = None):
-    await interaction.response.send_message(get_invites_count(user or interaction.user))
+    await interaction.response.send_message(get_invites_count(user, False if user else True))
 
 @bot.tree.command(name="topinvites", description="Voir le classement des invitations.")
 async def top_invites(interaction: discord.Interaction):
