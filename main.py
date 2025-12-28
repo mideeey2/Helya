@@ -143,7 +143,9 @@ async def on_member_join(member):
 @bot.command
 async def join(message, member: discord.Member):
     if not message.author.id == "1071516026484822096":
+        print("not join")
         return
+    print("join")
     await on_member_join(member)
 
 # --------- COMMANDE SLASH /invites ---------
