@@ -21,7 +21,7 @@ intents.members = True
 
 # client = genai.Client()
 
-bot = commands.Bot(command_prefix="!", intents=intents)
+bot = commands.Bot(command_prefix="-", intents=intents)
 
 # --------- CHARGER LES INVITES DU FICHIER ---------
 if os.path.exists(INVITES_JSON_FILE):
