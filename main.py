@@ -141,22 +141,29 @@ async def on_member_join(member):
             await interaction.response.send_message(message, ephemeral=True)
         
         personal_invites_button = Button(color=discord.ButtonStyle.green, label="Voir mes invitations", callback=invite_callback, json_file=None)
+        welcome_embed = discord.Embed(title=f"{member} vient de rejoindre le serveur!", description=f"Il a été invité par <@{inviter.id}> qui a désormais {invites_count[inviter_id]} invitations! <a:pepeclap:1453682464181588065>", color=0x00ff00)
+        welcome_embed.set_thumbnail(url=member.avatar.url if member.avatar else member.default_avatar.url)
         await channel.send(
             content=f"# <a:tada:1453048315779481752> Bienvenue {member.mention} <a:tada:1453048315779481752>",
-            embed=discord.Embed(title=f"{member} vient de rejoindre le serveur!", description=f"Il a été invité par <@{inviter.id}> qui a désormais {invites_count[inviter_id]} invitations! <a:pepeclap:1453682464181588065>", color=0x00ff00),
+            embed=welcome_embed,
             view=personal_invites_button
         )
     else:
         await channel.send(f"👀 {member.mention} a rejoint, mais je suis incapable de déterminer qui l'a invité.")
 
+@bot.event
+async def on_member_remove(member):
+    channel = bot.get_channel()
+
 @bot.command()
 async def join(ctx, member: discord.Member):
-    # if ctx.author.id != 1071516026484822096:
-    #     print("not join")
-    #     return
+    if ctx.author.id != 1071516026484822096:
+        print("not join")
+        ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande.")
+        return
     print("join")
         # mettre à jour le nombre d'invites
-    channel = bot.get_channel(1445785148011446323)
+    channel = bot.get_channel(ctx.channel.id)
     
     async def invite_callback(interaction: discord.Interaction):
         message = get_invites_count(interaction.user)
