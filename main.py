@@ -290,7 +290,7 @@ async def mute(ctx, member:discord.Member, duration:int, raison:str="Aucun raiso
         date = datetime.datetime.now() + datetime.timedelta(minutes=duration)
         timestamp = date.timestamp(date)
         await member.timed_out_until(date)
-        await ctx.send(f"{member.mention} a été mute pendant {duration} minutes pour la raison `{raison}`.")
+        await ctx.channel.send(f"{member.mention} a été mute pendant {duration} minutes pour la raison `{raison}`.")
         await member.create_dm().send(f"Vous avez été mute sur le serveur {bot.server.name} jusqu'au <t:{int(timestamp)}:F> pour la raison `{raison}`")
                          
 # @bot.event
