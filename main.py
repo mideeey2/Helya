@@ -262,6 +262,7 @@ async def top_invites(interaction: discord.Interaction):
 
 @bot.event
 async def on_message(message):
+    print("Commandes chargées :", bot.commands)
     if message.author == bot.user:
         return
     if message.channel.id == CHAT_CHANNEL_ID:
@@ -290,7 +291,7 @@ with open(json_file, "w") as f:
 
 @bot.command()
 async def mute(ctx, member:discord.Member, duration:int, reason:str="Aucun raison fournie"):
-    ctx.channel.send("mute")
+    await ctx.channel.send("mute")
     try:
         if ctx.author.guild_permissions.administrator:
             date = utcnow() + datetime.timedelta(minutes=duration)
