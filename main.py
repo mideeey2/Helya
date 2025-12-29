@@ -6,6 +6,18 @@ from discord import app_commands
 import datetime
 from types import FunctionType
 from discord.utils import utcnow
+import psycopg2
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+conn = psycopg2.connect(DATABASE_URL)
+cursor = conn.cursor()
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS vouchs (
+               user_id TEXT PRIMARY KEY UNIQUE,
+               vouchs JSONB
+               );
+""")
 
 # --------- CONFIG ---------
 TOKEN = "MTQzNjQyMDI1Njk4OTA1MzExMw.Ghan8_.v-fREaSEJyTW_Yxw00c2YA3XcQ506Fgbh3McoI"
@@ -340,14 +352,15 @@ async def vouch(ctx, member:discord.Member, reason:str):
 async def mute(ctx, member:discord.Member, duration:int=None, reason:str="Aucun raison fournie"):
     try:
         if ctx.author.guild_permissions.administrator:
-            date = utcnow() + datetime.timedelta(minutes=duration)
-            timestamp = int(date.timestamp())
+            if duration:
+                date = utcnow() + datetime.timedelta(minutes=duration)
+                timestamp = int(date.timestamp())
             cancel_button = Button(label="Annuler l'action", color=discord.ButtonStyle.green, interaction_msg=f"Vous avez annulé le mute de {member.mention}.", onclick_code=lambda interaction: member.edit(timed_out_until=None))
             await member.edit(timed_out_until=date, reason=reason)
-            await ctx.channel.send(content=f"{member.mention} a été mute pendant {duration} minutes pour la raison `{reason}`.", view=cancel_button)
-            await member.send(f"Vous avez été mute sur le serveur {ctx.guild.name} jusqu'au <t:{int(timestamp)}:R>(<t:{int(timestamp)}:S>) pour la raison `{reason}`.")
+            await ctx.channel.send(content=f"{member.mention} a été mute{f" pendant {duration} minutes" if duration else ""} pour la raison `{reason}`.", view=cancel_button)
+            await member.send(f"Vous avez été mute sur le serveur {ctx.guild.name} {f"jusqu'au <t:{int(timestamp)}:R>(<t:{int(timestamp)}:S>)" if duration else ""} pour la raison `{reason}`.")
             if discord.utils.get(ctx.author.roles, id=1438240386815496385):
-                await ctx.author.send(content=f"Vous avez mute {member.mention} sur le serveur {ctx.guild.name} jusqu'au <t:{int(timestamp)}:R>(<t:{int(timestamp)}:S>) pour la raison `{reason}`.", view=cancel_button)
+                await ctx.author.send(content=f"Vous avez mute {member.mention} sur le serveur {ctx.guild.name} {f"jusqu'au <t:{int(timestamp)}:R>(<t:{int(timestamp)}:S>) " if duration else ""}pour la raison `{reason}`.", view=cancel_button)
             else:
                 await discord.roles.get
         else:
@@ -355,7 +368,7 @@ async def mute(ctx, member:discord.Member, duration:int=None, reason:str="Aucun 
     except discord.Forbidden as e:
         await ctx.channel.send("Je n'ai pas la permission de mute ce membre.")
     except Exception as e:
-        await ctx.channel.send(f"Une erreur est survenue lors de l'exécution de l'action. Erreur {e}")
+        await ctx.channel.send(f"Une erreur est survenue lors de l'exécution de l'action. Erreur : `{e}`")
 
 @bot.command()
 async def unmute(ctx, member:discord.Member, reason:str=None):
