@@ -294,16 +294,18 @@ async def mute(ctx, member:discord.Member, duration:int, reason:str="Aucun raiso
     try:
         if ctx.author.guild_permissions.administrator:
             date = utcnow() + datetime.timedelta(minutes=duration)
-            timestamp = date.timestamp()
-            cancel_button = Button(label="Annuler l'action", color=discord.ButtonStyle.green, interaction_msg=f"Vous avez annulé le mute de {member.mention}.", onclick_code=member.edit(timed_out_until=None))
+            timestamp = int(date.timestamp())
+            cancel_button = Button(label="Annuler l'action", color=discord.ButtonStyle.green, interaction_msg=f"Vous avez annulé le mute de {member.mention}.", onclick_code=lambda interaction: member.edit(timed_out_until=None))
             await member.edit(timed_out_until=date, reason=reason)
             await ctx.channel.send(content=f"{member.mention} a été mute pendant {duration} minutes pour la raison `{reason}`.", view=cancel_button)
             await member.send(f"Vous avez été mute sur le serveur {ctx.guild.name} jusqu'au <t:{int(timestamp)}:F>(<t:{int(timestamp)}:S>) pour la raison `{reason}`.")
             await ctx.author.send(content=f"Vous avez mute {member.mention} sur le serveur {ctx.guild.name} jusqu'au <t:{int(timestamp)}:F>(<t:{int(timestamp)}:S>) pour la raison `{reason}`.", view=cancel_button)
         else:
             await ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande.")
-    except discord.errors.MissingPermissions as e:
+    except discord.Forbidden as e:
         await ctx.channel.send("Je n'ai pas la permission de mute ce membre.")
+    except Exception as e:
+        await ctx.channel.send(f"Une erreur est survenue lors de l'exécution de l'action. Erreur {e}")
 
 @bot.command()
 async def unmute(ctx, member:discord.Member, reason:str=None):
