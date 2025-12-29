@@ -17,10 +17,12 @@ VOTE2PROFIL_CHANNEL_ID = 1453103598090191011
 VOTE2FAME_CHANNEL_ID = 1453103163468026190
 EATORPASS_CHANNEL_ID = 1453105475200618497
 SMASHORPASS_CHANNEL_ID = 1453104548809015467
+VOUCH_CHANNEL_ID = 1452648909716586719
 
 INVITES_JSON_FILE = "invites.json"
 GIVEAWAYS_JSON_FILE = "giveaways.json"
 MEMBER_INVITER_FILE = "member_inviter.json"
+VOUCHS_JSON_FILE = "vouchs.json"
 
 intents = discord.Intents.default()
 intents.members = True
@@ -39,6 +41,14 @@ if os.path.exists(INVITES_JSON_FILE):
             invites_count = {}
 else:
     invites_count = {}
+
+
+if os.path.exists(VOUCHS_JSON_FILE):
+    with open(VOUCHS_JSON_FILE, "r") as f:
+        try:
+            vouchs = json.load(f)
+        except json.JSONDecodeError:
+            vouchs = {}
 
 # charger mapping member -> inviter
 if os.path.exists(MEMBER_INVITER_FILE):
@@ -62,6 +72,14 @@ def save_giveaways(data):
 def save_member_inviter():
     with open(MEMBER_INVITER_FILE, "w") as f:
         json.dump(member_inviter, f)
+
+def vouch(member:discord.Member, reason:str, voucher:discord.Member):
+    user_id = str(member.id)
+    if user_id not in vouchs:
+        vouchs[user_id] = []
+    vouch={"reason":reason, "datetime":str(datetime.datetime.now()), "voucher":str(voucher.id)}
+    vouchs[user_id].append(vouch)
+
 
 def get_invites_count(user, personal:bool=False):
     if not personal:
@@ -314,7 +332,13 @@ async def detruire(ctx):
             pass
 
 @bot.command()
-async def mute(ctx, member:discord.Member, duration:int, reason:str="Aucun raison fournie"):
+async def vouch(ctx, member:discord.Member, *, reason:str):
+    if ctx.channel.id == VOUCH_CHANNEL_ID:
+        await ctx.add_reaction("❤️")
+        vouch(member, reason)
+
+@bot.command()
+async def mute(ctx, member:discord.Member, duration:int=None, reason:str="Aucun raison fournie"):
     try:
         if ctx.author.guild_permissions.administrator:
             date = utcnow() + datetime.timedelta(minutes=duration)
