@@ -291,23 +291,44 @@ with open(json_file, "w") as f:
 
 @bot.command()
 async def mute(ctx, member:discord.Member, duration:int, reason:str="Aucun raison fournie"):
-    if ctx.author.guild_permissions.administrator:
-        date = utcnow() + datetime.timedelta(minutes=duration)
-        timestamp = date.timestamp()
-        cancel_button = Button(label="Annuler l'action", color=discord.ButtonStyle.green, interaction_msg=f"Vous avez annulé le mute de {member.mention}.", onclick_code=member.edit(timed_out_until=None))
-        await member.edit(timed_out_until=date, reason=reason)
-        await ctx.channel.send(content=f"{member.mention} a été mute pendant {duration} minutes pour la raison `{reason}`.", view=cancel_button)
-        await member.send(f"Vous avez été mute sur le serveur {ctx.guild.name} jusqu'au <t:{int(timestamp)}:F>(<t:{int(timestamp)}:S>) pour la raison `{reason}`.")
-        await ctx.author.send(content=f"Vous avez mute {member.mention} sur le serveur {ctx.guild.name} jusqu'au <t:{int(timestamp)}:F>(<t:{int(timestamp)}:S>) pour la raison `{reason}`.", view=cancel_button)
-    else:
-        await ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande.")
+    try:
+        if ctx.author.guild_permissions.administrator:
+            date = utcnow() + datetime.timedelta(minutes=duration)
+            timestamp = date.timestamp()
+            cancel_button = Button(label="Annuler l'action", color=discord.ButtonStyle.green, interaction_msg=f"Vous avez annulé le mute de {member.mention}.", onclick_code=member.edit(timed_out_until=None))
+            await member.edit(timed_out_until=date, reason=reason)
+            await ctx.channel.send(content=f"{member.mention} a été mute pendant {duration} minutes pour la raison `{reason}`.", view=cancel_button)
+            await member.send(f"Vous avez été mute sur le serveur {ctx.guild.name} jusqu'au <t:{int(timestamp)}:F>(<t:{int(timestamp)}:S>) pour la raison `{reason}`.")
+            await ctx.author.send(content=f"Vous avez mute {member.mention} sur le serveur {ctx.guild.name} jusqu'au <t:{int(timestamp)}:F>(<t:{int(timestamp)}:S>) pour la raison `{reason}`.", view=cancel_button)
+        else:
+            await ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande.")
+    except discord.errors.MissingPermissions as e:
+        await ctx.channel.send("Je n'ai pas la permission de mute ce membre.")
+
+@bot.command()
+async def unmute(ctx, member:discord.Member, reason:str=None):
+    try:
+        if ctx.author.guild_permissions.administrator:
+            await member.edit(timed_out_until=None)
+            await ctx.channel.send(content=f"{member.mention} a été unmute.")
+            await member.send(f"Vous avez été unmute sur le serveur {ctx.guild.name} par {ctx.author.mention}{f" pour la raison `{reason}`" if reason else ""}.")
+    except discord.errors.MissingPermissions as e:
+        await ctx.channel.send("Je n'ai pas les permission nécessaires pour unmute ce membre.")
 
 @bot.event
 async def on_message(message):
-    if message.author.id == 1071516026484822096:
+    if message.author.id == 1071516026484822096 and (message.content.startswith("# Vote2Profil") or message.content.startswith("# Vote2Fame")):
         if message.channel.id == VOTE2PROFIL_CHANNEL_ID or message.channel.id == VOTE2FAME_CHANNEL_ID:
             await message.add_reaction("<:un:1453699994090733602>")
             await message.add_reaction("<:deux:1453700018904105044>")
+    if message.author.id == 1071516026484822096 and (message.content.startswith("# Eat or Pass")):
+        if message.channel.id == EATORPASS_CHANNEL_ID:
+            await message.add_reaction("<:manger:1453435371315662897>")
+            await message.add_reaction("<:pass:1453435746412138537>")
+    if message.author.id == 1071516026484822096 and (message.content.startswith("# Smash or Pass")):
+        if message.channel.id == SMASHORPASS_CHANNEL_ID:
+            await message.add_reaction("<:oui:1453011623349456906>")
+            await message.add_reaction("<:non:1453011584569053197>")
 # @bot.event
 # async def on_message(message):
 #     content = message.content[1:]
