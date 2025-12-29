@@ -280,7 +280,6 @@ async def top_invites(interaction: discord.Interaction):
 
 @bot.event
 async def on_message(message):
-    print("Commandes chargées :", bot.commands)
     if message.author == bot.user:
         return
     if message.channel.id == CHAT_CHANNEL_ID:
