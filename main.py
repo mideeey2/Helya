@@ -291,6 +291,7 @@ with open(json_file, "w") as f:
 
 @bot.command()
 async def mute(ctx, member:discord.Member, duration:int, reason:str="Aucun raison fournie"):
+    ctx.channel.send("mute")
     try:
         if ctx.author.guild_permissions.administrator:
             date = utcnow() + datetime.timedelta(minutes=duration)
