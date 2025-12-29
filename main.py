@@ -15,7 +15,17 @@ cursor = conn.cursor()
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS vouchs (
                user_id TEXT PRIMARY KEY UNIQUE,
-               vouchs JSONB
+               user_id TEXT,
+               voucher_id TEXT,
+               reason TEXT,
+               datetime TEXT
+               );
+CREATE TABLE IF NOT EXISTS invites (
+               inviter_id TEXT PRIMARY KEY UNIQUE,
+               invited_id TEXT,
+               invite_code TEXT,
+               uses INTEGER,
+               datetime TEXT
                );
 """)
 
@@ -45,22 +55,11 @@ intents.message_content = True
 bot = commands.Bot(command_prefix="+", intents=intents)
 
 # --------- CHARGER LES INVITES DU FICHIER ---------
-if os.path.exists(INVITES_JSON_FILE):
-    with open(INVITES_JSON_FILE, "r") as f:
-        try:
-            invites_count = json.load(f)
-        except json.JSONDecodeError:
-            invites_count = {}
-else:
-    invites_count = {}
 
-
-if os.path.exists(VOUCHS_JSON_FILE):
-    with open(VOUCHS_JSON_FILE, "r") as f:
-        try:
-            vouchs = json.load(f)
-        except json.JSONDecodeError:
-            vouchs = {}
+cursor.execute("SELECT * FROM invites;")
+invites_count = cursor.fetchall()
+cursor.execute("SELECT * FROM vouchs;")
+vouchs = cursor.fetchall()
 
 # charger mapping member -> inviter
 if os.path.exists(MEMBER_INVITER_FILE):
