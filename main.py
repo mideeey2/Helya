@@ -287,7 +287,6 @@ with open(json_file, "w") as f:
     giveaway_button = Button(label="Participer 🎁", color=discord.ButtonStyle.green, interaction_msg="Vous participez désormais au giveaway! 🎁", onclick_code=giveaway_button_onclick, json_file=GIVEAWAYS_JSON_FILE)
     await target_channel.send(content=f"Giveaway 🎉\n{text}\nMention(s) : {mention.mention}", embed=embed, view=giveaway_button)
     await interaction.response.send_message(f"Giveaway lancé dans {target_channel.mention}! 🎉", ephemeral=True)
-''
 
 @bot.command()
 async def mute(ctx, member:discord.Member, duration:int, reason:str="Aucun raison fournie"):
