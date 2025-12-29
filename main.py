@@ -13,6 +13,10 @@ INVITES_CHANNEL_ID = 1440405854452187207  # salon où le bot envoie les messages
 CHAT_CHANNEL_ID = 0
 SAB_CHANNEL_ID = 0
 LEAVS_CHANNEL_ID = 1445785148011446323
+VOTE2PROFIL_CHANNEL_ID = 1453103598090191011
+VOTE2FAME_CHANNEL_ID = 1453103163468026190
+EATORPASS_CHANNEL_ID = 1453105475200618497
+SMASHORPASS_CHANNEL_ID = 1453104548809015467
 
 INVITES_JSON_FILE = "invites.json"
 GIVEAWAYS_JSON_FILE = "giveaways.json"
@@ -293,10 +297,17 @@ async def mute(ctx, member:discord.Member, duration:int, reason:str="Aucun raiso
         cancel_button = Button(label="Annuler l'action", color=discord.ButtonStyle.green, interaction_msg=f"Vous avez annulé le mute de {member.mention}.", onclick_code=member.edit(timed_out_until=None))
         await member.edit(timed_out_until=date, reason=reason)
         await ctx.channel.send(content=f"{member.mention} a été mute pendant {duration} minutes pour la raison `{reason}`.", view=cancel_button)
-        await member.send(f"Vous avez été mute sur le serveur {ctx.guild.name} jusqu'au <t:{int(timestamp)}:F> pour la raison `{reason}`.")
-        await ctx.author.send(content=f"Vous avez mute {member.mention} sur le serveur {ctx.guild.name} jusqu'au <t:{int(timestamp)}:F> pour la raison `{reason}`.", view=cancel_button)
+        await member.send(f"Vous avez été mute sur le serveur {ctx.guild.name} jusqu'au <t:{int(timestamp)}:F>(<t:{int(timestamp)}:S>) pour la raison `{reason}`.")
+        await ctx.author.send(content=f"Vous avez mute {member.mention} sur le serveur {ctx.guild.name} jusqu'au <t:{int(timestamp)}:F>(<t:{int(timestamp)}:S>) pour la raison `{reason}`.", view=cancel_button)
     else:
         await ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande.")
+
+@bot.event
+async def on_message(message):
+    if message.author.id == 1071516026484822096:
+        if message.channel.id == VOTE2PROFIL_CHANNEL_ID or message.channel.id == VOTE2FAME_CHANNEL_ID:
+            await message.add_reaction("<:un:1453699994090733602>")
+            await message.add_reaction("<:deux:1453700018904105044>")
 # @bot.event
 # async def on_message(message):
 #     content = message.content[1:]
