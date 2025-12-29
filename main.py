@@ -30,7 +30,7 @@ intents.message_content = True
 
 # client = genai.Client()
 
-bot = commands.Bot(command_prefix="-", intents=intents)
+bot = commands.Bot(command_prefix="+", intents=intents)
 
 # --------- CHARGER LES INVITES DU FICHIER ---------
 if os.path.exists(INVITES_JSON_FILE):
@@ -331,9 +331,9 @@ async def detruire(ctx):
             pass
 
 @bot.command()
-async def vouch(ctx, member:discord.Member, *, reason:str):
+async def vouch(ctx, member:discord.Member, reason:str):
     if ctx.channel.id == VOUCH_CHANNEL_ID:
-        await ctx.add_reaction("❤️")
+        await ctx.message.add_reaction("❤️")
         vouch(member, reason, ctx.author)
 
 @bot.command()
