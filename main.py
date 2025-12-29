@@ -269,6 +269,19 @@ async def on_message(message):
         if "trade" in message.content.lower():
             await message.delete()
 
+    if message.author.id == 1071516026484822096 and (message.content.startswith("# Vote2Profil") or message.content.startswith("# Vote2Fame")):
+        if message.channel.id == VOTE2PROFIL_CHANNEL_ID or message.channel.id == VOTE2FAME_CHANNEL_ID:
+            await message.add_reaction("<:un:1453699994090733602>")
+            await message.add_reaction("<:deux:1453700018904105044>")
+    if message.author.id == 1071516026484822096 and (message.content.startswith("# Eat or Pass")):
+        if message.channel.id == EATORPASS_CHANNEL_ID:
+            await message.add_reaction("<:manger:1453435371315662897>")
+            await message.add_reaction("<:pass:1453435746412138537>")
+    if message.author.id == 1071516026484822096 and (message.content.startswith("# Smash or Pass")):
+        if message.channel.id == SMASHORPASS_CHANNEL_ID:
+            await message.add_reaction("<:oui:1453011623349456906>")
+            await message.add_reaction("<:non:1453011584569053197>")
+
     await bot.process_commands(message)
 
 @bot.tree.command(name="giveaway", description="Lancer un giveaway.")
@@ -318,20 +331,6 @@ async def unmute(ctx, member:discord.Member, reason:str=None):
     except discord.errors.MissingPermissions as e:
         await ctx.channel.send("Je n'ai pas les permission nécessaires pour unmute ce membre.")
 
-@bot.event
-async def on_message(message):
-    if message.author.id == 1071516026484822096 and (message.content.startswith("# Vote2Profil") or message.content.startswith("# Vote2Fame")):
-        if message.channel.id == VOTE2PROFIL_CHANNEL_ID or message.channel.id == VOTE2FAME_CHANNEL_ID:
-            await message.add_reaction("<:un:1453699994090733602>")
-            await message.add_reaction("<:deux:1453700018904105044>")
-    if message.author.id == 1071516026484822096 and (message.content.startswith("# Eat or Pass")):
-        if message.channel.id == EATORPASS_CHANNEL_ID:
-            await message.add_reaction("<:manger:1453435371315662897>")
-            await message.add_reaction("<:pass:1453435746412138537>")
-    if message.author.id == 1071516026484822096 and (message.content.startswith("# Smash or Pass")):
-        if message.channel.id == SMASHORPASS_CHANNEL_ID:
-            await message.add_reaction("<:oui:1453011623349456906>")
-            await message.add_reaction("<:non:1453011584569053197>")
 # @bot.event
 # async def on_message(message):
 #     content = message.content[1:]
