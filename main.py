@@ -107,7 +107,7 @@ def get_invites_count(user, personal:bool=False):
             embed = discord.Embed(title=f"Nombre d'invitations", description=f"Vous ({user.mention}) avez fait {len(invites_count)} invitations! <a:pepeclap:1453682464181588065>", color=discord.Color.green())
         else:
             embed = discord.Embed(title="C'est décevant...", description=f"Vous ({user.mention}) n'avez fait aucune invite sur ce serveur <:sad:1453730309865607321>", color=discord.Color.red())
-    embed.set_thumbnail(user.avatar.url if user.avatar.url else user.default_avatar.url)
+    embed.set_thumbnail(url=user.avatar.url if user.avatar.url else user.default_avatar.url)
     return embed
 
 def get_vouchs_count(user:discord.Member):
