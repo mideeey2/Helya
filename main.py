@@ -107,6 +107,10 @@ def get_invites_count(user, personal:bool=False):
         count = invites_count.get(user_id, 0)
         return f"Tu as fait {count} invitations."
     
+def get_vouchs_count(user:discord.Member):
+    cursor.execute("SELECT * FROM vouchs WHERE user_id = %s;", (str(user.id),))
+    return len(cursor.fetchall())
+    
 button=None
 button_fonctions = []
 class Button(discord.ui.View):
@@ -201,7 +205,7 @@ async def on_member_join(member):
         
         personal_invites_button = Button(color=discord.ButtonStyle.green, label="Voir mes invitations", callback=invite_callback, json_file=None)
         welcome_embed = discord.Embed(title=f"{member} vient de rejoindre le serveur!",
-                                      description=f"Il a été invité par <@{inviter.id}> qui a désormais {invites_count[inviter_id]} invitations! <a:pepeclap:1453682464181588065>", 
+                                      description=f"Il a été invité par <@{inviter.id}> qui a désormais {invites_count[inviter_id]} invitations! <a:pepeclap:1453682464181588065>\n Nous sommes désormais {guild.member_count} membres sur le serveur! <a:birb:1452995535882555524>", 
                                       color=discord.Color.green())
         welcome_embed.set_thumbnail(url=member.avatar.url if member.avatar else member.default_avatar.url)
         await channel.send(
@@ -351,6 +355,20 @@ async def vouch(ctx, member:discord.Member, reason:str):
     if ctx.channel.id == VOUCH_CHANNEL_ID:
         await ctx.message.add_reaction("❤️")
         vouch_user(member, reason, ctx.author)
+
+@bot.command()
+async def vouchs(ctx, member:discord.Member=None):
+    if member:
+        cursor.execute("SELECT user_id FROM vouchs WHERE user_id = %s;", (str(member.id),))
+        user_vouchs = cursor.fetchall()
+        if len(user_vouchs) > 0:
+            embed = discord.Embed(title=f"{member.mention} a {len(user_vouchs)} {"vouch" if len(user_vouchs) == 1 else "vouchs"}.", description="Pour voir sa liste de vouchs, utilisez la commande `+vouchs_list`", color=discord.Color.green())
+            embed.set_thumbnail(url=member.avatar.url if member.avatar else member.default_avatar.url)
+            public_button = Button(color=discord.ButtonStyle.green, label="Rendre Public", callback=lambda interaction: interaction.followup.send(f"Vous avez {get_vouchs_count(interaction.user)} {'vouch' if get_vouchs_count(interaction.user) == 1 else 'vouchs'}." if get_vouchs_count(interaction.user) > 0 else "Vous n'avez aucun vouch <a:triste:1453390284762124450>", ephemeral=False))
+            personal_vouchs_button = Button(color=discord.ButtonStyle.green, label="Voir votre nombre de vouchs", callback=lambda interaction: interaction.response.send_message(content=f"Vous avez {get_vouchs_count(interaction.user)} {'vouch' if get_vouchs_count(interaction.user) == 1 else 'vouchs'}." if get_vouchs_count(interaction.user) > 0 else "Vous n'avez aucun vouch <a:triste:1453390284762124450>", button=public_button, ephemeral=True), json_file=None)
+            await ctx.channel.send(content="Nombre de vouchs :", embed=embed, button=personal_vouchs_button)
+        else:
+            embed = discord.Embed(title=f"{member.mention}")
 
 @bot.command()
 async def mute(ctx, member:discord.Member, duration:int=None, reason:str="Aucun raison fournie"):
