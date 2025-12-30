@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS invites (
                datetime TEXT
                );
 """)
+conn.commit()
 
 # --------- CONFIG ---------
 TOKEN = "MTQzNjQyMDI1Njk4OTA1MzExMw.Ghan8_.v-fREaSEJyTW_Yxw00c2YA3XcQ506Fgbh3McoI"
