@@ -421,6 +421,7 @@ async def vouchcount_callback(ctx, member:discord.Member, personal:bool):
 async def mute(ctx, member:discord.Member, duration:int=None, reason:str="Aucun raison fournie"):
     try:
         if ctx.author.guild_permissions.administrator:
+            date=None
             if duration:
                 date = utcnow() + datetime.timedelta(minutes=duration)
                 timestamp = int(date.timestamp())
@@ -433,7 +434,7 @@ async def mute(ctx, member:discord.Member, duration:int=None, reason:str="Aucun 
             else:
                 await discord.roles.get
         elif member.id == OWNER_ID:
-            await ctx.channel.send("Vous n'avez pas la permission de mute mon créateur, développeur, et propriétaire.")
+            await ctx.channel.send(f"Vous n'avez pas la permission de mute mon créateur, développeur, et propriétaire : <@{OWNER_ID}>")
         else:
             await ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande.")
     except discord.Forbidden as e:
