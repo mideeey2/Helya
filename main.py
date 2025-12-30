@@ -9,21 +9,18 @@ from discord.utils import utcnow
 import psycopg2
 
 DATABASE_URL = os.getenv("DATABASE_URL")
-print(DATABASE_URL)
 conn = psycopg2.connect(DATABASE_URL)
 cursor = conn.cursor()
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS vouchs (
                user_id TEXT PRIMARY KEY UNIQUE,
-               user_id TEXT,
                voucher_id TEXT,
                reason TEXT,
                datetime TEXT
                );
 CREATE TABLE IF NOT EXISTS invites (
                inviter_id TEXT PRIMARY KEY UNIQUE,
-               invited_id TEXT,
                invite_code TEXT,
                uses INTEGER,
                datetime TEXT
