@@ -12,8 +12,6 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 conn = psycopg2.connect(DATABASE_URL)
 cursor = conn.cursor()
 
-cursor.execute("DROP TABLE vouchs")
-
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS vouchs (
                vouch_id SERIAL PRIMARY KEY,
