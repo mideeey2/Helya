@@ -358,7 +358,7 @@ async def vouch(ctx, member:discord.Member, reason:str):
         vouch_user(member, reason, ctx.author)
 
 @bot.command()
-async def vouchs(ctx, member:discord.Member=None):
+async def vouchcount(ctx, member:discord.Member=None):
     if member:
         cursor.execute("SELECT user_id FROM vouchs WHERE user_id = %s;", (str(member.id),))
         user_vouchs = cursor.fetchall()
