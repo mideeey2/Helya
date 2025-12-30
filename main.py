@@ -12,6 +12,8 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 conn = psycopg2.connect(DATABASE_URL)
 cursor = conn.cursor()
 
+cursor.execute("DROP TABLE invites")
+
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS vouchs (
                vouch_id SERIAL PRIMARY KEY,
@@ -23,6 +25,7 @@ CREATE TABLE IF NOT EXISTS vouchs (
 CREATE TABLE IF NOT EXISTS invites (
                invite_id SERIAL PRIMARY KEY,
                inviter_id TEXT,
+               invited_id TEXT,
                invite_code TEXT,
                datetime TEXT
                );
