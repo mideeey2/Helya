@@ -358,7 +358,7 @@ async def vouch(ctx, member:discord.Member, reason:str):
         vouch_user(member, reason, ctx.author)
 
 async def vouch_public_button_callback(interaction: discord.Interaction):
-    await interaction.message.delete()
+    await interaction.message.edit("Le message a été rendu publique!", view=None)
     await interaction.response.send_message(f"Vous avez {get_vouchs_count(interaction.user)} {'vouch' if get_vouchs_count(interaction.user) == 1 else 'vouchs'}." if get_vouchs_count(interaction.user) > 0 else "Vous n'avez aucun vouch <a:triste:1453390284762124450>", ephemeral=False)
 
 @bot.command()
@@ -369,7 +369,7 @@ async def vouchcount(ctx, member:discord.Member=None):
         if len(user_vouchs) > 0:
             embed = discord.Embed(title=f"Nombre de vouchs :", description=f"{member.mention} a {len(user_vouchs)} {"vouch" if len(user_vouchs) == 1 else "vouchs"}. <a:pepeclap:1453682464181588065>\nPour voir sa liste de vouchs, utilisez la commande `+vouchs_list`", color=discord.Color.green())
             embed.set_thumbnail(url=member.avatar.url if member.avatar else member.default_avatar.url)
-            public_button = Button(color=discord.ButtonStyle.green, label="Rendre Public", callback=lambda interaction: vouch_public_button_callback(interaction))
+            public_button = Button(color=discord.ButtonStyle.green, label="Rendre Publique", callback=lambda interaction: vouch_public_button_callback(interaction))
             personal_vouchs_button = Button(color=discord.ButtonStyle.green, label="Voir votre nombre de vouchs", callback=lambda interaction: interaction.response.send_message(content=f"Vous avez {get_vouchs_count(interaction.user)} {'vouch' if get_vouchs_count(interaction.user) == 1 else 'vouchs'}." if get_vouchs_count(interaction.user) > 0 else "Vous n'avez aucun vouch <a:triste:1453390284762124450>", view=public_button, ephemeral=True), json_file=None)
             await ctx.channel.send(embed=embed, view=personal_vouchs_button)
         else:
