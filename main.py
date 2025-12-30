@@ -74,6 +74,12 @@ def save_invites():
     with open(INVITES_JSON_FILE, "w") as f:
         json.dump(invites_count, f)
 
+def save_vouchs(vouchs):
+    cursor.execute("DELETE FROM vouchs;")
+    for vouch in vouchs:
+        cursor.execute("INSERT INTO vouchs (user_id, voucher_id, reason, datetime) VALUES (%s, %s, %s, %s);", (vouch["user_id"], vouch["voucher_id"], vouch["reason"], vouch["datetime"]))
+    conn.commit()
+
 def save_giveaways(data):
     with open(GIVEAWAYS_JSON_FILE, "w") as f:
         json.dump(data, f)
@@ -86,8 +92,9 @@ def vouch(member:discord.Member, reason:str, voucher:discord.Member):
     user_id = str(member.id)
     if user_id not in vouchs:
         vouchs[user_id] = []
-    vouch={"reason":reason, "datetime":str(datetime.datetime.now()), "voucher":str(voucher.id)}
+    vouch={"user_id":user_id,"reason":reason, "datetime":str(datetime.datetime.now()), "voucher_id":str(voucher.id)}
     vouchs[user_id].append(vouch)
+    save_vouchs(vouchs)
 
 
 def get_invites_count(user, personal:bool=False):
