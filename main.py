@@ -12,9 +12,12 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 conn = psycopg2.connect(DATABASE_URL)
 cursor = conn.cursor()
 
+cursor.execute("DELETE TABLE vouchs")
+
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS vouchs (
-               user_id TEXT PRIMARY KEY UNIQUE,
+               vouch_id SERIAL PRIMARY KEY,
+               user_id TEXT,
                voucher_id TEXT,
                reason TEXT,
                datetime TEXT
