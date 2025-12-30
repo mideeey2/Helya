@@ -448,7 +448,7 @@ async def unmute(ctx, member:discord.Member, reason:str=None):
         await ctx.channel.send("Je n'ai pas les permission nécessaires pour unmute ce membre.")
 
 @bot.command()
-async def invites(ctx, member:discord.Member=None)
+async def invites(ctx, member:discord.Member=None):
     if member:
         embed = get_invites_count(member, True)
     else:
