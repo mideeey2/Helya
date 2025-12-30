@@ -12,8 +12,6 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 conn = psycopg2.connect(DATABASE_URL)
 cursor = conn.cursor()
 
-cursor.execute("DROP TABLE invites")
-
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS vouchs (
                vouch_id SERIAL PRIMARY KEY,
@@ -95,15 +93,22 @@ def vouch_user(member:discord.Member, reason:str, voucher:discord.Member):
     conn.commit()
 
 def get_invites_count(user, personal:bool=False):
+    cursor.execute("SELECT * FROM invites WHERE user_id = %s;", (str(user_id)))
+    invites_count = cursor.fetchall()
+    user_id = str(user.id)
     if not personal:
-        user_id = str(user.id)
-        count = invites_count.get(user_id, 0)
-        return f"{user.mention} a fait {count} invitations."
+        if len(invites_count):
+            embed = discord.Embed(title="Nombre d'invitations", description=f"{user.mention} a fait {len(invites_count)}. <a:pepeclap:1453682464181588065>", color=discord.Color.green())
+        else:
+            embed = discord.Embed(title="C'est décevant...", description=f"{user.mention} n'a fait aucune invite sur ce serveur <:sad:1453730309865607321>", color=discord.Color.red())
     else:
-        user_id = str(user.id)
-        count = invites_count.get(user_id, 0)
-        return f"Tu as fait {count} invitations."
-    
+        if len(invites_count):
+            embed = discord.Embed(title=f"Nombre d'invitations", description=f"Vous ({user.mention}) avez fait {len(invites_count)} invitations! <a:pepeclap:1453682464181588065>", color=discord.Color.green())
+        else:
+            embed = discord.Embed(title="C'est décevant...", description=f"Vous ({user.mention}) n'avez fait aucune invite sur ce serveur <:sad:1453730309865607321>", color=discord.Color.red())
+    embed.set_thumbnail(user.avatar.url if user.avatar.url else user.default_avatar.url)
+    return embed
+
 def get_vouchs_count(user:discord.Member):
     cursor.execute("SELECT * FROM vouchs WHERE user_id = %s;", (str(user.id),))
     return len(cursor.fetchall())
@@ -205,7 +210,7 @@ async def on_member_join(member):
         
         async def invite_callback(interaction: discord.Interaction):
             message = get_invites_count(interaction.user, True)
-            await interaction.response.send_message(message, ephemeral=True)
+            await interaction.response.send_message(embed=message, ephemeral=True)
         
         personal_invites_button = Button(color=discord.ButtonStyle.green, label="Voir mes invitations", callback=invite_callback, json_file=None)
         welcome_embed = discord.Embed(title=f"{member} vient de rejoindre le serveur!",
@@ -278,11 +283,7 @@ async def join(ctx, member: discord.Member):
         content=f"# <a:tada:1453048315779481752> Bienvenue {member.mention} <a:tada:1453048315779481752>",
         view=personal_invites_button
     )
-
 # --------- COMMANDE SLASH /invites ---------
-@bot.tree.command(name="invites", description="Voir le nombre d'invitations que vous avez faites.")
-async def invites(interaction: discord.Interaction, user: discord.Member = None):
-    await interaction.response.send_message(get_invites_count(user, False if user else True))
 
 @bot.tree.command(name="topinvites", description="Voir le classement des invitations.")
 async def top_invites(interaction: discord.Interaction):
@@ -445,6 +446,14 @@ async def unmute(ctx, member:discord.Member, reason:str=None):
             await member.send(f"Vous avez été unmute sur le serveur {ctx.guild.name} par {ctx.author.mention}{f" pour la raison `{reason}`" if reason else ""}.")
     except discord.errors.MissingPermissions as e:
         await ctx.channel.send("Je n'ai pas les permission nécessaires pour unmute ce membre.")
+
+@bot.command()
+async def invites(ctx, member:discord.Member=None)
+    if member:
+        embed = get_invites_count(member, True)
+    else:
+        embed = get_invites_count(member, False)
+    ctx.channel.send(embed=embed)
 
 # @bot.event
 # async def on_message(message):
