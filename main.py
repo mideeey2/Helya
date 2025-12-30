@@ -93,9 +93,9 @@ def vouch_user(member:discord.Member, reason:str, voucher:discord.Member):
     conn.commit()
 
 def get_invites_count(user, personal:bool=False):
+    user_id = str(user.id)
     cursor.execute("SELECT * FROM invites WHERE user_id = %s;", (str(user_id)))
     invites_count = cursor.fetchall()
-    user_id = str(user.id)
     if not personal:
         if len(invites_count):
             embed = discord.Embed(title="Nombre d'invitations", description=f"{user.mention} a fait {len(invites_count)}. <a:pepeclap:1453682464181588065>", color=discord.Color.green())
