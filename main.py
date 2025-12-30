@@ -428,9 +428,9 @@ async def mute(ctx, member:discord.Member, duration:int=None, reason:str="Aucun 
             cancel_button = Button(label="Annuler l'action", color=discord.ButtonStyle.green, interaction_msg=f"Vous avez annulé le mute de {member.mention}.", onclick_code=lambda interaction: member.edit(timed_out_until=None))
             await member.edit(timed_out_until=date if date else 360*100, reason=reason)
             await ctx.channel.send(content=f"{member.mention} a été mute{f" pendant {duration} minutes" if duration else ""} pour la raison `{reason}`.", view=cancel_button)
-            await member.send(f"Vous avez été mute sur le serveur {ctx.guild.name} {f"jusqu'au <t:{int(timestamp)}:R>(<t:{int(timestamp)}:S>)" if duration else ""} pour la raison `{reason}`.")
+            await member.send(f"Vous avez été mute sur le serveur {ctx.guild.name} {f"jusqu'au <t:{int(timestamp)}:F>(<t:{int(timestamp)}:R>)" if duration else ""} pour la raison `{reason}`.")
             if discord.utils.get(ctx.author.roles, id=1438240386815496385):
-                await ctx.author.send(content=f"Vous avez mute {member.mention} sur le serveur {ctx.guild.name} {f"jusqu'au <t:{int(timestamp)}:R>(<t:{int(timestamp)}:S>) " if duration else ""}pour la raison `{reason}`.", view=cancel_button)
+                await ctx.author.send(content=f"Vous avez mute {member.mention} sur le serveur {ctx.guild.name} {f"jusqu'au <t:{int(timestamp)}:F>(<t:{int(timestamp)}:R>) " if duration else ""}pour la raison `{reason}`.", view=cancel_button)
             else:
                 await discord.roles.get
         elif member.id == OWNER_ID:
