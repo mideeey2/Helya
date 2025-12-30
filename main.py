@@ -352,7 +352,7 @@ async def detruire(ctx):
 async def vouch(ctx, member:discord.Member, reason:str):
     if ctx.channel.id == VOUCH_CHANNEL_ID:
         await ctx.message.add_reaction("❤️")
-        await vouch_user(member, reason, ctx.author)
+        vouch_user(member, reason, ctx.author)
 
 @bot.command()
 async def mute(ctx, member:discord.Member, duration:int=None, reason:str="Aucun raison fournie"):
