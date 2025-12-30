@@ -358,7 +358,7 @@ async def vouch(ctx, member:discord.Member, reason:str):
         vouch_user(member, reason, ctx.author)
 
 async def vouch_public_button_callback(interaction: discord.Interaction):
-    await interaction.message.edit("Le message a été rendu publique!", view=None)
+    await interaction.message.edit(content="Le message a été rendu publique!", view=None)
     await interaction.response.send_message(f"Vous avez {get_vouchs_count(interaction.user)} {'vouch' if get_vouchs_count(interaction.user) == 1 else 'vouchs'}." if get_vouchs_count(interaction.user) > 0 else "Vous n'avez aucun vouch <a:triste:1453390284762124450>", ephemeral=False)
 
 @bot.command()
