@@ -378,7 +378,7 @@ async def vouchcount(ctx, member:discord.Member=None):
         user_vouchs = cursor.fetchall()
         if len(user_vouchs) > 0:
             embed = discord.Embed(title=f"Nombre de vouchs :", description=f"Vous avez {len(user_vouchs)} {"vouch" if len(user_vouchs) == 1 else "vouchs"}. <a:pepeclap:1453682464181588065>\nPour voir votre liste de vouchs, utilisez la commande `+vouchs_list`", color=discord.Color.green())
-            embed.set_thumbnail(url=member.avatar.url if member.avatar else member.default_avatar.url)
+            embed.set_thumbnail(url=ctx.author.avatar.url if ctx.author.avatar else ctx.author.default_avatar.url)
             await ctx.channel.send(embed=embed)
 
 @bot.command()
