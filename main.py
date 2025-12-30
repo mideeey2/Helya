@@ -90,7 +90,7 @@ def save_member_inviter():
     with open(MEMBER_INVITER_FILE, "w") as f:
         json.dump(member_inviter, f)
 
-def vouch(member:discord.Member, reason:str, voucher:discord.Member):
+def vouch_user(member:discord.Member, reason:str, voucher:discord.Member):
     user_id = str(member.id)
     if user_id not in vouchs:
         vouchs[user_id] = []
@@ -352,7 +352,7 @@ async def detruire(ctx):
 async def vouch(ctx, member:discord.Member, reason:str):
     if ctx.channel.id == VOUCH_CHANNEL_ID:
         await ctx.message.add_reaction("❤️")
-        vouch(member, reason, ctx.author)
+        await vouch_user(member, reason, ctx.author)
 
 @bot.command()
 async def mute(ctx, member:discord.Member, duration:int=None, reason:str="Aucun raison fournie"):
