@@ -12,8 +12,6 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 conn = psycopg2.connect(DATABASE_URL)
 cursor = conn.cursor()
 
-cursor.execute("DROP TABLE invites")
-
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS vouchs (
                vouch_id SERIAL PRIMARY KEY,
@@ -97,7 +95,7 @@ def vouch_user(member:discord.Member, reason:str, voucher:discord.Member):
 
 def get_invites_count(user, personal:bool=False):
     user_id = str(user.id)
-    cursor.execute("SELECT * FROM invites WHERE user_id = %s;", (str(user_id),))
+    cursor.execute("SELECT * FROM invites WHERE inviter_id = %s;", (str(user_id),))
     invites_count = cursor.fetchall()
     if not personal:
         if len(invites_count):
