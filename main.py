@@ -80,6 +80,7 @@ def save_vouchs(vouchs):
     for vouch in vouchs:
         cursor.execute("INSERT INTO vouchs (user_id, voucher_id, reason, datetime) VALUES (%s, %s, %s, %s);", (vouch["user_id"], vouch["voucher_id"], vouch["reason"], vouch["datetime"]))
     conn.commit()
+    print(vouchs)
 
 def save_giveaways(data):
     with open(GIVEAWAYS_JSON_FILE, "w") as f:
