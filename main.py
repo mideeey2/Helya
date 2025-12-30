@@ -40,6 +40,7 @@ VOTE2FAME_CHANNEL_ID = 1453103163468026190
 EATORPASS_CHANNEL_ID = 1453105475200618497
 SMASHORPASS_CHANNEL_ID = 1453104548809015467
 VOUCH_CHANNEL_ID = 1452648909716586719
+BOTS_CHANNEL_ID = 1445785148011446323
 
 INVITES_JSON_FILE = "invites.json"
 GIVEAWAYS_JSON_FILE = "giveaways.json"
@@ -153,6 +154,8 @@ async def on_ready():
         except discord.Forbidden:
             invites_cache[guild.id] = []
             print(f"⚠️ Le bot n'a pas la permission de voir les invites sur {guild.name}")
+        finally:
+            await bot.get_channel(BOTS_CHANNEL_ID).send(f"Le bot est en ligne")
     await bot.tree.sync()
     print("Cache des invites initialisé et commandes slash synchronisées !")
 
@@ -377,11 +380,11 @@ async def vouchcount(ctx, member:discord.Member=None):
         cursor.execute("SELECT user_id FROM vouchs WHERE user_id = %s;", (str(ctx.author.id),))
         user_vouchs = cursor.fetchall()
         if len(user_vouchs) > 0:
-            embed = discord.Embed(title=f"Nombre de vouchs :", description=f"{member.mention} a {len(user_vouchs)} {"vouch" if len(user_vouchs) == 1 else "vouchs"}. <a:pepeclap:1453682464181588065>\nPour voir sa liste de vouchs, utilisez la commande `+vouchs_list`", color=discord.Color.green())
+            embed = discord.Embed(title=f"Nombre de vouchs :", description=f"Vous ({ctx.author.mention}) avez {len(user_vouchs)} {"vouch" if len(user_vouchs) == 1 else "vouchs"}. <a:pepeclap:1453682464181588065>\nPour voir sa liste de vouchs, utilisez la commande `+vouchs_list`", color=discord.Color.green())
             embed.set_thumbnail(url=ctx.author.avatar.url if ctx.author.avatar else ctx.author.default_avatar.url)
             await ctx.channel.send(embed=embed)
-        if len(user_vouchs) == 0:
-            embed = discord.Embed(title=f"C'est triste... <:sad:1453730309865607321>", description=f"Vous n'avez aucun vouch <a:triste:1453390284762124450>", color=discord.Color.red())
+        else:
+            embed = discord.Embed(title=f"C'est triste... <:sad:1453730309865607321>", description=f"Vous ({ctx.author.mention}) n'avez aucun vouch <a:triste:1453390284762124450>", color=discord.Color.red())
             embed.set_thumbnail(url=ctx.author.avatar.url if ctx.author.avatar else ctx.author.default_avatar.url)
             await ctx.channel.send(embed=embed)
 
