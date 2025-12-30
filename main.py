@@ -92,12 +92,10 @@ def save_member_inviter():
 
 def vouch_user(member:discord.Member, reason:str, voucher:discord.Member):
     user_id = str(member.id)
-    if user_id not in vouchs:
-        vouchs[user_id] = []
-    vouch={"user_id":user_id,"reason":reason, "datetime":str(datetime.datetime.now()), "voucher_id":str(voucher.id)}
-    vouchs[user_id].append(vouch)
-    save_vouchs(vouchs)
-
+    voucher_id = str(voucher.id)
+    datetime_now = datetime.datetime.now().isoformat()
+    cursor.execute("INSERT INTO vouchs (user_id, voucher_id, reason, datetime) VALUES (%s, %s, %s, %s)", (user_id, voucher_id, reason, datetime_now))
+    conn.commit()
 
 def get_invites_count(user, personal:bool=False):
     if not personal:
