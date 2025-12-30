@@ -452,7 +452,7 @@ async def invites(ctx, member:discord.Member=None):
     if member:
         embed = get_invites_count(member, True)
     else:
-        embed = get_invites_count(member, False)
+        embed = get_invites_count(ctx.author, False)
     ctx.channel.send(embed=embed)
 
 # @bot.event
