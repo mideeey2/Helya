@@ -12,6 +12,8 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 conn = psycopg2.connect(DATABASE_URL)
 cursor = conn.cursor()
 
+cursor.execute("DROP TABLE invites")
+
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS vouchs (
                vouch_id SERIAL PRIMARY KEY,
@@ -21,9 +23,9 @@ CREATE TABLE IF NOT EXISTS vouchs (
                datetime TEXT
                );
 CREATE TABLE IF NOT EXISTS invites (
-               inviter_id TEXT PRIMARY KEY UNIQUE,
+               invite_id SERIAL PRIMARY KEY,
+               inviter_id TEXT,
                invite_code TEXT,
-               uses INTEGER,
                datetime TEXT
                );
 """)
@@ -76,13 +78,6 @@ else:
 def save_invites():
     with open(INVITES_JSON_FILE, "w") as f:
         json.dump(invites_count, f)
-
-def save_vouchs(vouchs):
-    cursor.execute("DELETE FROM vouchs;")
-    for vouch in vouchs:
-        cursor.execute("INSERT INTO vouchs (user_id, voucher_id, reason, datetime) VALUES (%s, %s, %s, %s);", (vouch["user_id"], vouch["voucher_id"], vouch["reason"], vouch["datetime"]))
-    conn.commit()
-    print(vouchs)
 
 def save_giveaways(data):
     with open(GIVEAWAYS_JSON_FILE, "w") as f:
@@ -188,6 +183,8 @@ async def on_member_join(member):
     # mise à jour du cache
     invites_cache[guild.id] = after
 
+    cursor.execute("INSERT INTO invites ()")
+
     channel = bot.get_channel(INVITES_CHANNEL_ID)
     if not channel:
         print("⚠️ Salon introuvable ou ID incorrect")
@@ -201,7 +198,10 @@ async def on_member_join(member):
         if inviter_id not in invites_count:
             invites_count[inviter_id] = 0
         invites_count[inviter_id] += 1
-        save_invites()  # sauvegarder dans le fichier JSON
+
+        datetime_now = datetime.datetime.now()
+
+        cursor.execute("INSERT INTO invites (inviter_id, invite_code, datetime) VALUES (%s, %s, %s, %s)", (inviter_id, used_invite, datetime_now))
         
         async def invite_callback(interaction: discord.Interaction):
             message = get_invites_count(interaction.user, True)
@@ -380,13 +380,39 @@ async def vouchcount(ctx, member:discord.Member=None):
         cursor.execute("SELECT user_id FROM vouchs WHERE user_id = %s;", (str(ctx.author.id),))
         user_vouchs = cursor.fetchall()
         if len(user_vouchs) > 0:
-            embed = discord.Embed(title=f"Nombre de vouchs :", description=f"Vous ({ctx.author.mention}) avez {len(user_vouchs)} {"vouch" if len(user_vouchs) == 1 else "vouchs"}. <a:pepeclap:1453682464181588065>\nPour voir sa liste de vouchs, utilisez la commande `+vouchs_list`", color=discord.Color.green())
+            embed = discord.Embed(title=f"Nombre de vouchs :", description=f"Vous ({ctx.author.mention}) avez {len(user_vouchs)} {"vouch" if len(user_vouchs) == 1 else "vouchs"}. <a:pepeclap:1453682464181588065>\nPour voir votre liste de vouchs, utilisez la commande `+vouchs_list`", color=discord.Color.green())
             embed.set_thumbnail(url=ctx.author.avatar.url if ctx.author.avatar else ctx.author.default_avatar.url)
             await ctx.channel.send(embed=embed)
         else:
             embed = discord.Embed(title=f"C'est triste... <:sad:1453730309865607321>", description=f"Vous ({ctx.author.mention}) n'avez aucun vouch <a:triste:1453390284762124450>", color=discord.Color.red())
             embed.set_thumbnail(url=ctx.author.avatar.url if ctx.author.avatar else ctx.author.default_avatar.url)
             await ctx.channel.send(embed=embed)
+
+async def vouchcount_callback(ctx, member:discord.Member, personal:bool):
+    if personal == 0:
+        cursor.execute("SELECT user_id FROM vouchs WHERE user_id = %s;", (str(member.id),))
+        user_vouchs = cursor.fetchall()
+        personal_vouchs_button = Button(color=discord.ButtonStyle.green, label="Voir votre nombre de vouchs", callback=lambda interaction: interaction.response.send_message(content=f"Vous avez {get_vouchs_count(interaction.user)} {'vouch' if get_vouchs_count(interaction.user) == 1 else 'vouchs'}." if get_vouchs_count(interaction.user) > 0 else "Vous n'avez aucun vouch <a:triste:1453390284762124450>", view=public_button, ephemeral=True), json_file=None)
+        if len(user_vouchs) > 0:
+            embed = discord.Embed(title=f"Nombre de vouchs :", description=f"{member.mention} a {len(user_vouchs)} {"vouch" if len(user_vouchs) == 1 else "vouchs"}. <a:pepeclap:1453682464181588065>\nPour voir sa liste de vouchs, utilisez la commande `+vouchs_list`", color=discord.Color.green())
+            embed.set_thumbnail(url=member.avatar.url if member.avatar else member.default_avatar.url)
+            public_button = Button(color=discord.ButtonStyle.green, label="Rendre Publique", callback=lambda interaction: vouch_public_button_callback(interaction))
+            await ctx.channel.send(embed=embed, view=personal_vouchs_button)
+            return embed, personal_vouchs_button
+        else:
+            embed = discord.Embed(title=f"Nombre de vouchs :", description=f"{member.mention} n'a aucun vouch <a:triste:1453390284762124450>", color=discord.Color.red())
+            return embed, personal_vouchs_button
+    else:
+        cursor.execute("SELECT user_id FROM vouchs WHERE user_id = %s;", (str(ctx.author.id),))
+        user_vouchs = cursor.fetchall()
+        if len(user_vouchs) > 0:
+            embed = discord.Embed(title=f"Nombre de vouchs :", description=f"Vous ({ctx.author.mention}) avez {len(user_vouchs)} {"vouch" if len(user_vouchs) == 1 else "vouchs"}. <a:pepeclap:1453682464181588065>\nPour voir votre liste de vouchs, utilisez la commande `+vouchs_list`", color=discord.Color.green())
+            embed.set_thumbnail(url=ctx.author.avatar.url if ctx.author.avatar else ctx.author.default_avatar.url)
+            return embed
+        else:
+            embed = discord.Embed(title=f"C'est triste... <:sad:1453730309865607321>", description=f"Vous ({ctx.author.mention}) n'avez aucun vouch <a:triste:1453390284762124450>", color=discord.Color.red())
+            embed.set_thumbnail(url=ctx.author.avatar.url if ctx.author.avatar else ctx.author.default_avatar.url)
+            return embed
 
 @bot.command()
 async def mute(ctx, member:discord.Member, duration:int=None, reason:str="Aucun raison fournie"):
