@@ -208,7 +208,7 @@ async def on_member_join(member):
 
         datetime_now = datetime.datetime.now()
 
-        cursor.execute("INSERT INTO invites (inviter_id, invite_code, datetime) VALUES (%s, %s, %s, %s)", (inviter_id, used_invite, datetime_now))
+        cursor.execute("INSERT INTO invites (inviter_id, invite_code, datetime) VALUES (%s, %s, %s)", (inviter_id, used_invite, datetime_now))
         
         async def invite_callback(interaction: discord.Interaction):
             message = get_invites_count(interaction.user, True)
