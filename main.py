@@ -42,6 +42,7 @@ EATORPASS_CHANNEL_ID = 1453105475200618497
 SMASHORPASS_CHANNEL_ID = 1453104548809015467
 VOUCH_CHANNEL_ID = 1452648909716586719
 BOTS_CHANNEL_ID = 1445785148011446323
+OWNER_ID = 1071516026484822096
 
 INVITES_JSON_FILE = "invites.json"
 GIVEAWAYS_JSON_FILE = "giveaways.json"
@@ -267,7 +268,7 @@ async def leave(ctx, member: discord.Member):
 
 @bot.command()
 async def join(ctx, member: discord.Member):
-    if ctx.author.id != 1071516026484822096:
+    if ctx.author.id != OWNER_ID:
         print("not join")
         await ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande.")
         return
@@ -312,15 +313,15 @@ async def on_message(message):
         if "trade" in message.content.lower():
             await message.delete()
 
-    if message.author.id == 1071516026484822096 and (message.content.startswith("# Vote2Profil") or message.content.startswith("# Vote2Fame")):
+    if message.author.id == OWNER_ID and (message.content.startswith("# Vote2Profil") or message.content.startswith("# Vote2Fame")):
         if message.channel.id == VOTE2PROFIL_CHANNEL_ID or message.channel.id == VOTE2FAME_CHANNEL_ID:
             await message.add_reaction("<:un:1453699994090733602>")
             await message.add_reaction("<:deux:1453700018904105044>")
-    if message.author.id == 1071516026484822096 and (message.content.startswith("# Eat or Pass")):
+    if message.author.id == OWNER_ID and (message.content.startswith("# Eat or Pass")):
         if message.channel.id == EATORPASS_CHANNEL_ID:
             await message.add_reaction("<:manger:1453435371315662897>")
             await message.add_reaction("<:pass:1453435746412138537>")
-    if message.author.id == 1071516026484822096 and (message.content.startswith("# Smash or Pass")):
+    if message.author.id == OWNER_ID and (message.content.startswith("# Smash or Pass")):
         if message.channel.id == SMASHORPASS_CHANNEL_ID:
             await message.add_reaction("<:oui:1453011623349456906>")
             await message.add_reaction("<:non:1453011584569053197>")
@@ -347,7 +348,7 @@ with open(json_file, "w") as f:
 
 @bot.command()
 async def detruire(ctx):
-    if ctx.author.id != 1071516026484822096:
+    if ctx.author.id != OWNER_ID:
         await ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande.")
         return
     for channel in ctx.guild.channels:
@@ -431,6 +432,8 @@ async def mute(ctx, member:discord.Member, duration:int=None, reason:str="Aucun 
                 await ctx.author.send(content=f"Vous avez mute {member.mention} sur le serveur {ctx.guild.name} {f"jusqu'au <t:{int(timestamp)}:R>(<t:{int(timestamp)}:S>) " if duration else ""}pour la raison `{reason}`.", view=cancel_button)
             else:
                 await discord.roles.get
+        elif member.id == OWNER_ID:
+            await ctx.channel.send("Vous n'avez pas la permission de mute mon créateur, développeur, et propriétaire.")
         else:
             await ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande.")
     except discord.Forbidden as e:
