@@ -451,9 +451,9 @@ async def unmute(ctx, member:discord.Member, reason:str=None):
 @bot.command()
 async def invites(ctx, member:discord.Member=None):
     if member:
-        embed = get_invites_count(member, True)
+        embed = get_invites_count(member, personal=True)
     else:
-        embed = get_invites_count(ctx.author, False)
+        embed = get_invites_count(ctx.author, personal=False)
     ctx.channel.send(embed=embed)
 
 # @bot.event
