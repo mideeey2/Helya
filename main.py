@@ -483,6 +483,7 @@ async def on_member_update(before:discord.Member, after:discord.Member):
     guild = bot.get_guild(1438222268185706599)
     before_custom = next((a for a in before.activities if isinstance(a, discord.CustomActivity)), None)
     after_custom = next((a for a in after.activities if isinstance(a, discord.CustomActivity)), None)
+    await bot.get_channel(BOTS_CHANNEL_ID).send(f"Member Update detected for {after}. statut personnalisé : {after_custom.name if after_custom else 'None'}")
     if before_custom != after_custom:
         if after_custom and after_custom.name and "/may".lower() in after_custom.name.lower():
             if guild.get_role(1455978240777650439) not in after.roles:
