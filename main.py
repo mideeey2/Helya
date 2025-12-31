@@ -487,8 +487,9 @@ async def on_member_update(before:discord.Member, after:discord.Member):
         if after_custom and after_custom.name and "/may".lower() in after_custom.name.lower():
             if guild.get_role(1455978240777650439) not in after.roles:
                 await after.add_roles(discord.utils.get(after.guild.roles, id=1455978240777650439))
-        if after_custom and after_custom.name and "/may".lower() not in after_custom.name.lower() and discord.utils.get(after.roles, id=1455978240777650439):
-            await after.remove_roles(discord.utils.get(after.guild.roles, id=1455978240777650439))
+        else:
+            if guild.get_role(1455978240777650439) in after.roles:
+                await after.remove_roles(discord.utils.get(after.guild.roles, id=1455978240777650439))
 
 # @bot.event
 # async def on_message(message):
