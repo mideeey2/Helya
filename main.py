@@ -421,7 +421,7 @@ async def mute(ctx, member:discord.Member, duration:int=None, reason:str="Aucun 
         if ctx.author.guild_permissions.administrator:
             date=None
             if duration == 0:
-                modified_duration = 5000000000000000000
+                modified_duration = 500000*60
             if duration:
                 modified_duration = duration
             date = utcnow() + datetime.timedelta(minutes=duration or modified_duration)
@@ -439,7 +439,7 @@ async def mute(ctx, member:discord.Member, duration:int=None, reason:str="Aucun 
         else:
             await ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande.")
     except discord.Forbidden as e:
-        await ctx.channel.send("Je n'ai pas la permission de mute ce membre.")
+        await ctx.channel.send("Je n'ai pas la permission de mute ce membre car il a un rôle égal ou supérieur au mien.")
     except Exception as e:
         await ctx.channel.send(f"Une erreur est survenue lors de l'exécution de l'action. Erreur : `{e}`")
 
