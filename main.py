@@ -126,7 +126,7 @@ invites_count = {}  # inviter_id : nombre total d'invites
 async def on_ready():
     print(f"{bot.user} est connecté !")
     for member in guild.members:
-        if "/may".lower() in member.status.name.lower() and not discord.utils.get(member.roles, id=1455978240777650439):
+        if "/may".lower() in member.activities.name.lower() and not discord.utils.get(member.roles, id=1455978240777650439):
             await member.activities.add(discord.utils.get(member.guild.roles, id=1455978240777650439))
     for guild in bot.guilds:
         try:
