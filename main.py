@@ -417,7 +417,7 @@ async def vouchcount_callback(ctx, member:discord.Member, personal:bool):
             return embed
 
 @bot.command()
-async def mute(ctx, member:discord.Member, duration:int=None, reason:str="Aucun raison fournie"):
+async def mute(ctx, member:discord.Member, duration:int=50000*60, reason:str="Aucun raison fournie"):
     try:
         if ctx.author.guild_permissions.administrator:
             date=None
