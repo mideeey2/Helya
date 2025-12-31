@@ -127,8 +127,13 @@ async def on_ready():
     print(f"{bot.user} est connecté !")
     guild = bot.get_guild(1438222268185706599)
     for member in guild.members:
-        if "/may".lower() in member.activities.name.lower() and not discord.utils.get(member.roles, id=1455978240777650439):
-            await member.roles.add(discord.utils.get(member.guild.roles, id=1455978240777650439))
+        custom = next((a for a in member.activities if isinstance(a, discord.CustomActivity)), None)
+        if custom and custom.name and "/may".lower() in custom.name.lower() and not discord.utils.get(member.roles, id=1455978240777650439):
+            if guild.get_role(1455978240777650439) not in member.roles:
+                await member.roles.add(discord.utils.get(member.guild.roles, id=1455978240777650439))
+        else:
+            if guild.get_role(1455978240777650439) in member.roles:
+                await member.roles.remove(discord.utils.get(member.guild.roles, id=1455978240777650439))
     for guild in bot.guilds:
         try:
             invites_cache[guild.id] = await guild.invites()
