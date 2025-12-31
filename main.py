@@ -422,7 +422,7 @@ async def mute(ctx, member:discord.Member, duration:int=None, reason:str="Aucun 
         if ctx.author.guild_permissions.administrator:
             date=None
             if duration:
-                date = (utcnow() + datetime.timedelta(minutes=duration)) if duration else 500000*60
+                date = (utcnow() + datetime.timedelta(minutes=duration)) if duration else (utcnow() + datetime.timedelta(weeks=1000*600))
                 timestamp = int(date.timestamp())
             
             class CancelMuteButton(View):
