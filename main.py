@@ -7,6 +7,7 @@ import datetime
 from types import FunctionType
 from discord.utils import utcnow
 import psycopg2
+from discord.ui import Button, View
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 conn = psycopg2.connect(DATABASE_URL)
@@ -114,33 +115,6 @@ def get_invites_count(user, personal:bool=False):
 def get_vouchs_count(user:discord.Member):
     cursor.execute("SELECT * FROM vouchs WHERE user_id = %s;", (str(user.id),))
     return len(cursor.fetchall())
-    
-button=None
-button_fonctions = []
-class Button(discord.ui.View):
-    label, color = None, None
-    def __init__ (self, label, color, json_file:str=None, timeout=None, interaction_msg=None, onclick_code=None, callback=None):
-        super().__init__(timeout=timeout)
-        self.label=label
-        self.color=color
-        self.onclick_code=onclick_code
-        self.interaction_msg=interaction_msg
-        self.json_file=json_file
-        self.callback=callback
-
-        button = discord.ui.Button(label=label, style=color, custom_id="button")
-        button.callback = self.on_click
-        self.add_item(button)
-
-    async def on_click(self, interaction: discord.Interaction):
-        if self.callback:
-            await self.callback(interaction)
-        elif self.interaction_msg:
-            await interaction.response.send_message(self.interaction_msg, ephemeral=True)
-        elif self.onclick_code:
-            await interaction.response.send_message(self.interaction_msg, ephemeral=True)
-            
-        return True
 
 # --------- DICTIONNAIRES ---------
 invites_cache = {}  # guild_id : list(invites)
@@ -203,6 +177,15 @@ async def on_member_join(member):
         if inviter_id not in invites_count:
             invites_count[inviter_id] = 0
         invites_count[inviter_id] += 1
+
+        class PersonnalInvitesButton(View):
+            def __init__ (self):
+                super().__init__(timeout=180)
+            @discord.ui.button(label="Voir mes invitations", style=discord.ButtonStyle.green)
+            async def personal_invites_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+                message = get_invites_count(interaction.user, True)
+                await interaction.response.send_message(embed=message, ephemeral=True)
+
 
         datetime_now = datetime.datetime.now()
 
@@ -393,11 +376,29 @@ async def vouchcount_callback(ctx, member:discord.Member, personal:bool):
     if personal == 0:
         cursor.execute("SELECT user_id FROM vouchs WHERE user_id = %s;", (str(member.id),))
         user_vouchs = cursor.fetchall()
-        personal_vouchs_button = Button(color=discord.ButtonStyle.green, label="Voir votre nombre de vouchs", callback=lambda interaction: interaction.response.send_message(content=f"Vous avez {get_vouchs_count(interaction.user)} {'vouch' if get_vouchs_count(interaction.user) == 1 else 'vouchs'}." if get_vouchs_count(interaction.user) > 0 else "Vous n'avez aucun vouch <a:triste:1453390284762124450>", view=public_button, ephemeral=True), json_file=None)
+        
+        class PublicVouchsButton(View):
+            def __init__ (self):
+                super().__init__(timeout=180)
+            @discord.ui.button(label="Rendre Publique", style=discord.ButtonStyle.green)
+            async def public_vouchs_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+                message = f"{interaction.user.mention} a {get_vouchs_count(interaction.user)} {'vouch' if get_vouchs_count(interaction.user) == 1 else 'vouchs'}." if get_vouchs_count(interaction.user) > 0 else f"{interaction.user.mention} n'a aucun vouch <a:triste:1453390284762124450>"
+                await interaction.response.send_message(content=message, ephemeral=False)
+
+        public_vouchs_button = PublicVouchsButton()
+
+        class PersonalVouchsButton(View):
+            def __init__ (self):
+                super().__init__(timeout=180)
+            @discord.ui.button(label="Voir mon nombre de vouchs", style=discord.ButtonStyle.green)
+            async def personal_vouchs_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+                message = f"Vous avez {get_vouchs_count(interaction.user)} {'vouch' if get_vouchs_count(interaction.user) == 1 else 'vouchs'}." if get_vouchs_count(interaction.user) > 0 else "Vous n'avez aucun vouch <a:triste:1453390284762124450>"
+                await interaction.response.send_message(content=message, view=public_vouchs_button, ephemeral=True)
+
+        personal_vouchs_button = PersonalVouchsButton()
         if len(user_vouchs) > 0:
             embed = discord.Embed(title=f"Nombre de vouchs :", description=f"{member.mention} a {len(user_vouchs)} {"vouch" if len(user_vouchs) == 1 else "vouchs"}. <a:pepeclap:1453682464181588065>\nPour voir sa liste de vouchs, utilisez la commande `+vouchs_list`", color=discord.Color.green())
             embed.set_thumbnail(url=member.avatar.url if member.avatar else member.default_avatar.url)
-            public_button = Button(color=discord.ButtonStyle.green, label="Rendre Publique", callback=lambda interaction: vouch_public_button_callback(interaction))
             await ctx.channel.send(embed=embed, view=personal_vouchs_button)
             return embed, personal_vouchs_button
         else:
@@ -420,18 +421,23 @@ async def mute(ctx, member:discord.Member, duration:int=None, reason:str="Aucun 
     try:
         if ctx.author.guild_permissions.administrator:
             date=None
-            if duration == 0:
-                modified_duration = 500000*60
             if duration:
-                modified_duration = duration
-            date = utcnow() + datetime.timedelta(minutes=duration or modified_duration)
-            timestamp = int(date.timestamp())
-            cancel_button = Button(label="Annuler l'action", color=discord.ButtonStyle.green, interaction_msg=f"Vous avez annulé le mute de {member.mention}.", onclick_code=lambda interaction: member.edit(timed_out_until=None))
+                date = utcnow() + datetime.timedelta(minutes=duration)
+                timestamp = int(date.timestamp())
+            
+            class CancelMuteButton(View):
+                def __init__ (self):
+                    super().__init__(timeout=180)
+                @discord.ui.button(label="Annuler l'action", style=discord.ButtonStyle.green)
+                async def cancel_mute_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+                    await member.edit(timed_out_until=None)
+                    await member.send(f"Le mute qui vous avait été appliqué sur le serveur {ctx.guild.name} a été annulé par {interaction.user.mention}.")
+                    await interaction.response.send_message(content=f"Vous avez annulé le mute de {member.mention}.", ephemeral=True)
             await member.edit(timed_out_until=date if date else 360*100, reason=reason)
-            await ctx.channel.send(content=f"{member.mention} a été mute{f" pendant {duration} minutes" if duration else ""} pour la raison `{reason}`.", view=cancel_button)
+            await ctx.channel.send(content=f"{member.mention} a été mute{f" pendant {duration} minutes" if duration else ""} pour la raison `{reason}`.", view=CancelMuteButton())
             await member.send(f"Vous avez été mute sur le serveur {ctx.guild.name} {f"jusqu'au <t:{int(timestamp)}:F>(<t:{int(timestamp)}:R>)" if duration else ""} pour la raison `{reason}`.")
             if discord.utils.get(ctx.author.roles, id=1438240386815496385):
-                await ctx.author.send(content=f"Vous avez mute {member.mention} sur le serveur {ctx.guild.name} {f"jusqu'au <t:{int(timestamp)}:F>(<t:{int(timestamp)}:R>) " if duration else ""}pour la raison `{reason}`.", view=cancel_button)
+                await ctx.author.send(content=f"Vous avez mute {member.mention} sur le serveur {ctx.guild.name} {f"jusqu'au <t:{int(timestamp)}:F>(<t:{int(timestamp)}:R>) " if duration else ""}pour la raison `{reason}`.", view=CancelMuteButton())
             else:
                 await discord.roles.get
         elif member.id == OWNER_ID:
