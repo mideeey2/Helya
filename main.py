@@ -420,9 +420,12 @@ async def mute(ctx, member:discord.Member, duration:int=None, reason:str="Aucun 
     try:
         if ctx.author.guild_permissions.administrator:
             date=None
+            if duration == 0:
+                modified_duration = 5000000000000000000
             if duration:
-                date = utcnow() + datetime.timedelta(minutes=duration)
-                timestamp = int(date.timestamp())
+                modified_duration = duration
+            date = utcnow() + datetime.timedelta(minutes=duration or modified_duration)
+            timestamp = int(date.timestamp())
             cancel_button = Button(label="Annuler l'action", color=discord.ButtonStyle.green, interaction_msg=f"Vous avez annulé le mute de {member.mention}.", onclick_code=lambda interaction: member.edit(timed_out_until=None))
             await member.edit(timed_out_until=date if date else 360*100, reason=reason)
             await ctx.channel.send(content=f"{member.mention} a été mute{f" pendant {duration} minutes" if duration else ""} pour la raison `{reason}`.", view=cancel_button)
