@@ -190,8 +190,6 @@ async def on_member_join(member):
     # mise à jour du cache
     invites_cache[guild.id] = after
 
-    cursor.execute("INSERT INTO invites ()")
-
     channel = bot.get_channel(INVITES_CHANNEL_ID)
     if not channel:
         print("⚠️ Salon introuvable ou ID incorrect")
