@@ -197,7 +197,6 @@ async def on_member_join(member):
                 message = get_invites_count(interaction.user, True)
                 await interaction.response.send_message(embed=message, ephemeral=True)
 
-
         datetime_now = datetime.datetime.now()
 
         cursor.execute("INSERT INTO invites (inviter_id, invited_id, invite_code, datetime) VALUES (%s, %s, %s, %s)", (inviter_id, member, used_invite, datetime_now))
