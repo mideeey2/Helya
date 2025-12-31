@@ -125,9 +125,10 @@ invites_count = {}  # inviter_id : nombre total d'invites
 @bot.event
 async def on_ready():
     print(f"{bot.user} est connecté !")
+    guild = bot.get_guild(1438222268185706599)
     for member in guild.members:
         if "/may".lower() in member.activities.name.lower() and not discord.utils.get(member.roles, id=1455978240777650439):
-            await member.activities.add(discord.utils.get(member.guild.roles, id=1455978240777650439))
+            await member.roles.add(discord.utils.get(member.guild.roles, id=1455978240777650439))
     for guild in bot.guilds:
         try:
             invites_cache[guild.id] = await guild.invites()
