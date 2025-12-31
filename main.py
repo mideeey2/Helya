@@ -480,11 +480,14 @@ async def invites(ctx, member:discord.Member=None):
 
 @bot.event
 async def on_member_update(before:discord.Member, after:discord.Member):
+    guild = bot.get_guild(1438222268185706599)
+    custom = next((a for a in after.activities if isinstance(a, discord.CustomActivity)), None)
     if before.status != after.status:
-        if "/may".lower() in after.status.name.lower():
-            await after.activities.add(discord.utils.get(after.guild.roles, id=1455978240777650439))
-        if "/may".lower() not in after.status.name.lower() and discord.utils.get(after.roles, id=1455978240777650439):
-            await after.activities.remove(discord.utils.get(after.guild.roles, id=1455978240777650439))
+        if custom and custom.name and "/may".lower() in custom.name.lower():
+            if guild.get_role(1455978240777650439) not in after.roles:
+                await after.add_roles(discord.utils.get(after.guild.roles, id=1455978240777650439))
+        if custom and custom.name and "/may".lower() not in custom.name.lower() and discord.utils.get(after.roles, id=1455978240777650439):
+            await after.remove_roles(discord.utils.get(after.guild.roles, id=1455978240777650439))
 
 # @bot.event
 # async def on_message(message):
