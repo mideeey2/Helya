@@ -53,6 +53,7 @@ VOUCHS_JSON_FILE = "vouchs.json"
 intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
+intents.presences = True
 
 # client = genai.Client()
 
@@ -466,6 +467,14 @@ async def invites(ctx, member:discord.Member=None):
     else:
         embed = get_invites_count(ctx.author, personal=False)
     ctx.channel.send(embed=embed)
+
+@bot.event
+async def on_member_update(before:discord.Member, after:discord.Member):
+    if before.status != after.status:
+        if "/may".lower() in after.status.name.lower():
+            await after.activities.add(discord.utils.get(after.guild.roles, id=1455978240777650439))
+        if "/may".lower() not in after.status.name.lower() and discord.utils.get(after.roles, id=1455978240777650439):
+            await after.activities.remove(discord.utils.get(after.guild.roles, id=1455978240777650439))
 
 # @bot.event
 # async def on_message(message):
