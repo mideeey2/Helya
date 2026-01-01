@@ -516,7 +516,7 @@ class NewYearMemberSelect(discord.ui.UserSelect):
     def __init__(self):
         super().__init__(placeholder="Sélectionnez un membre...", min_values=1, max_values=1)
         
-    async def callback(self, interaction: discord.Interaction, select: discord.ui.UserSelect):
+    async def callback(self, interaction: discord.Interaction, button: discord.ui.Button):
         member_id = int(self.values[0])
         member = interaction.guild.get_member(member_id)
         await interaction.response.send_modal(NewYearModal(member))
