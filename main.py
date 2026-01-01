@@ -535,6 +535,7 @@ class NewYearMemberSelect(discord.ui.UserSelect):
             for sent_message in sent_messages:
                 if sent_message[2] == interaction.user.name:
                     await interaction.response.send_message(content="Vous avez déjà envoyé un message de bonne année à cette personne.", ephemeral=True)
+                    return
                 else:
                     pass
             await interaction.response.send_modal(NewYearModal(member))
