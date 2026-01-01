@@ -528,16 +528,18 @@ class NewYearMemberSelect(discord.ui.UserSelect):
         sent_messages = cursor.fetchall()
         member = self.values[0]
         if member.id == interaction.user.id:
-            await interaction.response.send_message(content="Vous ne pouvez pas vous envoyer un message de bonne année à vous-même! 😅<a:tropdrole:1453334029037338656>")
+            embed = discord.Embed(title="Erreur", description="Vous ne pouvez pas vous envoyer un message de bonne année à vous-même! 😅<a:tropdrole:1453334029037338656>", color=discord.Color.red())
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
         elif len(sent_messages) >= 3:
-            await interaction.response.send_message(content="Vous ne pouvez pas envoyer plus de 3 messages de bonne année.")
+            embed = discord.Embed(title="Limite atteinte", description="Vous avez déjà envoyé 3 messages de bonne année cette année! 🎉", color=discord.Color.red())
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
         else:
             for sent_message in sent_messages:
                 if sent_message[2] == interaction.user.name:
-                    await interaction.response.send_message(content="Vous avez déjà envoyé un message de bonne année à cette personne.", ephemeral=True)
-                    print("déjà envoyé")
+                    embed = discord.Embed(title="Erreur", description="Vous avez déjà envoyé un message de bonne année à cette personne! 😅<a:tropdrole:1453334029037338656>", color=discord.Color.red())
+                    await interaction.response.send_message(embed=embed, ephemeral=True)
                     return
                 else:
                     pass
@@ -548,7 +550,8 @@ class NewYearButton(View):
         super().__init__(timeout=None)
     @discord.ui.button(label="Souhaiter une bonne année", style=discord.ButtonStyle.green, emoji="<a:tada:1453048315779481752>")
     async def new_year_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_message(content="Veuillez sélectionner le membre auquel vous souhaitez envoyer un message de bonne année.", view=NewYearMemberSelectView(), ephemeral=True)
+        embed = discord.Embed(title="Sélection du membre", description="Veuillez sélectionner le membre auquel vous souhaitez envoyer un message de bonne année.", color=discord.Color.green())
+        await interaction.response.send_message(embed=embed, view=NewYearMemberSelectView(), ephemeral=True)
 
 @bot.command()
 async def newyearstats(ctx, member:discord.Member=None):
