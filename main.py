@@ -205,7 +205,6 @@ async def on_member_join(member):
             message = get_invites_count(interaction.user, True)
             await interaction.response.send_message(embed=message, ephemeral=True)
         
-        personal_invites_button = Button(color=discord.ButtonStyle.green, label="Voir mes invitations", callback=invite_callback, json_file=None)
         welcome_embed = discord.Embed(title=f"{member} vient de rejoindre le serveur!",
                                       description=f"Il a été invité par <@{inviter.id}> qui a désormais {invites_count[inviter_id]} invitations! <a:pepeclap:1453682464181588065>\n Nous sommes désormais {guild.member_count} membres sur le serveur! <a:birb:1452995535882555524>", 
                                       color=discord.Color.green())
@@ -213,7 +212,7 @@ async def on_member_join(member):
         await channel.send(
             content=f"# <a:tada:1453048315779481752> Bienvenue {member.mention} <a:tada:1453048315779481752>",
             embed=welcome_embed,
-            view=personal_invites_button
+            view=PersonnalInvitesButton()
         )
     else:
         await channel.send(f"👀 {member.mention} a rejoint, mais je suis incapable de déterminer qui l'a invité.")
@@ -480,17 +479,19 @@ async def invites(ctx, member:discord.Member=None):
 @bot.event
 async def on_member_update(before:discord.Member, after:discord.Member):
     guild = bot.get_guild(1438222268185706599)
+    role = guild.get_role(1455978240777650439)
     before_custom = next((a for a in before.activities if isinstance(a, discord.CustomActivity)), None)
     after_custom = next((a for a in after.activities if isinstance(a, discord.CustomActivity)), None)
     print("UPDATE:", after.activities)
     if before_custom != after_custom:
-        await bot.get_channel(BOTS_CHANNEL_ID).send(f"Member Update detected for {after}. statut personnalisé : {after_custom.name if after_custom else 'None'}")
-        if after_custom and after_custom.name and "/may".lower() in after_custom.name.lower():
-            if guild.get_role(1455978240777650439) not in after.roles:
-                await after.add_roles(discord.utils.get(after.guild.roles, id=1455978240777650439))
-        else:
-            if guild.get_role(1455978240777650439) in after.roles:
-                await after.remove_roles(discord.utils.get(after.guild.roles, id=1455978240777650439))
+        if after_custom and after_custom.name:
+            await bot.get_channel(BOTS_CHANNEL_ID).send(f"Member Update detected for {after}. statut personnalisé : {after_custom.name if after_custom else 'None'}")
+            if after_custom and after_custom.name and "/may".lower() in after_custom.name.lower():
+                if role not in after.roles:
+                    await after.add_roles(discord.utils.get(after.guild.roles, id=1455978240777650439))
+            else:
+                if role in after.roles:
+                    await after.remove_roles(discord.utils.get(after.guild.roles, id=1455978240777650439))
 
 @bot.command()
 async def newyear(ctx):
