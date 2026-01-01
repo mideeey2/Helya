@@ -529,12 +529,15 @@ class NewYearMemberSelect(discord.ui.UserSelect):
         member = self.values[0]
         if member.id == interaction.user.id:
             await interaction.response.send_message(content="Vous ne pouvez pas vous envoyer un message de bonne année à vous-même! 😅<a:tropdrole:1453334029037338656>")
+            return
         elif len(sent_messages) >= 3:
             await interaction.response.send_message(content="Vous ne pouvez pas envoyer plus de 3 messages de bonne année.")
+            return
         else:
             for sent_message in sent_messages:
                 if sent_message[2] == interaction.user.name:
                     await interaction.response.send_message(content="Vous avez déjà envoyé un message de bonne année à cette personne.", ephemeral=True)
+                    print("déjà envoyé")
                     return
                 else:
                     pass
