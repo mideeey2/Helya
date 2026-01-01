@@ -503,9 +503,9 @@ class NewYearModal(Modal):
         super().__init__(title="Souhaiter une bonne année")
         self.add_item(discord.ui.TextInput(label="Votre message de bonne année", style=discord.TextStyle.paragraph, placeholder="Écrivez votre message ici...", max_length=2000, required=True))
         
-        async def on_submit(self, interaction: discord.Interaction, button: discord.ui.Button):
-            await member.send(content=f"Vous avez reçu un message de bonne anné de la part de {interaction.user.mention} qui vous dit :\n{self.children[0].value}")
-            await interaction.response.send_message(content=f"Votre message de bonne année a été envoyé à {member.mention} avec succès! <a:tada:1453048315779481752>", ephemeral=True)
+    async def on_submit(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await member.send(content=f"Vous avez reçu un message de bonne anné de la part de {interaction.user.mention} qui vous dit :\n{self.children[0].value}")
+        await interaction.response.send_message(content=f"Votre message de bonne année a été envoyé à {member.mention} avec succès! <a:tada:1453048315779481752>", ephemeral=True)
 
 class NewYearMemberSelectView(View):
     def __init__(self):
