@@ -507,6 +507,11 @@ class NewYearModal(Modal):
             await member.send(content=f"Vous avez reçu un message de bonne anné de la part de {interaction.user.mention} qui vous dit :\n{self.children[0].value}")
             await interaction.response.send_message(content=f"Votre message de bonne année a été envoyé à {member.mention} avec succès! <a:tada:1453048315779481752>", ephemeral=True)
 
+class NewYearMemberSelectView(View):
+    def __init__(self):
+        super().__init__(timeout=None)
+        self.add_item(NewYearMemberSelect())
+
 class NewYearMemberSelect(Select):
     def __init__(self):
         guild = bot.get_guild(1438222268185706599)
@@ -525,7 +530,7 @@ class NewYearButton(View):
         super().__init__(timeout=None)
     @discord.ui.button(label="Souhaiter une bonne année", style=discord.ButtonStyle.green, emoji="<a:tada:1453048315779481752>")
     async def new_year_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_message(content="Veuillez sélectionner le membre auquel vous souhaitez envoyer un message de bonne année.", view=NewYearMemberSelect(), ephemeral=True)
+        await interaction.response.send_message(content="Veuillez sélectionner le membre auquel vous souhaitez envoyer un message de bonne année.", view=NewYearMemberSelectView(), ephemeral=True)
 
 # @bot.event
 # async def on_message(message):
