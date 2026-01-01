@@ -512,15 +512,11 @@ class NewYearMemberSelectView(View):
         super().__init__(timeout=None)
         self.add_item(NewYearMemberSelect())
 
-class NewYearMemberSelect(Select):
+class NewYearMemberSelect(discord.ui.UserSelect):
     def __init__(self):
-        guild = bot.get_guild(1438222268185706599)
-        options = [
-            discord.SelectOption(label=member.name, value=str(member.id)) for member in guild.members if not member.bot
-        ]
-        super().__init__(placeholder="Sélectionnez un membre...", min_values=1, max_values=1, options=options)
+        super().__init__(placeholder="Sélectionnez un membre...", min_values=1, max_values=1)
         
-    async def callback(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def callback(self, interaction: discord.Interaction, select: discord.ui.UserSelect):
         member_id = int(self.values[0])
         member = interaction.guild.get_member(member_id)
         await interaction.response.send_modal(NewYearModal(member))
