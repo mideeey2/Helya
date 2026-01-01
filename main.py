@@ -524,7 +524,7 @@ class NewYearButton(View):
     def __init__(self):
         super().__init__(timeout=None)
     @discord.ui.button(label="Souhaiter une bonne année", style=discord.ButtonStyle.green, emoji="<a:tada:1453048315779481752>")
-    async def new_year_button(interaction: discord.Interaction, button: Button):
+    async def new_year_button(interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.send(content="Veuillez sélectionner le membre auquel vous souhaitez envoyer un message de bonne année.", view=NewYearMemberSelect())
 
 # @bot.event
