@@ -501,7 +501,7 @@ async def newyear(ctx):
 class NewYearModal(Modal):
     def __init__(self, member:discord.Member):
         super().__init__(title="Souhaiter une bonne année")
-        self.add_item(discord.ui.InputText(label="Votre message de bonne année", style=discord.InputTextStyle.long, placeholder="Écrivez votre message ici...", max_length=2000, required=True))
+        self.add_item(discord.ui.TextInput(label="Votre message de bonne année", style=discord.InputTextStyle.long, placeholder="Écrivez votre message ici...", max_length=2000, required=True))
         
         async def on_submit(self, interaction: discord.Interaction, button: discord.ui.Button):
             await member.send(content=f"Vous avez reçu un message de bonne anné de la part de {interaction.user.mention} qui vous dit :\n{self.children[0].value}")
