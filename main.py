@@ -7,7 +7,7 @@ import datetime
 from types import FunctionType
 from discord.utils import utcnow
 import psycopg2
-from discord.ui import Button, View
+from discord.ui import Button, View, Modal, InputText
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 conn = psycopg2.connect(DATABASE_URL)
@@ -491,6 +491,25 @@ async def on_member_update(before:discord.Member, after:discord.Member):
         else:
             if guild.get_role(1455978240777650439) in after.roles:
                 await after.remove_roles(discord.utils.get(after.guild.roles, id=1455978240777650439))
+
+@bot.command()
+async def newyear(ctx):
+    if ctx.author.id == OWNER_ID:
+        ctx.message.delete()
+        await ctx.channel.send(content="Souhaitez une bonne année à quelqu'un et obtenez le rôle spécial <@&1456236148224561232>", view=NewYearButton())
+
+class NewYearModal(Modal):
+    def __init__(self):
+        super().__init__(title="Souhaiter une bonne année")
+        self.add_item(InputText(label="Membre à qui envoyer le message", style=discord.MemberSelectOptionStyle.short, placeholder="Mentionnez le membre ici...", required=True))
+        self.add_item(InputText(label="Votre message de bonne année", style=discord.InputTextStyle.long, placeholder="Écrivez votre message ici...", max_length=2000, required=True))
+        
+class NewYearButton(View):
+    def __init__(self):
+        super().__init__(timeout=None)
+    @discord.ui.button(label="Souhaiter une bonne année", style=discord.ButtonStyle.green, emoji="<a:tada:1453048315779481752>")
+    async def new_year_button(interaction: discord.Interaction, button: Button):
+        await interaction.response.send_modal(NewYearModal())
 
 # @bot.event
 # async def on_message(message):
