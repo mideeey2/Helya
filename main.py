@@ -500,7 +500,7 @@ async def newyear(ctx):
 
 class NewYearModal(Modal):
     def __init__(self, member:discord.Member):
-        super().__init__(title="Souhaiter une bonne année")
+        super().__init__(title="Message de bonne année")
         self.add_item(discord.ui.TextInput(label="Votre message de bonne année", style=discord.TextStyle.paragraph, placeholder="Écrivez votre message ici...", max_length=2000, required=True))
         self.member = member
 
