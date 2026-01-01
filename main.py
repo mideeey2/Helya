@@ -505,8 +505,10 @@ class NewYearModal(Modal):
         self.member = member
 
     async def on_submit(self, interaction: discord.Interaction):
-        await self.member.send(content=f"Vous avez reçu un message de bonne anné de la part de {interaction.user.mention} qui vous dit :\n{self.children[0].value}")
-        await interaction.response.send_message(content=f"Votre message de bonne année a été envoyé à {self.member.mention} avec succès! <a:tada:1453048315779481752>", ephemeral=True)
+        await self.member.send(content=f"Vous avez reçu un message de bonne année de la part de {interaction.user.mention} qui vous dit :\n{self.children[0].value}")
+        await interaction.response.send_message(content=f"Votre message de bonne année a été envoyé à {self.member.mention} avec succès! <a:tada:1453048315779481752>\nVous avez reçu le rôle spécial <@&1456236148224561232>. <a:pepeclap:1453682464181588065>", ephemeral=True)
+        await interaction.user.add_roles(discord.utils.get(interaction.guild.roles, id=1456236148224561232))
+        cursor.execute("INSERT INTO newyear (sending, receiving, date) VALUES (%s, %s, %s)", (interaction.user.id, self.member.id, datetime.datetime.now().isoformat()))
 
 class NewYearMemberSelectView(View):
     def __init__(self):
@@ -519,7 +521,10 @@ class NewYearMemberSelect(discord.ui.UserSelect):
         
     async def callback(self, interaction: discord.Interaction):
         member = self.values[0]
-        await interaction.response.send_modal(NewYearModal(member))
+        if member.id == interaction.user.id:
+            await interaction.response.send_message(content="Vous ne pouvez pas vous envoyer un message de bonne année à vous-même! 😅")
+        else:
+            await interaction.response.send_modal(NewYearModal(member))
 
 class NewYearButton(View):
     def __init__(self):
@@ -527,6 +532,14 @@ class NewYearButton(View):
     @discord.ui.button(label="Souhaiter une bonne année", style=discord.ButtonStyle.green, emoji="<a:tada:1453048315779481752>")
     async def new_year_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.send_message(content="Veuillez sélectionner le membre auquel vous souhaitez envoyer un message de bonne année.", view=NewYearMemberSelectView(), ephemeral=True)
+
+@bot.command()
+async def newyearstats(ctx, member:discord.Member=None):
+    if ctx.author.id == OWNER_ID:
+        target_member = member or ctx.author
+        cursor.execute("SELECT COUNT(*) FROM newyear WHERE receiving = %s;", (str(target_member.id),))
+        count = cursor.fetchone()[0]
+        await ctx.channel.send(content=f"{target_member.mention} a reçu {count} message{'s' if count > 1 else ''} de bonne année.")
 
 # @bot.event
 # async def on_message(message):
