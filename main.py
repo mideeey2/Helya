@@ -508,7 +508,7 @@ class NewYearModal(Modal):
         await self.member.send(content=f"Vous avez reçu un message de bonne année de la part de {interaction.user.mention} qui vous dit :\n{self.children[0].value}")
         await interaction.response.send_message(content=f"Votre message de bonne année a été envoyé à {self.member.mention} avec succès! <a:tada:1453048315779481752>\nVous avez reçu le rôle spécial <@&1456236148224561232>. <a:pepeclap:1453682464181588065>", ephemeral=True)
         await interaction.user.add_roles(discord.utils.get(interaction.guild.roles, id=1456236148224561232))
-        cursor.execute("INSERT INTO newyear (sending, receiving, date) VALUES (%s, %s, %s)", (interaction.user.id, self.member.id, datetime.datetime.now().isoformat()))
+        cursor.execute("INSERT INTO newyear (sending, receiving, datetime) VALUES (%s, %s, %s)", (interaction.user.id, self.member.id, datetime.datetime.now().isoformat()))
 
 class NewYearMemberSelectView(View):
     def __init__(self):
