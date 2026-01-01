@@ -496,7 +496,8 @@ async def on_member_update(before:discord.Member, after:discord.Member):
 async def newyear(ctx):
     if ctx.author.id == OWNER_ID:
         await ctx.message.delete()
-        await ctx.channel.send(content="Souhaitez une bonne année à quelqu'un et obtenez le rôle spécial <@&1456236148224561232>", view=NewYearButton())
+        embed = discord.Embed(title="Message de bonne année <a:tada:1453048315779481752>", description="Souhaitez une bonne année à quelqu'un et obtenez le rôle spécial <@&1456236148224561232>!", color=discord.Color.green())
+        await ctx.channel.send(embed=embed, view=NewYearButton())
 
 class NewYearModal(Modal):
     def __init__(self, member:discord.Member):
@@ -521,11 +522,19 @@ class NewYearMemberSelect(discord.ui.UserSelect):
         super().__init__(placeholder="Sélectionnez un membre...", min_values=1, max_values=1)
         
     async def callback(self, interaction: discord.Interaction):
+        cursor.execute("SELECT * FROM newyear WHERE sending = %s", (interaction.user.name,))
+        sent_messages = cursor.fetchall()
         member = self.values[0]
         if member.id == interaction.user.id:
-            await interaction.response.send_message(content="Vous ne pouvez pas vous envoyer un message de bonne année à vous-même! 😅")
+            await interaction.response.send_message(content="Vous ne pouvez pas vous envoyer un message de bonne année à vous-même! 😅<a:tropdrole:1453334029037338656>")
+        elif len(sent_messages) >= 3:
+            await interaction.response.send_message(content="Vous ne pouvez pas envoyer plus de 3 messages de bonne année.")
         else:
-            await interaction.response.send_modal(NewYearModal(member))
+            for sent_message in sent_messages:
+                if sent_message[0] == interaction.user.name:
+                    await interaction.response.send_message(content="Vous avez déjà envoyé un message de bonne année à cette personne.", ephemeral=True)
+                else:
+                    await interaction.response.send_modal(NewYearModal(member))
 
 class NewYearButton(View):
     def __init__(self):
