@@ -509,9 +509,11 @@ class NewYearModal(Modal):
 
     async def on_submit(self, interaction: discord.Interaction):
         dm_embed = discord.Embed(title="Message de bonne année reçu! <a:tada:1453048315779481752>", description=f"Vous avez reçu un message de bonne année de la part de {interaction.user.mention} qui vous dit :\n{self.children[0].value}", color=discord.Color.green())
+        dm_embed.set_thumbnail(url=interaction.user.avatar.url if interaction.user.avatar else interaction.user.default_avatar.url)
         await self.member.send(embed=dm_embed)
         await interaction.user.add_roles(discord.utils.get(interaction.guild.roles, id=1456236148224561232))
         success_embed = discord.Embed(title="Message envoyé avec succès! <a:tada:1453048315779481752>", description=f"Votre message de bonne année a été envoyé à {self.member.mention} avec succès! Vous avez également reçu le rôle spécial <@&1456236148224561232>.", color=discord.Color.green())
+        success_embed.set_thumbnail(url=self.member.avatar.url if self.member.avatar else self.member.default_avatar.url)
         await interaction.response.send_message(embed=success_embed, ephemeral=True)
         cursor.execute("INSERT INTO newyear (sending, receiving, datetime) VALUES (%s, %s, %s)", (interaction.user.name, self.member.name, datetime.datetime.now().isoformat()))
         conn.commit()
