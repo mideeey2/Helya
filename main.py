@@ -495,7 +495,7 @@ async def on_member_update(before:discord.Member, after:discord.Member):
 @bot.command()
 async def newyear(ctx):
     if ctx.author.id == OWNER_ID:
-        ctx.message.delete()
+        await ctx.message.delete()
         await ctx.channel.send(content="Souhaitez une bonne année à quelqu'un et obtenez le rôle spécial <@&1456236148224561232>", view=NewYearButton())
 
 class NewYearModal(Modal):
@@ -515,7 +515,7 @@ class NewYearMemberSelect(Select):
         ]
         super().__init__(placeholder="Sélectionnez un membre...", min_values=1, max_values=1, options=options)
         
-        async def callback(self, interaction: discord.Interaction):
+        async def callback(self, interaction: discord.Interaction, view: View):
             member_id = int(self.values[0])
             member = interaction.guild.get_member(member_id)
             await interaction.response.send_modal(NewYearModal(member))
