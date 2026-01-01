@@ -7,7 +7,7 @@ import datetime
 from types import FunctionType
 from discord.utils import utcnow
 import psycopg2
-from discord.ui import Button, View, Modal, InputText
+from discord.ui import Button, View, Modal, Select
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 conn = psycopg2.connect(DATABASE_URL)
@@ -499,17 +499,33 @@ async def newyear(ctx):
         await ctx.channel.send(content="Souhaitez une bonne année à quelqu'un et obtenez le rôle spécial <@&1456236148224561232>", view=NewYearButton())
 
 class NewYearModal(Modal):
-    def __init__(self):
+    def __init__(self, member:discord.Member):
         super().__init__(title="Souhaiter une bonne année")
-        self.add_item(InputText(label="Membre à qui envoyer le message", style=discord.MemberSelectOptionStyle.short, placeholder="Mentionnez le membre ici...", required=True))
-        self.add_item(InputText(label="Votre message de bonne année", style=discord.InputTextStyle.long, placeholder="Écrivez votre message ici...", max_length=2000, required=True))
+        self.add_item(discord.ui.InputText(label="Votre message de bonne année", style=discord.InputTextStyle.long, placeholder="Écrivez votre message ici...", max_length=2000, required=True))
         
+        async def on_submit(self, interaction: discord.Interaction):
+            await member.send(content=f"Vous avez reçu un message de bonne anné de la part de {interaction.user.mention} qui vous dit :\n{self.children[0].value}")
+            await interaction.response.send_message(content=f"Votre message de bonne année a été envoyé à {member.mention} avec succès! <a:tada:1453048315779481752>", ephemeral=True)
+
+class NewYearMemberSelect(Select):
+    def __init__(self):
+        guild = bot.get_guild(1438222268185706599)
+        options = [
+            discord.SelectOption(label=member.name, value=str(member.id)) for member in guild.members if not member.bot
+        ]
+        super().__init__(placeholder="Sélectionnez un membre...", min_values=1, max_values=1, options=options)
+        
+        async def callback(self, interaction: discord.Interaction):
+            member_id = int(self.values[0])
+            member = interaction.guild.get_member(member_id)
+            await interaction.response.send_modal(NewYearModal(member))
+
 class NewYearButton(View):
     def __init__(self):
         super().__init__(timeout=None)
     @discord.ui.button(label="Souhaiter une bonne année", style=discord.ButtonStyle.green, emoji="<a:tada:1453048315779481752>")
     async def new_year_button(interaction: discord.Interaction, button: Button):
-        await interaction.response.send_modal(NewYearModal())
+        await interaction.response.send(content="Veuillez sélectionner le membre auquel vous souhaitez envoyer un message de bonne année.", view=NewYearMemberSelect())
 
 # @bot.event
 # async def on_message(message):
