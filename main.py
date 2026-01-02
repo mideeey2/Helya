@@ -112,7 +112,6 @@ def get_invites_count(user, personal:bool=False):
             embed = discord.Embed(title="C'est décevant...", description=f"Vous ({user.mention}) n'avez fait aucune invite sur ce serveur <:sad:1453730309865607321>", color=discord.Color.red())
     embed.set_thumbnail(url=user.avatar.url if user.avatar.url else user.default_avatar.url)
     return embed
-
 def get_vouchs_count(user:discord.Member):
     cursor.execute("SELECT * FROM vouchs WHERE user_id = %s;", (str(user.id),))
     return len(cursor.fetchall())
@@ -156,6 +155,14 @@ async def on_invite_create(invite):
     invites_cache[guild.id].append(invite)
 
 # --------- QUAND UN MEMBRE REJOINT ---------
+class PersonnalInvitesButton(View):
+    def __init__ (self):
+        super().__init__(timeout=180)
+    @discord.ui.button(label="Voir mes invitations", style=discord.ButtonStyle.green)
+    async def personal_invites_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        message = get_invites_count(interaction.user, True)
+        await interaction.response.send_message(embed=message, ephemeral=True)
+
 @bot.event
 async def on_member_join(member):
     guild = member.guild
@@ -171,6 +178,8 @@ async def on_member_join(member):
             if new.code == old.code and new.uses > old.uses:
                 used_invite = new
                 break
+        if used_invite:
+            break
 
     # mise à jour du cache
     invites_cache[guild.id] = after
@@ -189,21 +198,10 @@ async def on_member_join(member):
             invites_count[inviter_id] = 0
         invites_count[inviter_id] += 1
 
-        class PersonnalInvitesButton(View):
-            def __init__ (self):
-                super().__init__(timeout=180)
-            @discord.ui.button(label="Voir mes invitations", style=discord.ButtonStyle.green)
-            async def personal_invites_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-                message = get_invites_count(interaction.user, True)
-                await interaction.response.send_message(embed=message, ephemeral=True)
-
         datetime_now = datetime.datetime.now()
         cursor.execute("INSERT INTO invites (inviter_id, invited_id, invite_code, datetime) VALUES (%s, %s, %s, %s)", (inviter_id, member.id, used_invite.code, datetime_now))
-        
-        async def invite_callback(interaction: discord.Interaction):
-            message = get_invites_count(interaction.user, True)
-            await interaction.response.send_message(embed=message, ephemeral=True)
-        
+        conn.commit()
+
         welcome_embed = discord.Embed(title=f"{member} vient de rejoindre le serveur!",
                                       description=f"Il a été invité par <@{inviter.id}> qui a désormais {invites_count[inviter_id]} invitations! <a:pepeclap:1453682464181588065>\n Nous sommes désormais {guild.member_count} membres sur le serveur! <a:birb:1452995535882555524>", 
                                       color=discord.Color.green())
@@ -470,10 +468,17 @@ async def unmute(ctx, member:discord.Member, reason:str=None):
 @bot.command()
 async def invites(ctx, member:discord.Member=None):
     if member:
-        embed = get_invites_count(member, personal=True)
+        class PersonnalInvitesButton(View):
+            def __init__ (self):
+                super().__init__(timeout=180)
+            @discord.ui.button(label="Voir mes invitations", style=discord.ButtonStyle.green)
+            async def personal_invites_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+                message = get_invites_count(interaction.user, True)
+                await interaction.response.send_message(embed=message, ephemeral=True)
+        embed, button = get_invites_count(member, personal=True)
     else:
         embed = get_invites_count(ctx.author, personal=False)
-    ctx.channel.send(embed=embed)
+    ctx.channel.send(embed=embed, button=PersonnalInvitesButton() if member else None)
 
 @bot.event
 async def on_member_update(before:discord.Member, after:discord.Member):
