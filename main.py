@@ -426,7 +426,7 @@ async def vouchcount_callback(ctx, member:discord.Member, personal:bool):
 @bot.command()
 async def mute(ctx, member:discord.Member, duration:int=40320, reason:str="Aucun raison fournie"):
     try:
-        await ctx.channel.send("guild: ", GUILD)
+        await ctx.channel.send(f"guild: GUILD")
         mod_role = GUILD.get_role(1456391253783740530)
         if member.id == OWNER_ID:
             await ctx.channel.send(f"Vous n'avez pas la permission de mute mon créateur, développeur, et propriétaire : <@{OWNER_ID}><a:coeurbleu:1453664603744505896>")
