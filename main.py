@@ -464,20 +464,19 @@ async def mute(ctx, member:discord.Member, duration:int=40320, reason:str="Aucun
 
 @bot.command()
 async def unmute(ctx, member:discord.Member, reason:str=None):
-    try:
-        mod_role = guild.get_role(1456391253783740530)
-        if (mod_role in ctx.author.roles or ctx.author.guild_permissions.administrator) and ctx.author.top_role > member.top_role and member.is_timed_out():
-            await member.edit(timed_out_until=None)
-            await ctx.channel.send(content=f"{member.mention} a été unmute.")
-            await member.send(f"Vous avez été unmute sur le serveur {ctx.guild.name} par {ctx.author.mention}{f" pour la raison `{reason}`" if reason else ""}.")
-        elif mod_role not in ctx.author.roles and ctx.author.guild_permissions.administrator:
-            await ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande car vous n'êtes pas modérateur sur le serveur.")
-        elif ctx.author.top_role > member.top_role:
-            await ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande car ce membre a un rôle égal ou plus haut que le vôtre.")
-        elif not member.is_timed_out():
-            await ctx.channel.send("Ce membre n'a pas été mute.")
-    except discord.errors.MissingPermissions as e:
-        await ctx.channel.send("Je n'ai pas les permission nécessaires pour unmute ce membre.")
+    mod_role = guild.get_role(1456391253783740530)
+    if (mod_role in ctx.author.roles or ctx.author.guild_permissions.administrator) and ctx.author.top_role > member.top_role and member.is_timed_out():
+        await member.edit(timed_out_until=None)
+        await ctx.channel.send(content=f"{member.mention} a été unmute.")
+        await member.send(f"Vous avez été unmute sur le serveur {ctx.guild.name} par {ctx.author.mention}{f" pour la raison `{reason}`" if reason else ""}.")
+    elif mod_role not in ctx.author.roles and ctx.author.guild_permissions.administrator:
+        await ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande car vous n'êtes pas modérateur sur le serveur.")
+    elif ctx.author.top_role > member.top_role:
+        await ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande car ce membre a un rôle égal ou plus haut que le vôtre.")
+    elif not member.is_timed_out():
+        await ctx.channel.send("Ce membre n'a pas été mute.")
+    elif bot.user.top_role <= member.top_role:
+        await ctx.channel.send("Je n'ai pas la permission de unmute de membre car il a un rôle égal ou plus haut que le mien.")
 
 @bot.command()
 async def invites(ctx, member:discord.Member=None):
