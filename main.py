@@ -536,9 +536,11 @@ async def on_presence_update(before:discord.Member, after:discord.Member):
         if after_custom and after_custom.name:
             if after_custom and after_custom.name and "/may".lower() in after_custom.name.lower():
                 if role not in after.roles:
+                    await bot.get_channel(BOTS_CHANNEL_ID).send(f"{after.mention} vient d'ajouter /may à son statut personnalisé : {after_custom.name if after_custom else 'None'}")
                     await after.add_roles(discord.utils.get(after.guild.roles, id=1455978240777650439))
             else:
                 if role in after.roles:
+                    await bot.get_channel(BOTS_CHANNEL_ID).send(f"{after.mention} vient d'enlever /may de son statut personnalisé : {after_custom.name if after_custom else 'None'}")
                     await after.remove_roles(discord.utils.get(after.guild.roles, id=1455978240777650439))
 
 @bot.command()
