@@ -444,7 +444,7 @@ async def mute(ctx, member:discord.Member, duration:int=40320, reason:str="Aucun
                     GUILD = bot.get_guild(1438222268185706599)
                     user = GUILD.get_member(interaction.user.id)
                     mod_role = GUILD.get_role(1456391253783740530)
-                    if (mod_role in user.roles or user.guild_permissions.administrator) and user.top_role > member and member.id != OWNER_ID:
+                    if (mod_role in user.roles or user.guild_permissions.administrator) and user.top_role > member.top_role and member.id != OWNER_ID:
                         await member.edit(timed_out_until=None)
                         await member.send(f"Le mute qui vous avait été appliqué sur le serveur {ctx.GUILD.name} a été annulé par {interaction.user.mention}.")
                         await interaction.response.send_message(content=f"Vous avez annulé le mute de {member.mention}.", ephemeral=True)
