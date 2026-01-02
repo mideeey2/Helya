@@ -428,7 +428,9 @@ async def mute(ctx, member:discord.Member, duration:int=40320, reason:str="Aucun
     try:
         GUILD = bot.get_guild(1438222268185706599)
         mod_role = GUILD.get_role(1456391253783740530)
-        if member.id == OWNER_ID:
+        if member.id == ctx.author.id:
+            await ctx.channel.send("Vous ne pouvez pas vous mute vous-même <:lol:1453660116816760885><a:kekw:1438550949504225311>")
+        elif member.id == OWNER_ID:
             await ctx.channel.send(f"Vous n'avez pas la permission de mute mon créateur, développeur, et propriétaire : <@{OWNER_ID}><a:coeurbleu:1453664603744505896>")
         elif ((mod_role in ctx.author.roles or ctx.author.guild_permissions.administrator) and ctx.author.top_role > member.top_role) or ctx.author.id == OWNER_ID:
             date=None
@@ -456,8 +458,6 @@ async def mute(ctx, member:discord.Member, duration:int=40320, reason:str="Aucun
             await ctx.author.send(content=f"Vous avez mute {member.mention} sur le serveur {ctx.guild.name} jusqu'au <t:{int(timestamp)}:F>(<t:{int(timestamp)}:R>) pour la raison `{reason}`.", view=CancelMuteButton())
         elif GUILD.get_role(1456391253783740530) not in ctx.author.roles and not ctx.author.guild_permissions.administrator:
             await ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande.")
-        elif member.id == ctx.author.id:
-            await ctx.channel.send("Vous ne pouvez pas vous mute vous-même <:lol:1453660116816760885><a:kekw:1438550949504225311>")
         elif member.top_role >= ctx.author.top_role:
             await ctx.channel.send("Vous n'avez pas la permission de mute ce membre car il a un rôle égal ou supérieur au votre.")
         elif GUILD.get_member(bot.user.id).top_role <= member.top_role:
