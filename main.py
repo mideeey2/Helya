@@ -126,14 +126,18 @@ invites_count = {}  # inviter_id : nombre total d'invites
 @bot.event
 async def on_ready():
     print(f"{bot.user} est connecté !")
+    GUILD = bot.get_guild(1438222268185706599)
     for member in GUILD.members:
         custom = next((a for a in member.activities if isinstance(a, discord.CustomActivity)), None)
         if custom and custom.name and "/may".lower() in custom.name.lower():
             if GUILD.get_role(1455978240777650439) not in member.roles:
-                await member.add_roles(discord.utils.get(member.GUILD.roles, id=1455978240777650439))
+                await member.add_roles(discord.utils.get(member.guild.roles, id=1455978240777650439))
         else:
             if GUILD.get_role(1455978240777650439) in member.roles:
-                await member.remove_roles(discord.utils.get(member.GUILD.roles, id=1455978240777650439))
+                await member.remove_roles(discord.utils.get(member.guild.roles, id=1455978240777650439))
+    with open("couronne.png", "r") as f:
+        await GUILD.get_role(1438240386815496385).edit(display_icon=f.read())
+
 
     for guild in bot.guilds:
         try:
@@ -284,7 +288,7 @@ async def top_invites(interaction: discord.Interaction):
     sorted_invites = sorted(invites_count.items(), key=lambda x: x[1], reverse=True)
     top_message = "🏆 **Classement des invitations :**\n"
     for i, (user_id, count) in enumerate(sorted_invites[:10], start=1):
-        user = interaction.GUILD.get_member(int(user_id))
+        user = interaction.guild.get_member(int(user_id))
         if user:
             top_message += f"**{i}. {user.mention}** - {count} invitations\n"
         else:
@@ -501,8 +505,6 @@ async def kick(ctx, member:discord.Member, reason:str=None):
             await ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande car vous n'êtes pas modérateur sur le serveur.")
         elif ctx.author.top_role <= member.top_role:
             await ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande car ce membre a un rôle égal ou plus haut que le vôtre.")
-        elif not member.is_timed_out():
-            await ctx.channel.send("Ce membre n'a pas été mute.")
         elif bot.user.top_role <= member.top_role:
             await ctx.channel.send("Je n'ai pas la permission d'expulser de membre car il a un rôle égal ou plus haut que le mien.")
     except discord.Forbidden:
@@ -536,10 +538,10 @@ async def on_member_update(before:discord.Member, after:discord.Member):
             await bot.get_channel(BOTS_CHANNEL_ID).send(f"Member Update detected for {after}. statut personnalisé : {after_custom.name if after_custom else 'None'}")
             if after_custom and after_custom.name and "/may".lower() in after_custom.name.lower():
                 if role not in after.roles:
-                    await after.add_roles(discord.utils.get(after.GUILD.roles, id=1455978240777650439))
+                    await after.add_roles(discord.utils.get(after.guild.roles, id=1455978240777650439))
             else:
                 if role in after.roles:
-                    await after.remove_roles(discord.utils.get(after.GUILD.roles, id=1455978240777650439))
+                    await after.remove_roles(discord.utils.get(after.guild.roles, id=1455978240777650439))
 
 @bot.command()
 async def newyear(ctx):
@@ -559,7 +561,7 @@ class NewYearModal(Modal):
         dm_embed = discord.Embed(title="Message de bonne année reçu! <a:tada:1453048315779481752>", description=f"Vous avez reçu un message de bonne année de la part de {interaction.user.mention} qui vous dit :\n{self.children[0].value}", color=discord.Color.green())
         dm_embed.set_thumbnail(url=interaction.user.avatar.url if interaction.user.avatar else interaction.user.default_avatar.url)
         await self.member.send(embed=dm_embed)
-        await interaction.user.add_roles(discord.utils.get(interaction.GUILD.roles, id=1456236148224561232))
+        await interaction.user.add_roles(discord.utils.get(interaction.guild.roles, id=1456236148224561232))
         success_embed = discord.Embed(title="Message envoyé avec succès! <a:tada:1453048315779481752>", description=f"Votre message de bonne année a été envoyé à {self.member.mention} avec succès! Vous avez également reçu le rôle spécial <@&1456236148224561232>.", color=discord.Color.green())
         success_embed.set_thumbnail(url=self.member.avatar.url if self.member.avatar else self.member.default_avatar.url)
         await interaction.response.send_message(embed=success_embed, ephemeral=True)
