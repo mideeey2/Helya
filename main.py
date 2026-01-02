@@ -135,8 +135,9 @@ async def on_ready():
         else:
             if GUILD.get_role(1455978240777650439) in member.roles:
                 await member.remove_roles(discord.utils.get(member.guild.roles, id=1455978240777650439))
-    with open("couronne.png", "r") as f:
+    with open("couronne.png", "rb") as f:
         await GUILD.get_role(1438240386815496385).edit(display_icon=f.read())
+        print("sucess")
 
 
     for guild in bot.guilds:
