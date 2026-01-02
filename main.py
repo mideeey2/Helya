@@ -492,10 +492,10 @@ async def kick(ctx, member:discord.Member, reason:str=None):
     mod_role = guild.get_role(1456391253783740530)
     try:
         if member.id == ctx.author.id:
-                await ctx.channel.send("Vous ne pouvez pas vous expulser vous-même <:lol:1453660116816760885><a:kekw:1438550949504225311>")
+            await ctx.channel.send("Vous ne pouvez pas vous expulser vous-même <:lol:1453660116816760885><a:kekw:1438550949504225311>")
         elif member.id == OWNER_ID:
             await ctx.channel.send(f"Vous n'avez pas la permission d'expulser mon créateur, développeur, et propriétaire : <@{OWNER_ID}><a:coeurbleu:1453664603744505896>")
-        elif (ctx.author.id == OWNER_ID or (mod_role in ctx.author.roles or ctx.author.guild_permissions.administrator) and ctx.author.top_role > member.top_role) and member.is_timed_out():
+        elif (ctx.author.id == OWNER_ID or (mod_role in ctx.author.roles or ctx.author.guild_permissions.administrator) and ctx.author.top_role > member.top_role):
             await member.kick(reason=reason)
             await ctx.channel.send(content=f"{member.mention} a été explulsé du serveur{f" pour la raison `{reason}`" if reason else " mais aucune raison n'a été spécifiée"}.")
             await member.send(f"Vous avez été expulsé du serveur {ctx.guild.name} par {ctx.author.mention}{f" pour la raison `{reason}`" if reason else " mais aucune raison n'a été spécifiée"}.")
