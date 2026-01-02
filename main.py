@@ -534,7 +534,6 @@ async def on_presence_update(before:discord.Member, after:discord.Member):
     print("UPDATE:", after.activities)
     if before_custom != after_custom:
         if after_custom and after_custom.name:
-            await bot.get_channel(BOTS_CHANNEL_ID).send(f"Member Update detected for {after}. statut personnalisé : {after_custom.name if after_custom else 'None'}")
             if after_custom and after_custom.name and "/may".lower() in after_custom.name.lower():
                 if role not in after.roles:
                     await after.add_roles(discord.utils.get(after.guild.roles, id=1455978240777650439))
