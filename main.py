@@ -526,7 +526,7 @@ async def invites(ctx, member:discord.Member=None):
     ctx.channel.send(embed=embed, button=PersonnalInvitesButton() if member else None)
 
 @bot.event
-async def on_member_update(before:discord.Member, after:discord.Member):
+async def on_presence_update(before:discord.Member, after:discord.Member):
     guild = bot.get_guild(1438222268185706599)
     role = guild.get_role(1455978240777650439)
     before_custom = next((a for a in before.activities if isinstance(a, discord.CustomActivity)), None)
