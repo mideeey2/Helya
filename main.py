@@ -135,9 +135,6 @@ async def on_ready():
         else:
             if GUILD.get_role(1455978240777650439) in member.roles:
                 await member.remove_roles(discord.utils.get(member.guild.roles, id=1455978240777650439))
-    with open("couronne.png", "rb") as f:
-        await GUILD.get_role(1438240386815496385).edit(display_icon=f.read())
-        print("sucess")
 
 
     for guild in bot.guilds:
@@ -506,7 +503,7 @@ async def kick(ctx, member:discord.Member, reason:str=None):
             await ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande car vous n'êtes pas modérateur sur le serveur.")
         elif ctx.author.top_role <= member.top_role:
             await ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande car ce membre a un rôle égal ou plus haut que le vôtre.")
-        elif bot.user.top_role <= member.top_role:
+        elif GUILD.get_member(bot.user.id).top_role <= member.top_role:
             await ctx.channel.send("Je n'ai pas la permission d'expulser de membre car il a un rôle égal ou plus haut que le mien.")
     except discord.Forbidden:
         await ctx.channel.send("Je n'ai pas la permission d'expulser de membre car il a un rôle égal ou plus haut que le mien.")
