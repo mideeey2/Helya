@@ -426,7 +426,7 @@ async def vouchcount_callback(ctx, member:discord.Member, personal:bool):
 @bot.command()
 async def mute(ctx, member:discord.Member, duration:int=40320, reason:str="Aucun raison fournie"):
     try:
-        await ctx.channel.send(f"guild: {GUILD}")
+        GUILD = bot.get_guild(1438222268185706599)
         mod_role = GUILD.get_role(1456391253783740530)
         if member.id == OWNER_ID:
             await ctx.channel.send(f"Vous n'avez pas la permission de mute mon créateur, développeur, et propriétaire : <@{OWNER_ID}><a:coeurbleu:1453664603744505896>")
@@ -441,6 +441,7 @@ async def mute(ctx, member:discord.Member, duration:int=40320, reason:str="Aucun
                     super().__init__(timeout=180)
                 @discord.ui.button(label="Annuler l'action", style=discord.ButtonStyle.green)
                 async def cancel_mute_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+                    GUILD = bot.get_guild(1438222268185706599)
                     user = GUILD.get_member(interaction.user.id)
                     mod_role = GUILD.get_role(1456391253783740530)
                     if (mod_role in user.roles or user.guild_permissions.administrator) and user.top_role > member and member.id != OWNER_ID:
@@ -466,6 +467,7 @@ async def mute(ctx, member:discord.Member, duration:int=40320, reason:str="Aucun
 
 @bot.command()
 async def unmute(ctx, member:discord.Member, reason:str=None):
+    GUILD = bot.get_guild(1438222268185706599)
     mod_role = GUILD.get_role(1456391253783740530)
     if (ctx.author.id == OWNER_ID or (mod_role in ctx.author.roles or ctx.author.guild_permissions.administrator) and ctx.author.top_role > member.top_role) and member.is_timed_out():
         await member.edit(timed_out_until=None)
