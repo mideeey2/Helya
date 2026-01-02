@@ -426,6 +426,7 @@ async def vouchcount_callback(ctx, member:discord.Member, personal:bool):
 @bot.command()
 async def mute(ctx, member:discord.Member, duration:int=40320, reason:str="Aucun raison fournie"):
     try:
+        await ctx.channel.send(GUILD)
         mod_role = GUILD.get_role(1456391253783740530)
         if member.id == OWNER_ID:
             await ctx.channel.send(f"Vous n'avez pas la permission de mute mon créateur, développeur, et propriétaire : <@{OWNER_ID}><a:coeurbleu:1453664603744505896>")
@@ -450,8 +451,8 @@ async def mute(ctx, member:discord.Member, duration:int=40320, reason:str="Aucun
                         await interaction.response.send_message("Vous n'avez pas la permission d'utiliser cette commande.")
             await member.edit(timed_out_until=date, reason=reason)
             await ctx.channel.send(content=f"{member.mention} a été mute pendant {duration} minutes pour la raison `{reason}`.", view=CancelMuteButton())
-            await member.send(f"Vous avez été mute sur le serveur {ctx.GUILD.name} jusqu'au <t:{int(timestamp)}:F>(<t:{int(timestamp)}:R>) pour la raison `{reason}`.")
-            await ctx.author.send(content=f"Vous avez mute {member.mention} sur le serveur {ctx.GUILD.name} jusqu'au <t:{int(timestamp)}:F>(<t:{int(timestamp)}:R>) pour la raison `{reason}`.", view=CancelMuteButton())
+            await member.send(f"Vous avez été mute sur le serveur {ctx.guild.name} jusqu'au <t:{int(timestamp)}:F>(<t:{int(timestamp)}:R>) pour la raison `{reason}`.")
+            await ctx.author.send(content=f"Vous avez mute {member.mention} sur le serveur {ctx.guild.name} jusqu'au <t:{int(timestamp)}:F>(<t:{int(timestamp)}:R>) pour la raison `{reason}`.", view=CancelMuteButton())
         elif GUILD.get_role(1456391253783740530) not in ctx.author.roles and not ctx.author.guild_permissions.administrator:
             await ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande.")
         elif member.id == ctx.author.id:
@@ -469,7 +470,7 @@ async def unmute(ctx, member:discord.Member, reason:str=None):
     if (ctx.author.id == OWNER_ID or (mod_role in ctx.author.roles or ctx.author.guild_permissions.administrator) and ctx.author.top_role > member.top_role) and member.is_timed_out():
         await member.edit(timed_out_until=None)
         await ctx.channel.send(content=f"{member.mention} a été unmute.")
-        await member.send(f"Vous avez été unmute sur le serveur {ctx.GUILD.name} par {ctx.author.mention}{f" pour la raison `{reason}`" if reason else ""}.")
+        await member.send(f"Vous avez été unmute sur le serveur {ctx.guild.name} par {ctx.author.mention}{f" pour la raison `{reason}`" if reason else ""}.")
     elif mod_role not in ctx.author.roles and ctx.author.guild_permissions.administrator:
         await ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande car vous n'êtes pas modérateur sur le serveur.")
     elif ctx.author.top_role > member.top_role:
