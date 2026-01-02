@@ -514,6 +514,7 @@ async def on_member_update(before:discord.Member, after:discord.Member):
 @bot.command()
 async def newyear(ctx):
     if ctx.author.id == OWNER_ID:
+        guild = bot.get_guild(1438222268185706599)
         await ctx.message.delete()
         embed = discord.Embed(title="Message de bonne année <a:tada:1453048315779481752>", description="Souhaitez une bonne année à quelqu'un et obtenez le rôle spécial <@&1456236148224561232>!", color=discord.Color.green())
         embed.set_thumbnail(url=guild.icon.url)
