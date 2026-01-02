@@ -431,7 +431,7 @@ async def mute(ctx, member:discord.Member, duration:int=40320, reason:str="Aucun
         mod_role = guild.get_role(1456391253783740530)
         if member.id == OWNER_ID:
             await ctx.channel.send(f"Vous n'avez pas la permission de mute mon créateur, développeur, et propriétaire : <@{OWNER_ID}><a:coeurbleu:1453664603744505896>")
-        elif (mod_role in ctx.author.roles or ctx.author.guild_permissions.administrator) and ctx.author.top_role > member.top_role:
+        elif ((mod_role in ctx.author.roles or ctx.author.guild_permissions.administrator) and ctx.author.top_role > member.top_role) or ctx.author.id == OWNER_ID:
             date=None
             if duration:
                 date = (utcnow() + datetime.timedelta(minutes=duration))
@@ -467,7 +467,7 @@ async def mute(ctx, member:discord.Member, duration:int=40320, reason:str="Aucun
 async def unmute(ctx, member:discord.Member, reason:str=None):
     guild = bot.get_guild(1438222268185706599)
     mod_role = guild.get_role(1456391253783740530)
-    if (mod_role in ctx.author.roles or ctx.author.guild_permissions.administrator) and ctx.author.top_role > member.top_role and member.is_timed_out():
+    if (ctx.author.id == OWNER_ID or (mod_role in ctx.author.roles or ctx.author.guild_permissions.administrator) and ctx.author.top_role > member.top_role) and member.is_timed_out():
         await member.edit(timed_out_until=None)
         await ctx.channel.send(content=f"{member.mention} a été unmute.")
         await member.send(f"Vous avez été unmute sur le serveur {ctx.guild.name} par {ctx.author.mention}{f" pour la raison `{reason}`" if reason else ""}.")
