@@ -59,7 +59,7 @@ intents.presences = True
 # client = genai.Client()
 
 bot = commands.Bot(command_prefix="+", intents=intents)
-guild = bot.get_guild(1438222268185706599)
+GUILD = bot.get_guild(1438222268185706599)
 
 # --------- CHARGER LES INVITES DU FICHIER ---------
 
@@ -126,22 +126,21 @@ invites_count = {}  # inviter_id : nombre total d'invites
 @bot.event
 async def on_ready():
     print(f"{bot.user} est connecté !")
-    guild = bot.get_guild(1438222268185706599)
-    for member in guild.members:
+    for member in GUILD.members:
         custom = next((a for a in member.activities if isinstance(a, discord.CustomActivity)), None)
         if custom and custom.name and "/may".lower() in custom.name.lower():
-            if guild.get_role(1455978240777650439) not in member.roles:
-                await member.add_roles(discord.utils.get(member.guild.roles, id=1455978240777650439))
+            if GUILD.get_role(1455978240777650439) not in member.roles:
+                await member.add_roles(discord.utils.get(member.GUILD.roles, id=1455978240777650439))
         else:
-            if guild.get_role(1455978240777650439) in member.roles:
-                await member.remove_roles(discord.utils.get(member.guild.roles, id=1455978240777650439))
+            if GUILD.get_role(1455978240777650439) in member.roles:
+                await member.remove_roles(discord.utils.get(member.GUILD.roles, id=1455978240777650439))
 
     for guild in bot.guilds:
         try:
-            invites_cache[guild.id] = await guild.invites()
+            invites_cache[GUILD.id] = await GUILD.invites()
         except discord.Forbidden:
-            invites_cache[guild.id] = []
-            print(f"⚠️ Le bot n'a pas la permission de voir les invites sur {guild.name}")
+            invites_cache[GUILD.id] = []
+            print(f"⚠️ Le bot n'a pas la permission de voir les invites sur {GUILD.name}")
         finally:
             await bot.get_channel(BOTS_CHANNEL_ID).send(f"Le bot est en ligne")
     await bot.tree.sync()
@@ -151,10 +150,10 @@ async def on_ready():
 @bot.event
 async def on_invite_create(invite):
     guild = invite.guild
-    if guild.id not in invites_cache:
-        invites_cache[guild.id] = []
+    if GUILD.id not in invites_cache:
+        invites_cache[GUILD.id] = []
     print("Nouvelle invite créée :", invite.code)
-    invites_cache[guild.id].append(invite)
+    invites_cache[GUILD.id].append(invite)
 
 # --------- QUAND UN MEMBRE REJOINT ---------
 class PersonnalInvitesButton(View):
@@ -168,9 +167,9 @@ class PersonnalInvitesButton(View):
 @bot.event
 async def on_member_join(member):
     guild = member.guild
-    before = invites_cache.get(guild.id, [])
+    before = invites_cache.get(GUILD.id, [])
     try:
-        after = await guild.invites()
+        after = await GUILD.invites()
     except discord.Forbidden:
         after = before
 
@@ -184,7 +183,7 @@ async def on_member_join(member):
             break
 
     # mise à jour du cache
-    invites_cache[guild.id] = after
+    invites_cache[GUILD.id] = after
 
     channel = bot.get_channel(INVITES_CHANNEL_ID)
     if not channel:
@@ -205,7 +204,7 @@ async def on_member_join(member):
         conn.commit()
 
         welcome_embed = discord.Embed(title=f"{member} vient de rejoindre le serveur!",
-                                      description=f"Il a été invité par <@{inviter.id}> qui a désormais {invites_count[inviter_id]} invitations! <a:pepeclap:1453682464181588065>\n Nous sommes désormais {guild.member_count} membres sur le serveur! <a:birb:1452995535882555524>", 
+                                      description=f"Il a été invité par <@{inviter.id}> qui a désormais {invites_count[inviter_id]} invitations! <a:pepeclap:1453682464181588065>\n Nous sommes désormais {GUILD.member_count} membres sur le serveur! <a:birb:1452995535882555524>", 
                                       color=discord.Color.green())
         welcome_embed.set_thumbnail(url=member.avatar.url if member.avatar else member.default_avatar.url)
         await channel.send(
@@ -220,9 +219,9 @@ async def on_member_join(member):
 async def on_member_remove(member:discord.Member):
     channel = bot.get_channel(LEAVS_CHANNEL_ID)
     guild = member.guild
-    before = invites_cache.get(guild.id, [])
+    before = invites_cache.get(GUILD.id, [])
     try:
-        after = await guild.invites()
+        after = await GUILD.invites()
     except discord.Forbidden:
         after = before
 
@@ -234,7 +233,7 @@ async def on_member_remove(member:discord.Member):
                 break
 
     # mise à jour du cache
-    invites_cache[guild.id] = after
+    invites_cache[GUILD.id] = after
     if not channel:
         print("⚠️ Salon introuvable ou ID incorrect")
         return
@@ -285,7 +284,7 @@ async def top_invites(interaction: discord.Interaction):
     sorted_invites = sorted(invites_count.items(), key=lambda x: x[1], reverse=True)
     top_message = "🏆 **Classement des invitations :**\n"
     for i, (user_id, count) in enumerate(sorted_invites[:10], start=1):
-        user = interaction.guild.get_member(int(user_id))
+        user = interaction.GUILD.get_member(int(user_id))
         if user:
             top_message += f"**{i}. {user.mention}** - {count} invitations\n"
         else:
@@ -340,7 +339,7 @@ async def detruire(ctx):
     if ctx.author.id != OWNER_ID:
         await ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande.")
         return
-    for channel in ctx.guild.channels:
+    for channel in ctx.GUILD.channels:
         try:
             await channel.delete()
         except:
@@ -427,8 +426,7 @@ async def vouchcount_callback(ctx, member:discord.Member, personal:bool):
 @bot.command()
 async def mute(ctx, member:discord.Member, duration:int=40320, reason:str="Aucun raison fournie"):
     try:
-        guild = guild = bot.get_guild(1438222268185706599)
-        mod_role = guild.get_role(1456391253783740530)
+        mod_role = GUILD.get_role(1456391253783740530)
         if member.id == OWNER_ID:
             await ctx.channel.send(f"Vous n'avez pas la permission de mute mon créateur, développeur, et propriétaire : <@{OWNER_ID}><a:coeurbleu:1453664603744505896>")
         elif ((mod_role in ctx.author.roles or ctx.author.guild_permissions.administrator) and ctx.author.top_role > member.top_role) or ctx.author.id == OWNER_ID:
@@ -442,17 +440,19 @@ async def mute(ctx, member:discord.Member, duration:int=40320, reason:str="Aucun
                     super().__init__(timeout=180)
                 @discord.ui.button(label="Annuler l'action", style=discord.ButtonStyle.green)
                 async def cancel_mute_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-                    if (mod_role in interaction.user.roles or interaction.user.guild_permissions.administrator) and interaction.user.top_role > member and member.id != OWNER_ID:
+                    user = GUILD.get_member(interaction.user.id)
+                    mod_role = GUILD.get_role(1456391253783740530)
+                    if (mod_role in user.roles or user.guild_permissions.administrator) and user.top_role > member and member.id != OWNER_ID:
                         await member.edit(timed_out_until=None)
-                        await member.send(f"Le mute qui vous avait été appliqué sur le serveur {ctx.guild.name} a été annulé par {interaction.user.mention}.")
+                        await member.send(f"Le mute qui vous avait été appliqué sur le serveur {ctx.GUILD.name} a été annulé par {interaction.user.mention}.")
                         await interaction.response.send_message(content=f"Vous avez annulé le mute de {member.mention}.", ephemeral=True)
                     else:
                         await interaction.response.send_message("Vous n'avez pas la permission d'utiliser cette commande.")
             await member.edit(timed_out_until=date, reason=reason)
             await ctx.channel.send(content=f"{member.mention} a été mute pendant {duration} minutes pour la raison `{reason}`.", view=CancelMuteButton())
-            await member.send(f"Vous avez été mute sur le serveur {ctx.guild.name} jusqu'au <t:{int(timestamp)}:F>(<t:{int(timestamp)}:R>) pour la raison `{reason}`.")
-            await ctx.author.send(content=f"Vous avez mute {member.mention} sur le serveur {ctx.guild.name} jusqu'au <t:{int(timestamp)}:F>(<t:{int(timestamp)}:R>) pour la raison `{reason}`.", view=CancelMuteButton())
-        elif guild.get_role(1456391253783740530) not in ctx.author.roles and not ctx.author.guild_permissions.administrator:
+            await member.send(f"Vous avez été mute sur le serveur {ctx.GUILD.name} jusqu'au <t:{int(timestamp)}:F>(<t:{int(timestamp)}:R>) pour la raison `{reason}`.")
+            await ctx.author.send(content=f"Vous avez mute {member.mention} sur le serveur {ctx.GUILD.name} jusqu'au <t:{int(timestamp)}:F>(<t:{int(timestamp)}:R>) pour la raison `{reason}`.", view=CancelMuteButton())
+        elif GUILD.get_role(1456391253783740530) not in ctx.author.roles and not ctx.author.guild_permissions.administrator:
             await ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande.")
         elif member.id == ctx.author.id:
             await ctx.channel.send("Vous ne pouvez pas vous mute vous-même <:lol:1453660116816760885><a:kekw:1438550949504225311>")
@@ -465,12 +465,11 @@ async def mute(ctx, member:discord.Member, duration:int=40320, reason:str="Aucun
 
 @bot.command()
 async def unmute(ctx, member:discord.Member, reason:str=None):
-    guild = bot.get_guild(1438222268185706599)
-    mod_role = guild.get_role(1456391253783740530)
+    mod_role = GUILD.get_role(1456391253783740530)
     if (ctx.author.id == OWNER_ID or (mod_role in ctx.author.roles or ctx.author.guild_permissions.administrator) and ctx.author.top_role > member.top_role) and member.is_timed_out():
         await member.edit(timed_out_until=None)
         await ctx.channel.send(content=f"{member.mention} a été unmute.")
-        await member.send(f"Vous avez été unmute sur le serveur {ctx.guild.name} par {ctx.author.mention}{f" pour la raison `{reason}`" if reason else ""}.")
+        await member.send(f"Vous avez été unmute sur le serveur {ctx.GUILD.name} par {ctx.author.mention}{f" pour la raison `{reason}`" if reason else ""}.")
     elif mod_role not in ctx.author.roles and ctx.author.guild_permissions.administrator:
         await ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande car vous n'êtes pas modérateur sur le serveur.")
     elif ctx.author.top_role > member.top_role:
@@ -497,8 +496,7 @@ async def invites(ctx, member:discord.Member=None):
 
 @bot.event
 async def on_member_update(before:discord.Member, after:discord.Member):
-    guild = bot.get_guild(1438222268185706599)
-    role = guild.get_role(1455978240777650439)
+    role = GUILD.get_role(1455978240777650439)
     before_custom = next((a for a in before.activities if isinstance(a, discord.CustomActivity)), None)
     after_custom = next((a for a in after.activities if isinstance(a, discord.CustomActivity)), None)
     print("UPDATE:", after.activities)
@@ -507,18 +505,17 @@ async def on_member_update(before:discord.Member, after:discord.Member):
             await bot.get_channel(BOTS_CHANNEL_ID).send(f"Member Update detected for {after}. statut personnalisé : {after_custom.name if after_custom else 'None'}")
             if after_custom and after_custom.name and "/may".lower() in after_custom.name.lower():
                 if role not in after.roles:
-                    await after.add_roles(discord.utils.get(after.guild.roles, id=1455978240777650439))
+                    await after.add_roles(discord.utils.get(after.GUILD.roles, id=1455978240777650439))
             else:
                 if role in after.roles:
-                    await after.remove_roles(discord.utils.get(after.guild.roles, id=1455978240777650439))
+                    await after.remove_roles(discord.utils.get(after.GUILD.roles, id=1455978240777650439))
 
 @bot.command()
 async def newyear(ctx):
     if ctx.author.id == OWNER_ID:
-        guild = bot.get_guild(1438222268185706599)
         await ctx.message.delete()
         embed = discord.Embed(title="Message de bonne année <a:tada:1453048315779481752>", description="Souhaitez une bonne année à quelqu'un et obtenez le rôle spécial <@&1456236148224561232>!", color=discord.Color.green())
-        embed.set_thumbnail(url=guild.icon.url)
+        embed.set_thumbnail(url=GUILD.icon.url)
         await ctx.channel.send(embed=embed, view=NewYearButton())
 
 class NewYearModal(Modal):
@@ -531,7 +528,7 @@ class NewYearModal(Modal):
         dm_embed = discord.Embed(title="Message de bonne année reçu! <a:tada:1453048315779481752>", description=f"Vous avez reçu un message de bonne année de la part de {interaction.user.mention} qui vous dit :\n{self.children[0].value}", color=discord.Color.green())
         dm_embed.set_thumbnail(url=interaction.user.avatar.url if interaction.user.avatar else interaction.user.default_avatar.url)
         await self.member.send(embed=dm_embed)
-        await interaction.user.add_roles(discord.utils.get(interaction.guild.roles, id=1456236148224561232))
+        await interaction.user.add_roles(discord.utils.get(interaction.GUILD.roles, id=1456236148224561232))
         success_embed = discord.Embed(title="Message envoyé avec succès! <a:tada:1453048315779481752>", description=f"Votre message de bonne année a été envoyé à {self.member.mention} avec succès! Vous avez également reçu le rôle spécial <@&1456236148224561232>.", color=discord.Color.green())
         success_embed.set_thumbnail(url=self.member.avatar.url if self.member.avatar else self.member.default_avatar.url)
         await interaction.response.send_message(embed=success_embed, ephemeral=True)
