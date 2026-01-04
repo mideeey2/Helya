@@ -584,8 +584,7 @@ async def invites(ctx, member:discord.Member=None):
 
 @bot.event
 async def on_presence_update(before:discord.Member, after:discord.Member):
-    guild = bot.get_guild(1438222268185706599)
-    role = guild.get_role(1455978240777650439)
+    role = after.guild.get_role(1455978240777650439)
     before_custom = next((a for a in before.activities if isinstance(a, discord.CustomActivity)), None)
     after_custom = next((a for a in after.activities if isinstance(a, discord.CustomActivity)), None)
     if before_custom != after_custom:
@@ -723,7 +722,7 @@ class TicketCloseConfirmation(View):
             embed=discord.Embed(title="Ticket fermé", description=f"{user.mention} vient de fermer son ticket.")
             await interaction.response.send_message(embed=embed)
             button.label("Rouvrir le ticket")
-            button.emoji("✅")
+            button.emoji("🔓")
             button.style(discord.ButtonStyle.green)
 
 class TicketOptionsView(View):
@@ -751,7 +750,7 @@ class TicketOptionsView(View):
             handle_embed = discord.Embed(title="Manque de permissions", description="Vous n'avez pas la permission de prendre en charge ce ticket!", color=discord.Color.red())
             interaction.response.send_message(embed=handle_embed, ephemeral=True)
     
-    @discord.ui.button(label="Fermer le ticket", emoji="❌", style=discord.ButtonStyle.danger)
+    @discord.ui.button(label="Fermer le ticket", emoji="🔒", style=discord.ButtonStyle.danger)
     async def close_ticket(self, interaction:discord.Interaction, button:discord.Button):
         user = interaction.guild.get_member(interaction.user.id)
         for moderator_role in self.moderator_roles:
