@@ -766,7 +766,7 @@ class TicketOptionsView(View):
             confirmation_embed = discord.Embed(title="Confirmation", description="Êtes-vous sûr de vouloir fermer et supprimer le ticket?", color=discord.Color.red())
         else:
             confirmation_embed = discord.Embed(title="Confirmation", description="Êtes-vous sûr de vouloir fermer le ticket?", color=discord.Color.red())
-        await interaction.response.send_message(embed=confirmation_embed, view=TicketCloseConfirmation())
+        await interaction.response.send_message(embed=confirmation_embed, view=TicketCloseConfirmation(self.moderator_roles, self.member))
 
 class TicketReasonModal(Modal):
     def __init__(self):
