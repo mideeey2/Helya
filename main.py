@@ -45,6 +45,10 @@ SMASHORPASS_CHANNEL_ID = 1453104548809015467
 VOUCH_CHANNEL_ID = 1452648909716586719
 BOTS_CHANNEL_ID = 1445785148011446323
 OWNER_ID = 1071516026484822096
+TICKET_CHANNEL_ID = 1438250538163634176
+TICKET_CATEGORY_ID = 1438249962331705476
+MOD_ROLE_ID = 1456391253783740530
+MM_ROLE_ID = 1443685365545177270
 
 INVITES_JSON_FILE = "invites.json"
 GIVEAWAYS_JSON_FILE = "giveaways.json"
@@ -443,7 +447,7 @@ async def mute(ctx, member:discord.Member, duration:int=40320, reason:str="Aucun
             class CancelMuteButton(View):
                 def __init__ (self):
                     super().__init__(timeout=180)
-                @discord.ui.button(label="Annuler l'action", style=discord.ButtonStyle.green)
+                @discord.ui.button(label="Annuler l'action", style=discord.ButtonStyle.red, emoji="<a:non:1453011584569053197>")
                 async def cancel_mute_button(self, interaction: discord.Interaction, button: discord.ui.Button):
                     guild = bot.get_guild(1438222268185706599)
                     user = guild.get_member(interaction.user.id)
@@ -504,11 +508,64 @@ async def kick(ctx, member:discord.Member, reason:str=None):
         elif ctx.author.top_role <= member.top_role:
             await ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande car ce membre a un rôle égal ou plus haut que le vôtre.")
         elif guild.get_member(bot.user.id).top_role <= member.top_role:
-            await ctx.channel.send("Je n'ai pas la permission d'expulser de membre car il a un rôle égal ou plus haut que le mien.")
+            await ctx.channel.send("Je n'ai pas la permission d'expulser ce membre car il a un rôle égal ou plus haut que le mien.")
     except discord.Forbidden:
-        await ctx.channel.send("Je n'ai pas la permission d'expulser de membre car il a un rôle égal ou plus haut que le mien.")
+        await ctx.channel.send("Je n'ai pas la permission d'expulser ce membre car il a un rôle égal ou plus haut que le mien.")
     except Exception as e:
         await ctx.channel.send(f"Une erreur est survenue lors de l'exécution de l'action. Erreur : `{e}`")
+
+@bot.command()
+async def ban(ctx, member:discord.Member, reason:str=None):
+    guild = bot.get_guild(1438222268185706599)
+    mod_role = guild.get_role(1456391253783740530)
+    try:
+        if member.id == ctx.author.id:
+            await ctx.channel.send("Vous ne pouvez pas vous bannir vous-même <:lol:1453660116816760885><a:kekw:1438550949504225311>")
+        elif member.id == OWNER_ID:
+            await ctx.channel.send(f"Vous n'avez pas la permission de bannir mon créateur, développeur, et propriétaire : <@{OWNER_ID}><a:coeurbleu:1453664603744505896>")
+        elif (ctx.author.id == OWNER_ID or (mod_role in ctx.author.roles or ctx.author.guild_permissions.administrator) and ctx.author.top_role > member.top_role):
+            class CancelBanButton(View):
+                def __init__(self, member):
+                    super().__init__()
+                @discord.ui.button(label="Annuler l'action", emoji="<a:non:1453011584569053197>", style=discord.ButtonStyle.red)
+                async def cancel_ban_button(self, interaction: discord.Interaction, button:discord.Button):
+                    user = guild.get_member(interaction.user.id)
+                    if (mod_role in user.roles or user.guild_permissions.administrator) and user.top_role > member.top_role and member.id != OWNER_ID:
+                        member.unban()
+                        interaction.response.send_message(f"{member.mention} a été unban avec succès!")
+                        member.send(f"Vous avez été unban du serveur **{guild.name}** par {user.mention}!")
+                        user.send(f"Vous avez unban {member.mention} sur le serveur **{guild.name}**")
+            await member.ban(reason=reason)
+            await ctx.channel.send(content=f"{member.mention} a été banni du serveur{f" pour la raison `{reason}`" if reason else " mais aucune raison n'a été spécifiée"}.")
+            await member.send(f"Vous avez été banni du serveur {ctx.guild.name} par {ctx.author.mention}{f" pour la raison `{reason}`" if reason else " mais aucune raison n'a été spécifiée"}.")
+        elif mod_role not in ctx.author.roles and ctx.author.guild_permissions.administrator:
+            await ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande car vous n'êtes pas modérateur sur le serveur.")
+        elif ctx.author.top_role <= member.top_role:
+            await ctx.channel.send("Vous n'avez pas la permission de bannir ce membre car il a un rôle égal ou plus haut que le vôtre.")
+        elif guild.get_member(bot.user.id).top_role <= member.top_role:
+            await ctx.channel.send("Je n'ai pas la permission de bannir ce membre car il a un rôle égal ou plus haut que le mien.")
+    except discord.Forbidden:
+        await ctx.channel.send("Je n'ai pas la permission de bannir ce membre car il a un rôle égal ou plus haut que le mien.")
+    except Exception as e:
+        await ctx.channel.send(f"Une erreur est survenue lors de l'exécution de l'action. Erreur : `{e}`")
+
+@bot.command()
+async def unban(ctx, member:discord.Member, reason:str=None):
+    guild = bot.get_guild(1438222268185706599)
+    mod_role = guild.get_role(1456391253783740530)
+    if (ctx.author.id == OWNER_ID or (mod_role in ctx.author.roles or ctx.author.guild_permissions.administrator) and ctx.author.top_role > member.top_role) and member.is_timed_out():
+        await member.edit(timed_out_until=None)
+        await ctx.channel.send(content=f"{member.mention} a été unban.")
+        await member.send(f"Vous avez été unban sur le serveur {ctx.guild.name} par {ctx.author.mention}{f" pour la raison `{reason}`" if reason else ""}.")
+    elif mod_role not in ctx.author.roles and ctx.author.guild_permissions.administrator:
+        await ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande car vous n'êtes pas modérateur sur le serveur.")
+    elif ctx.author.top_role <= member.top_role:
+        await ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande car ce membre a un rôle égal ou plus haut que le vôtre.")
+    elif not member.is_timed_out():
+        await ctx.channel.send("Ce membre n'a pas été banni!")
+    elif bot.user.top_role <= member.top_role:
+        await ctx.channel.send("Je n'ai pas la permission de unban de membre car il a un rôle égal ou plus haut que le mien.")
+
 
 @bot.command()
 async def invites(ctx, member:discord.Member=None):
@@ -536,11 +593,9 @@ async def on_presence_update(before:discord.Member, after:discord.Member):
         if after_custom and after_custom.name:
             if after_custom and after_custom.name and "/may".lower() in after_custom.name.lower():
                 if role not in after.roles:
-                    await bot.get_channel(BOTS_CHANNEL_ID).send(f"{after.mention} vient d'ajouter /may à son statut personnalisé : {after_custom.name if after_custom else 'None'}")
                     await after.add_roles(discord.utils.get(after.guild.roles, id=1455978240777650439))
             else:
                 if role in after.roles:
-                    await bot.get_channel(BOTS_CHANNEL_ID).send(f"{after.mention} vient d'enlever /may de son statut personnalisé : {after_custom.name if after_custom else 'None'}")
                     await after.remove_roles(discord.utils.get(after.guild.roles, id=1455978240777650439))
 
 @bot.command()
@@ -614,6 +669,180 @@ async def newyearstats(ctx, member:discord.Member=None):
         cursor.execute("SELECT COUNT(*) FROM newyear WHERE receiving = %s;", (str(target_member.name),))
         count = cursor.fetchone()[0]
         await ctx.channel.send(content=f"{target_member.mention} a reçu {count} message{'s' if count > 1 else ''} de bonne année.")
+
+class ReopenDeleteTicket(View):
+    def __init__(self, member:discord.Member):
+        super().__init__()
+        self.member = member
+    
+    @discord.ui.button(label="Réouvrir le ticket", style=discord.ButtonStyle.green)
+    async def reopen_ticket_button(self, interaction:discord.Interaction, button:discord.Button):
+        user = interaction.guild.get_member(interaction.user.id)
+        await interaction.response.send_message(content=self.member.mention, embed=reopened_embed)
+        reopened_embed = discord.Embed(title=f"Ticket réouvert", description=f"Votre ticket a été ouvert par {user.mention}", color=discord.Color.green())
+        if user.id != self.member.id:
+            await self.member.send(f"Votre ticket sur {interaction.guild.name} a été réouvert par {user.mention}")
+        await interaction.response.send_message(content=self.member.mention if user.id == self.member.id else None, embed=reopened_embed)
+
+    @discord.ui.button(label="Supprimer le ticket", style=discord.ButtonStyle.danger)
+    async def delete_ticket_button(self, interaction:discord.Interaction, button:discord.Button):
+        user = interaction.guild.get_member(interaction.member.id)
+        for moderator_role in self.moderator_roles:
+            if moderator_role in user.roles:
+                moderator = True
+                break
+            else:
+                moderator = False
+                break
+        if moderator or user.guild_permissions.administrator:
+            delete_confirmation_embed = discord.Embed(title="Confirmation", description="Êtes-vous sûr de vouloir supprimer ce ticket?", color=discord.Color.red)
+            await interaction.response.send_message(embed=delete_confirmation_embed, view=TicketCloseConfirmation(None, self.member), ephemeral=True)
+        else:
+            delete_confirmation_embed = discord.Embed(title="Manque de permissions", description="Vous n'avez pas la permission de supprimer ce ticket.", color=discord.Color.red())
+            await interaction.response.send_message(embed=delete_confirmation_embed, ephemeral=True)
+
+class TicketCloseConfirmation(View):
+    def __init__(self, moderator_roles, member:discord.Member):
+        super().__init__()
+        self.moderator_roles = moderator_roles
+        self.member = member
+    
+    @discord.ui.button(label="Oui", style=discord.ButtonStyle.green, emoji="✅")
+    async def yes_button(self, interaction:discord.Interaction, button:discord.Button):
+        user = guild.get_member(interaction.user.id)
+        for moderator_role in self.moderator_roles:
+            if moderator_role in user.roles:
+                moderator = True
+                break
+            else:
+                moderator = False
+                break
+        if moderator or user.guild_permissions.administrator:
+            await self.member.send(f"Votre ticket sur {interaction.guild.name} a été fermé par {user.mention}")
+            interaction.channel.delete(reason="Ticket fermé")
+        else:
+            embed=discord.Embed(title="Ticket fermé", description=f"{user.mention} vient de fermer son ticket.")
+            await interaction.response.send_message(embed=embed)
+            button.label("Rouvrir le ticket")
+            button.emoji("✅")
+            button.style(discord.ButtonStyle.green)
+
+class TicketOptionsView(View):
+    def __init__(self, moderator_roles, member:discord.Member):
+        super().__init__()
+        self.moderator_roles = moderator_roles
+        self.member = member
+    @discord.ui.button(label="Prendre en charge", style=discord.ButtonStyle.blurple, emoji="🛠️")
+    async def handle_button(self, interaction:discord.Interaction, button:discord.Button):
+        user = guild.get_member(interaction.user.id)
+        for moderator_role in self.moderator_roles:
+            if moderator_role in user.roles:
+                moderator = True
+                break
+            else:
+                moderator = False
+                break
+        if moderator or user.guild_permissions.administrator:
+            handle_embed = discord.Embed(title="Ticket pris en charge!", description=f"Votre ticket a été pris en charge par {user.mention}!", color=discord.Color.green())
+            interaction.response.send_message(content=self.member.mention, embed=handle_embed)
+            button.disabled = True
+            button.label = "Ticket pris en charge"
+            button.emoji = "✅"
+        else:
+            handle_embed = discord.Embed(title="Manque de permissions", description="Vous n'avez pas la permission de prendre en charge ce ticket!", color=discord.Color.red())
+            interaction.response.send_message(embed=handle_embed, ephemeral=True)
+    
+    @discord.ui.button(label="Fermer le ticket", emoji="❌", style=discord.ButtonStyle.danger)
+    async def close_ticket(self, interaction:discord.Interaction, button:discord.Button):
+        user = guild.get_member(interaction.user.id)
+        for moderator_role in self.moderator_roles:
+            if moderator_role in user.roles:
+                moderator = True
+                break
+            else:
+                moderator = False
+                break
+        
+        if moderator or self.member.guild_permissions.administrator:
+            confirmation_embed = discord.Embed(title="Confirmation", description="Êtes-vous sûr de vouloir fermer et supprimer le ticket?", color=discord.Color.red())
+        else:
+            confirmation_embed = discord.Embed(title="Confirmation", description="Êtes-vous sûr de vouloir fermer le ticket?", color=discord.Color.red())
+        await interaction.response.send_message(embed=confirmation_embed, view=TicketCloseConfirmation())
+
+class TicketReasonModal(Modal):
+    def __init__(self):
+        super().__init__(title="Raison d'ouverture de ticket")
+        reason_required_display = discord.ui.TextDisplay(content="## Veuillez éviter d'ouvrir des tickets sans raison à peine d'un avertissement.")
+        reason_input = discord.ui.TextInput(label="Raison", style=discord.TextStyle.paragraph)
+        TicketReasonModal().add_item(reason_input)
+        TicketReasonModal().add_item(reason_required_display)
+
+    async def on_submit(self, interaction:discord.Interaction):
+        mod = interaction.guild.get_role(1456391253783740530)
+        member = guild.get_member(interaction.user.id)
+        ticket_category = discord.utils.get(interaction.guild.categories, id=TICKET_CATEGORY_ID)
+        overwrites = {
+            interaction.guild.default_role: discord.PermissionOverwrite(view_channel=False),
+            member: discord.PermissionOverwrite(view_channel=True, send_messages=True),
+            mod: discord.PermissionOverwrite(view_channel=True, send_messages=True)
+        }
+        ticket_channel = await guild.create_text_channel(name=f"{self.values[0]}-{member.display_name}", category=ticket_category, overwrites=overwrites)
+        await interaction.response.send_message(content="Votre ticket est en cours de création", ephemeral=True)
+        await guild.get_member(id=OWNER_ID).send(f"{member.mention} vient de créer un ticket pour la raison `{self.values[0]}`. {ticket_channel.jump_url}")
+        ticket_debut_embed = discord.Embed(title=f"Ticket ouvert par {member}", description=f"", color=discord.Color.green())
+        ticket_debut_embed.set_thumbnail(member.avatar.url if member.avatar else member.default_avatar.url)
+        ticket_debut_embed.set_image(guild.icon.url)
+        ticket_debut_embed.set_author(name=member.avatar.url if member.avatar else member.default_avatar)
+        await ticket_channel.send(content=f"Bienvenue {member.mention} dans votre ticket, un membre du staff vous prendra le plus vite possible en charge. Restez là!", embed=ticket_debut_embed, view=TicketOptionsView(mod, member))
+        ticket_created_success_embed = discord.Embed(title="Succès", description=f"Votre ticket a été créé avec succès dans {ticket_channel.jump_url}", color=discord.Color.green())
+        await interaction.followup.send(content=member.mention ,embed=ticket_created_success_embed, ephemeral=True)
+
+class TicketReasonSelect(Select):
+    def __init__(self):
+        options = [
+            discord.SelectOption(label="Récompense Giveaway/Event", description="Réclamez votre récompense pour un giveaway ou un event!", emoji="<a:gift:1453461527154921666>"),
+            discord.SelectOption(label="Signaler un membre", description="Signalez un membre (ou même un staff) du serveur pour non respect des règles", emoji="<a:danger:1453146172876259432>"),
+            discord.SelectOption(label="Proposition", description="Proposer un concept pour améliorer le serveur!", emoji="💡"),
+            discord.SelectOption(label="Partenariat", description="Demande de partenariat avec un serveur Discord ou autre", emoji="🤝"),
+            discord.SelectOption(label="Demande de Middle Man", description="Demander un Middle Man Steal a Brainrot pour sécuriser un trade ou un index.", emoji="<:staff:1452235667856687204>"),
+            discord.SelectOption(label="Animations", description="Demander de participer à une animation ou en proposer une.", emoji="<a:birb:1452995535882555524>"),
+            discord.SelectOption(label="Autre", emoji="<:jsp:1453042316347572274>"),
+        ]
+
+        super().__init__(placeholder="Veuillez choisir une raison pour ouvrir un ticket...", options=options, min_values=1, max_values=1)
+
+    async def callback(self, interaction:discord.Interaction):
+        if self.values[0] == "Autre":
+            await interaction.response.send_modal(modal=TicketReasonModal())
+        else:
+            mod = [interaction.guild.get_role(1456391253783740530), interaction.guild.get_role(1443685365545177270) if self.values[0] == "Demande de Middle Man" else None]
+            member = guild.get_member(interaction.user.id)
+            ticket_category = discord.utils.get(interaction.guild.categories, id=TICKET_CATEGORY_ID)
+            overwrites = {
+                interaction.guild.default_role: discord.PermissionOverwrite(view_channel=False),
+                member: discord.PermissionOverwrite(view_channel=True, send_messages=True),
+                mod: discord.PermissionOverwrite(view_channel=True, send_messages=True)
+            }
+            ticket_channel = await guild.create_text_channel(name=f"{self.values[0]}-{member.display_name}", category=ticket_category, overwrites=overwrites)
+            await interaction.response.send_message(content="Votre ticket est en cours de création", ephemeral=True)
+            await guild.get_member(id=OWNER_ID).send(f"{member.mention} vient de créer un ticket pour la raison `{self.values[0]}`. {ticket_channel.jump_url}")
+            ticket_debut_embed = discord.Embed(title=f"Ticket ouvert par {member}", description=f"", color=discord.Color.green())
+            ticket_debut_embed.set_thumbnail(member.avatar.url if member.avatar else member.default_avatar.url)
+            ticket_debut_embed.set_image(guild.icon.url)
+            ticket_debut_embed.set_author(name=member.avatar.url if member.avatar else member.default_avatar)
+            await ticket_channel.send(content=f"Bienvenue {member.mention} dans votre ticket, un membre du staff vous prendra le plus vite possible en charge. Restez là!", embed=ticket_debut_embed, view=TicketOptionsView(mod, member))
+            ticket_created_success_embed = discord.Embed(title="Succès", description=f"Votre ticket a été créé avec succès dans {ticket_channel.jump_url}", color=discord.Color.green())
+            await interaction.followup.send(content=member.mention ,embed=ticket_created_success_embed, ephemeral=True)
+
+@bot.command()
+async def ticketsystem(ctx):
+    if ctx.author.id == OWNER_ID:
+        guild = bot.get_guild(1438222268185706599)
+        ticket_channel = bot.get_channel(1438250538163634176)
+        embed = discord.Embed(title="Création de tickets", description="Pour ouvrir un ticket, sélectionnez une raison à l'aide du sélecteur ci-dessous!")
+        embed.set_thumbnail(url=guild.icon.url)
+        embed.set_footer("Merci de ne pas créer des tickets sans raison!")
+        ticket_channel.send(embed=embed)
 
 # @bot.event
 # async def on_message(message):
