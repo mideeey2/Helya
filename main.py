@@ -588,7 +588,6 @@ async def on_presence_update(before:discord.Member, after:discord.Member):
     role = guild.get_role(1455978240777650439)
     before_custom = next((a for a in before.activities if isinstance(a, discord.CustomActivity)), None)
     after_custom = next((a for a in after.activities if isinstance(a, discord.CustomActivity)), None)
-    print("UPDATE:", after.activities)
     if before_custom != after_custom:
         if after_custom and after_custom.name:
             if after_custom and after_custom.name and "/may".lower() in after_custom.name.lower():
@@ -839,10 +838,10 @@ async def ticketsystem(ctx):
     if ctx.author.id == OWNER_ID:
         guild = bot.get_guild(1438222268185706599)
         ticket_channel = bot.get_channel(BOTS_CHANNEL_ID)
-        embed = discord.Embed(title="Création de tickets", description="Pour ouvrir un ticket, sélectionnez une raison à l'aide du sélecteur ci-dessous!")
+        embed = discord.Embed(title="Création de tickets", description="Pour ouvrir un ticket, sélectionnez une raison à l'aide du sélecteur ci-dessous!", color=discord.Color.green())
         embed.set_thumbnail(url=guild.icon.url)
         embed.set_footer(text="Merci de ne pas créer des tickets sans raison!", icon_url=guild.icon.url)
-        await ticket_channel.send(embed=embed, select=TicketReasonSelect)
+        await ticket_channel.send(embed=embed, select=TicketReasonSelect())
 
 # @bot.event
 # async def on_message(message):
