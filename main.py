@@ -841,7 +841,7 @@ async def ticketsystem(ctx):
         ticket_channel = bot.get_channel(1438250538163634176)
         embed = discord.Embed(title="Création de tickets", description="Pour ouvrir un ticket, sélectionnez une raison à l'aide du sélecteur ci-dessous!")
         embed.set_thumbnail(url=guild.icon.url)
-        embed.set_footer("Merci de ne pas créer des tickets sans raison!")
+        embed.set_footer(text="Merci de ne pas créer des tickets sans raison!", icon_url=guild.icon.url)
         ticket_channel.send(embed=embed)
 
 # @bot.event
