@@ -789,7 +789,7 @@ class TicketReasonModal(Modal):
         await interaction.response.send_message(content="Votre ticket est en cours de création", ephemeral=True)
         await interaction.guild.get_member(OWNER_ID).send(f"{member.mention} vient de créer un ticket pour la raison `{self.reason_input}`. {ticket_channel.jump_url}")
         ticket_debut_embed = discord.Embed(title=f"Ticket ouvert par {member}", description=f"", color=discord.Color.green())
-        ticket_debut_embed.set_thumbnail(member.avatar.url if member.avatar else member.default_avatar.url)
+        ticket_debut_embed.set_thumbnail(url=member.avatar.url if member.avatar else member.default_avatar.url)
         ticket_debut_embed.set_image(interaction.guild.icon.url)
         ticket_debut_embed.set_author(name=member.avatar.url if member.avatar else member.default_avatar)
         await ticket_channel.send(content=f"Bienvenue {member.mention} dans votre ticket, un membre du staff vous prendra le plus vite possible en charge. Restez là!", embed=ticket_debut_embed, view=TicketOptionsView(mod, member))
