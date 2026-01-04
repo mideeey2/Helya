@@ -773,8 +773,8 @@ class TicketReasonModal(Modal):
         super().__init__(title="Raison d'ouverture de ticket")
         reason_required_display = discord.ui.TextDisplay(content="## Veuillez éviter d'ouvrir des tickets sans raison à peine d'un avertissement.")
         reason_input = discord.ui.TextInput(label="Raison", style=discord.TextStyle.paragraph)
-        TicketReasonModal().add_item(reason_input)
-        TicketReasonModal().add_item(reason_required_display)
+        self.add_item(reason_input)
+        self.add_item(reason_required_display)
 
     async def on_submit(self, interaction:discord.Interaction):
         mod = interaction.guild.get_role(1456391253783740530)
