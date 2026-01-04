@@ -812,7 +812,7 @@ class TicketReasonSelect(Select):
 
     async def callback(self, interaction:discord.Interaction):
         if self.values[0] == "Autre":
-            await interaction.response.send_modal(modal=TicketReasonModal())
+            await interaction.response.send_modal(TicketReasonModal())
         else:
             mod = [interaction.guild.get_role(1456391253783740530), interaction.guild.get_role(1443685365545177270) if self.values[0] == "Demande de Middle Man" else None]
             member = guild.get_member(interaction.user.id)
