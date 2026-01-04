@@ -708,7 +708,7 @@ class TicketCloseConfirmation(View):
     
     @discord.ui.button(label="Oui", style=discord.ButtonStyle.green, emoji="✅")
     async def yes_button(self, interaction:discord.Interaction, button:discord.Button):
-        user = guild.get_member(interaction.user.id)
+        user = interaction.guild.get_member(interaction.user.id)
         for moderator_role in self.moderator_roles:
             if moderator_role in user.roles:
                 moderator = True
@@ -733,7 +733,7 @@ class TicketOptionsView(View):
         self.member = member
     @discord.ui.button(label="Prendre en charge", style=discord.ButtonStyle.blurple, emoji="🛠️")
     async def handle_button(self, interaction:discord.Interaction, button:discord.Button):
-        user = guild.get_member(interaction.user.id)
+        user = interaction.guild.get_member(interaction.user.id)
         for moderator_role in self.moderator_roles:
             if moderator_role in user.roles:
                 moderator = True
@@ -753,7 +753,7 @@ class TicketOptionsView(View):
     
     @discord.ui.button(label="Fermer le ticket", emoji="❌", style=discord.ButtonStyle.danger)
     async def close_ticket(self, interaction:discord.Interaction, button:discord.Button):
-        user = guild.get_member(interaction.user.id)
+        user = interaction.guild.get_member(interaction.user.id)
         for moderator_role in self.moderator_roles:
             if moderator_role in user.roles:
                 moderator = True
@@ -790,7 +790,7 @@ class TicketReasonModal(Modal):
         await interaction.guild.get_member(OWNER_ID).send(f"{member.mention} vient de créer un ticket pour la raison `{self.reason_input}`. {ticket_channel.jump_url}")
         ticket_debut_embed = discord.Embed(title=f"Ticket ouvert par {member}", description=f"{member.mention} vient d'ouvrir un ticket!\nRaison : **{self.reason_input.value}**", color=discord.Color.green())
         ticket_debut_embed.set_thumbnail(url=member.avatar.url if member.avatar else member.default_avatar.url)
-        ticket_debut_embed.set_author(name=interaction.guild.name)
+        ticket_debut_embed.set_author(name=interaction.guild.name, icon_url=interaction.guild.icon.url)
         await ticket_channel.send(content=f"Bienvenue {member.mention} dans votre ticket, un membre du staff vous prendra le plus vite possible en charge. Restez là!", embed=ticket_debut_embed, view=TicketOptionsView(mod, member))
         ticket_created_success_embed = discord.Embed(title="Succès", description=f"Votre ticket a été créé avec succès dans {ticket_channel.jump_url}", color=discord.Color.green())
         await interaction.followup.send(content=member.mention ,embed=ticket_created_success_embed, ephemeral=True)
