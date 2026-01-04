@@ -777,7 +777,7 @@ class TicketReasonModal(Modal):
         self.add_item(self.reason_input)
 
     async def on_submit(self, interaction:discord.Interaction):
-        mod = [interaction.guild.get_role(1456391253783740530)]
+        mod = [interaction.guild.get_role(1456391253783740530),]
         member = interaction.guild.get_member(interaction.user.id)
         ticket_category = discord.utils.get(interaction.guild.categories, id=TICKET_CATEGORY_ID)
         overwrites = {
