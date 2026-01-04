@@ -592,10 +592,10 @@ async def on_presence_update(before:discord.Member, after:discord.Member):
         if after_custom and after_custom.name:
             if after_custom and after_custom.name and "/may".lower() in after_custom.name.lower():
                 if role not in after.roles:
-                    await after.add_roles(discord.utils.get(after.guild.roles, id=1455978240777650439))
+                    await after.add_roles(role)
             else:
                 if role in after.roles:
-                    await after.remove_roles(discord.utils.get(after.guild.roles, id=1455978240777650439))
+                    await after.remove_roles(role)
 
 @bot.command()
 async def newyear(ctx):
