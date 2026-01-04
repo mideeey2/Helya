@@ -746,6 +746,7 @@ class TicketOptionsView(View):
             button.disabled = True
             button.label = "Ticket pris en charge"
             button.emoji = "✅"
+            interaction.message.edit(view=self)
         else:
             handle_embed = discord.Embed(title="Manque de permissions", description="Vous n'avez pas la permission de prendre en charge ce ticket!", color=discord.Color.red())
             await interaction.response.send_message(embed=handle_embed, ephemeral=True)
