@@ -742,13 +742,13 @@ class TicketOptionsView(View):
                 break
         if moderator or user.guild_permissions.administrator:
             handle_embed = discord.Embed(title="Ticket pris en charge!", description=f"Votre ticket a été pris en charge par {user.mention}!", color=discord.Color.green())
-            interaction.response.send_message(content=self.member.mention, embed=handle_embed)
+            await interaction.response.send_message(content=self.member.mention, embed=handle_embed)
             button.disabled = True
             button.label = "Ticket pris en charge"
             button.emoji = "✅"
         else:
             handle_embed = discord.Embed(title="Manque de permissions", description="Vous n'avez pas la permission de prendre en charge ce ticket!", color=discord.Color.red())
-            interaction.response.send_message(embed=handle_embed, ephemeral=True)
+            await interaction.response.send_message(embed=handle_embed, ephemeral=True)
     
     @discord.ui.button(label="Fermer le ticket", emoji="🔒", style=discord.ButtonStyle.danger)
     async def close_ticket(self, interaction:discord.Interaction, button:discord.Button):
