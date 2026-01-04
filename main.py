@@ -833,6 +833,11 @@ class TicketReasonSelect(Select):
             ticket_created_success_embed = discord.Embed(title="Succès", description=f"Votre ticket a été créé avec succès dans {ticket_channel.jump_url}", color=discord.Color.green())
             await interaction.followup.send(content=member.mention ,embed=ticket_created_success_embed, ephemeral=True)
 
+class TicketReasonView(View):
+    def __init__(self):
+        super().__init__()
+        self.add_item(TicketReasonSelect())
+
 @bot.command()
 async def ticketsystem(ctx):
     if ctx.author.id == OWNER_ID:
@@ -841,7 +846,7 @@ async def ticketsystem(ctx):
         embed = discord.Embed(title="Création de tickets", description="Pour ouvrir un ticket, sélectionnez une raison à l'aide du sélecteur ci-dessous!", color=discord.Color.green())
         embed.set_thumbnail(url=guild.icon.url)
         embed.set_footer(text="Merci de ne pas créer des tickets sans raison!", icon_url=guild.icon.url)
-        await ticket_channel.send(embed=embed, select=TicketReasonSelect())
+        await ticket_channel.send(embed=embed, view=TicketReasonView())
 
 # @bot.event
 # async def on_message(message):
