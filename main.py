@@ -777,21 +777,23 @@ class TicketReasonModal(Modal):
         self.add_item(self.reason_input)
 
     async def on_submit(self, interaction:discord.Interaction):
-        mod = [interaction.guild.get_role(1456391253783740530),]
+        mods = [interaction.guild.get_role(1456391253783740530),]
         member = interaction.guild.get_member(interaction.user.id)
         ticket_category = discord.utils.get(interaction.guild.categories, id=TICKET_CATEGORY_ID)
         overwrites = {
             interaction.guild.default_role: discord.PermissionOverwrite(view_channel=False),
-            member: discord.PermissionOverwrite(view_channel=True, send_messages=True),
-            mod: discord.PermissionOverwrite(view_channel=True, send_messages=True)
+            member: discord.PermissionOverwrite(view_channel=True, send_messages=True)
         }
+        for mod in mods:
+            if mod:
+                overwrites[mod] = discord.PermissionOverwrite(view_channel=True, send_messages=True)
         ticket_channel = await interaction.guild.create_text_channel(name=f"{self.reason_input}-{member.display_name}", category=ticket_category, overwrites=overwrites)
         await interaction.response.send_message(content="Votre ticket est en cours de création", ephemeral=True)
         await interaction.guild.get_member(OWNER_ID).send(f"{member.mention} vient de créer un ticket pour la raison `{self.reason_input}`. {ticket_channel.jump_url}")
         ticket_debut_embed = discord.Embed(title=f"Ticket ouvert par {member}", description=f"{member.mention} vient d'ouvrir un ticket!\nRaison : **{self.reason_input.value}**", color=discord.Color.green())
         ticket_debut_embed.set_thumbnail(url=member.avatar.url if member.avatar else member.default_avatar.url)
         ticket_debut_embed.set_author(name=interaction.guild.name, icon_url=interaction.guild.icon.url)
-        await ticket_channel.send(content=f"Bienvenue {member.mention} dans votre ticket, un membre du staff vous prendra le plus vite possible en charge. Restez là!", embed=ticket_debut_embed, view=TicketOptionsView(mod, member))
+        await ticket_channel.send(content=f"Bienvenue {member.mention} dans votre ticket, un membre du staff vous prendra le plus vite possible en charge. Restez là!", embed=ticket_debut_embed, view=TicketOptionsView(mods, member))
         ticket_created_success_embed = discord.Embed(title="Succès", description=f"Votre ticket a été créé avec succès dans {ticket_channel.jump_url}", color=discord.Color.green())
         await interaction.followup.send(content=member.mention ,embed=ticket_created_success_embed, ephemeral=True)
 
