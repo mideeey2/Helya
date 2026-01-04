@@ -771,10 +771,10 @@ class TicketOptionsView(View):
 class TicketReasonModal(Modal):
     def __init__(self):
         super().__init__(title="Raison d'ouverture de ticket")
-        reason_required_display = discord.ui.TextDisplay(content="### Veuillez éviter d'ouvrir des tickets sans raison sous peine d'un avertissement.")
-        reason_input = discord.ui.TextInput(label="Raison", style=discord.TextStyle.paragraph)
-        self.add_item(reason_required_display)
-        self.add_item(reason_input)
+        self.reason_required_display = discord.ui.TextDisplay(content="### Veuillez éviter d'ouvrir des tickets sans raison sous peine d'un avertissement.")
+        self.reason_input = discord.ui.TextInput(label="Raison", style=discord.TextStyle.paragraph)
+        self.add_item(self.reason_required_display)
+        self.add_item(self.reason_input)
 
     async def on_submit(self, interaction:discord.Interaction):
         mod = interaction.guild.get_role(1456391253783740530)
@@ -785,9 +785,9 @@ class TicketReasonModal(Modal):
             member: discord.PermissionOverwrite(view_channel=True, send_messages=True),
             mod: discord.PermissionOverwrite(view_channel=True, send_messages=True)
         }
-        ticket_channel = await interaction.guild.create_text_channel(name=f"{self.values[0]}-{member.display_name}", category=ticket_category, overwrites=overwrites)
+        ticket_channel = await interaction.guild.create_text_channel(name=f"{self.reason_input}-{member.display_name}", category=ticket_category, overwrites=overwrites)
         await interaction.response.send_message(content="Votre ticket est en cours de création", ephemeral=True)
-        await interaction.guild.get_member(id=OWNER_ID).send(f"{member.mention} vient de créer un ticket pour la raison `{self.values[0]}`. {ticket_channel.jump_url}")
+        await interaction.guild.get_member(id=OWNER_ID).send(f"{member.mention} vient de créer un ticket pour la raison `{self.reason_input}`. {ticket_channel.jump_url}")
         ticket_debut_embed = discord.Embed(title=f"Ticket ouvert par {member}", description=f"", color=discord.Color.green())
         ticket_debut_embed.set_thumbnail(member.avatar.url if member.avatar else member.default_avatar.url)
         ticket_debut_embed.set_image(interaction.guild.icon.url)
