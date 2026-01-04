@@ -838,11 +838,11 @@ class TicketReasonSelect(Select):
 async def ticketsystem(ctx):
     if ctx.author.id == OWNER_ID:
         guild = bot.get_guild(1438222268185706599)
-        ticket_channel = bot.get_channel(1438250538163634176)
+        ticket_channel = bot.get_channel(BOTS_CHANNEL_ID)
         embed = discord.Embed(title="Création de tickets", description="Pour ouvrir un ticket, sélectionnez une raison à l'aide du sélecteur ci-dessous!")
         embed.set_thumbnail(url=guild.icon.url)
         embed.set_footer(text="Merci de ne pas créer des tickets sans raison!", icon_url=guild.icon.url)
-        ticket_channel.send(embed=embed)
+        await ticket_channel.send(embed=embed)
 
 # @bot.event
 # async def on_message(message):
