@@ -732,11 +732,11 @@ class TicketCloseConfirmation(View):
             close_ticket_button.style(discord.ButtonStyle.green)
             await ticket_msg.edit(view=ticket_view)
 
-    @discord.ui.button(label="Non", style=discord.ButtonStyle.red)
-    async def no_button(self, interaction:discord.Interaction, button:discord.Button):
+    @discord.ui.button(label="Non", style=discord.ButtonStyle.danger)
+    async def no_button(self, interaction:discord.Interaction, button:discord.ui.Button):
         user = interaction.guild.get_member(interaction.user.id)
         canceled_embed = discord.Embed(title="Action annulée", description="La fermeture du ticket a été annulée avec succès!", color=discord.Color.blue())
-        await interaction.edit_original_response(embed=canceled_embed)
+        await interaction.edit_original_response(embed=canceled_embed, view=None)
 
 class TicketOptionsView(View):
     def __init__(self, moderator_roles, member:discord.Member):
@@ -744,7 +744,7 @@ class TicketOptionsView(View):
         self.moderator_roles = moderator_roles
         self.member = member
     @discord.ui.button(label="Prendre en charge", style=discord.ButtonStyle.blurple, emoji="🛠️")
-    async def handle_button(self, interaction:discord.Interaction, button:discord.Button):
+    async def handle_button(self, interaction:discord.Interaction, button:discord.ui.Button):
         user = interaction.guild.get_member(interaction.user.id)
         for moderator_role in self.moderator_roles:
             if moderator_role in user.roles:
