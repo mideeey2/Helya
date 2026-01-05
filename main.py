@@ -709,28 +709,22 @@ class TicketCloseConfirmation(View):
         self.member = member
     
     @discord.ui.button(label="Oui", style=discord.ButtonStyle.green)
-    async def yes_button(self, interaction:discord.Interaction, button:discord.Button):
+    async def yes_button(self, interaction:discord.Interaction, button:discord.ui.Button):
         global ticket_msg_id
         user = interaction.guild.get_member(interaction.user.id)
-        for moderator_role in self.moderator_roles:
-            if moderator_role in user.roles:
-                moderator = True
-                break
-            else:
-                moderator = False
-                break
+        moderator = any(role in user.roles for role in self.moderator_roles)
         if moderator or user.guild_permissions.administrator:
             await self.member.send(f"Votre ticket sur {interaction.guild.name} a été fermé par {user.mention}")
-            interaction.channel.delete(reason="Ticket fermé")
+            await interaction.channel.delete(reason="Ticket fermé")
         else:
             embed=discord.Embed(title="Ticket fermé", description=f"{user.mention} vient de fermer son ticket.")
             await interaction.response.send_message(embed=embed)
             ticket_msg = await interaction.channel.fetch_message(ticket_msg_id)
             ticket_view = TicketOptionsView(self.moderator_roles, self.member)
             close_ticket_button = ticket_view.children[1]
-            close_ticket_button.label("Rouvrir le ticket")
-            close_ticket_button.emoji("🔓")
-            close_ticket_button.style(discord.ButtonStyle.green)
+            close_ticket_button.label="Rouvrir le ticket"
+            close_ticket_button.emoji="🔓"
+            close_ticket_button.style=discord.ButtonStyle.green
             await ticket_msg.edit(view=ticket_view)
 
     @discord.ui.button(label="Non", style=discord.ButtonStyle.danger)
