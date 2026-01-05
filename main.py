@@ -584,7 +584,8 @@ async def invites(ctx, member:discord.Member=None):
 
 @bot.event
 async def on_presence_update(before:discord.Member, after:discord.Member):
-    role = after.guild.get_role(1455978240777650439)
+    guild = bot.get_guild(1438222268185706599)
+    role = guild.get_role(1455978240777650439)
     before_custom = next((a for a in before.activities if isinstance(a, discord.CustomActivity)), None)
     after_custom = next((a for a in after.activities if isinstance(a, discord.CustomActivity)), None)
     if before_custom != after_custom:
