@@ -736,7 +736,7 @@ class TicketCloseConfirmation(View):
     async def no_button(self, interaction:discord.Interaction, button:discord.ui.Button):
         user = interaction.guild.get_member(interaction.user.id)
         canceled_embed = discord.Embed(title="Action annulée", description="La fermeture du ticket a été annulée avec succès!", color=discord.Color.blue())
-        await interaction.edit_original_response(embed=canceled_embed, view=None)
+        await interaction.response.edit_message(embed=canceled_embed, view=None)
 
 class TicketOptionsView(View):
     def __init__(self, moderator_roles, member:discord.Member):
