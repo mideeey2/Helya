@@ -699,7 +699,7 @@ class ReopenDeleteTicket(View):
             delete_confirmation_embed = discord.Embed(title="Manque de permissions", description="Vous n'avez pas la permission de supprimer ce ticket.", color=discord.Color.red())
             await interaction.response.send_message(embed=delete_confirmation_embed, ephemeral=True)
 
-
+ticket_msg_id = None
 
 class TicketCloseConfirmation(View):
     def __init__(self, moderator_roles, member:discord.Member):
@@ -709,6 +709,7 @@ class TicketCloseConfirmation(View):
     
     @discord.ui.button(label="Oui", style=discord.ButtonStyle.green)
     async def yes_button(self, interaction:discord.Interaction, button:discord.Button):
+        global ticket_msg_id
         user = interaction.guild.get_member(interaction.user.id)
         for moderator_role in self.moderator_roles:
             if moderator_role in user.roles:
@@ -723,15 +724,19 @@ class TicketCloseConfirmation(View):
         else:
             embed=discord.Embed(title="Ticket fermé", description=f"{user.mention} vient de fermer son ticket.")
             await interaction.response.send_message(embed=embed)
-            button.label("Rouvrir le ticket")
-            button.emoji("🔓")
-            button.style(discord.ButtonStyle.green)
+            ticket_msg = await interaction.channel.fetch_message(ticket_msg_id)
+            ticket_view = TicketOptionsView(self.moderator_roles, self.member)
+            close_ticket_button = ticket_view.children[1]
+            close_ticket_button.label("Rouvrir le ticket")
+            close_ticket_button.emoji("🔓")
+            close_ticket_button.style(discord.ButtonStyle.green)
+            await ticket_msg.edit(view=ticket_view)
 
-    @discord.ui.button(label="Non", style=discord.ButtonStyle.green)
+    @discord.ui.button(label="Non", style=discord.ButtonStyle.red)
     async def no_button(self, interaction:discord.Interaction, button:discord.Button):
         user = interaction.guild.get_member(interaction.user.id)
         canceled_embed = discord.Embed(title="Action annulée", description="La fermeture du ticket a été annulée avec succès!", color=discord.Color.blue())
-        await interaction.response.send_message(embed=canceled_embed)
+        await interaction.edit_original_response(embed=canceled_embed)
 
 class TicketOptionsView(View):
     def __init__(self, moderator_roles, member:discord.Member):
@@ -820,6 +825,7 @@ class TicketReasonSelect(Select):
         super().__init__(placeholder="Veuillez choisir une raison pour ouvrir un ticket...", options=options, min_values=1, max_values=1)
 
     async def callback(self, interaction:discord.Interaction):
+        global ticket_msg_id
         if self.values[0] == "Autre":
             await interaction.response.send_modal(TicketReasonModal())
         else:
@@ -838,7 +844,8 @@ class TicketReasonSelect(Select):
             ticket_debut_embed.set_thumbnail(member.avatar.url if member.avatar else member.default_avatar.url)
             ticket_debut_embed.set_image(guild.icon.url)
             ticket_debut_embed.set_author(name=member.avatar.url if member.avatar else member.default_avatar)
-            await ticket_channel.send(content=f"Bienvenue {member.mention} dans votre ticket, un membre du staff vous prendra le plus vite possible en charge. Restez là!", embed=ticket_debut_embed, view=TicketOptionsView(mod, member))
+            ticket_msg = await ticket_channel.send(content=f"Bienvenue {member.mention} dans votre ticket, un membre du staff vous prendra le plus vite possible en charge. Restez là!", embed=ticket_debut_embed, view=TicketOptionsView(mod, member))
+            ticket_msg_id = ticket_msg.id
             ticket_created_success_embed = discord.Embed(title="Succès", description=f"Votre ticket a été créé avec succès dans {ticket_channel.jump_url}", color=discord.Color.green())
             await interaction.followup.send(content=member.mention ,embed=ticket_created_success_embed, ephemeral=True)
 
