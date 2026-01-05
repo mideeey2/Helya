@@ -699,13 +699,15 @@ class ReopenDeleteTicket(View):
             delete_confirmation_embed = discord.Embed(title="Manque de permissions", description="Vous n'avez pas la permission de supprimer ce ticket.", color=discord.Color.red())
             await interaction.response.send_message(embed=delete_confirmation_embed, ephemeral=True)
 
+
+
 class TicketCloseConfirmation(View):
     def __init__(self, moderator_roles, member:discord.Member):
         super().__init__()
         self.moderator_roles = moderator_roles
         self.member = member
     
-    @discord.ui.button(label="Oui", style=discord.ButtonStyle.green, emoji="✅")
+    @discord.ui.button(label="Oui", style=discord.ButtonStyle.green)
     async def yes_button(self, interaction:discord.Interaction, button:discord.Button):
         user = interaction.guild.get_member(interaction.user.id)
         for moderator_role in self.moderator_roles:
@@ -724,6 +726,12 @@ class TicketCloseConfirmation(View):
             button.label("Rouvrir le ticket")
             button.emoji("🔓")
             button.style(discord.ButtonStyle.green)
+
+    @discord.ui.button(label="Non", style=discord.ButtonStyle.green)
+    async def no_button(self, interaction:discord.Interaction, button:discord.Button):
+        user = interaction.guild.get_member(interaction.user.id)
+        canceled_embed = discord.Embed(title="Action annulée", description="La fermeture du ticket a été annulée avec succès!", color=discord.Color.blue())
+        await interaction.response.send_message(embed=canceled_embed)
 
 class TicketOptionsView(View):
     def __init__(self, moderator_roles, member:discord.Member):
@@ -766,7 +774,7 @@ class TicketOptionsView(View):
             confirmation_embed = discord.Embed(title="Confirmation", description="Êtes-vous sûr de vouloir fermer et supprimer le ticket?", color=discord.Color.red())
         else:
             confirmation_embed = discord.Embed(title="Confirmation", description="Êtes-vous sûr de vouloir fermer le ticket?", color=discord.Color.red())
-        await interaction.response.send_message(embed=confirmation_embed, view=TicketCloseConfirmation(self.moderator_roles, self.member))
+        await interaction.response.send_message(embed=confirmation_embed, view=TicketCloseConfirmation(self.moderator_roles, self.member), ephemeral=True)
 
 class TicketReasonModal(Modal):
     def __init__(self):
