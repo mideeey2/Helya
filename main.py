@@ -45,6 +45,7 @@ SMASHORPASS_CHANNEL_ID = 1453104548809015467
 VOUCH_CHANNEL_ID = 1452648909716586719
 BOTS_CHANNEL_ID = 1445785148011446323
 OWNER_ID = 1071516026484822096
+TEST_ACCOUNT_ID = 1444323038953738382
 TICKET_CHANNEL_ID = 1438250538163634176
 TICKET_CATEGORY_ID = 1438249962331705476
 MOD_ROLE_ID = 1456391253783740530
@@ -714,7 +715,7 @@ class TicketCloseConfirmation(View):
         user = interaction.guild.get_member(interaction.user.id)
         moderator = any(role in user.roles for role in self.moderator_roles)
         if moderator or user.guild_permissions.administrator:
-            await self.member.send(f"Votre ticket sur {interaction.guild.name} a été fermé par {user.mention}")
+            await self.member.send(f"Votre ticket sur {interaction.guild.name} a été supprimé par {user.mention}")
             await interaction.channel.delete(reason="Ticket fermé")
         else:
             embed=discord.Embed(title="Ticket fermé", description=f"{user.mention} vient de fermer son ticket.")
@@ -851,7 +852,7 @@ class TicketReasonView(View):
 
 @bot.command()
 async def ticketsystem(ctx):
-    if ctx.author.id == OWNER_ID:
+    if ctx.author.id == OWNER_ID or TEST_ACCOUNT_ID:
         ticket_channel = bot.get_channel(BOTS_CHANNEL_ID)
         embed = discord.Embed(title="Création de tickets", description="Pour ouvrir un ticket, sélectionnez une raison à l'aide du sélecteur ci-dessous!", color=discord.Color.green())
         embed.set_thumbnail(url=ctx.guild.icon.url)
