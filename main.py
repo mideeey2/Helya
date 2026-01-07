@@ -714,7 +714,7 @@ class TicketCloseConfirmation(View):
         global ticket_msg_id
         user = interaction.guild.get_member(interaction.user.id)
         moderator = any(role in user.roles for role in self.moderator_roles)
-        if moderator or user.guild_permissions.administrator:
+        if moderator or user.guild_permissions.administrator or user.id != OWNER_ID:
             await self.member.send(f"Votre ticket sur {interaction.guild.name} a été supprimé par {user.mention}")
             await interaction.channel.delete(reason="Ticket fermé")
         else:
