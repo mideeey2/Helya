@@ -207,8 +207,11 @@ async def on_member_join(member):
         invites_count[inviter_id] += 1
 
         datetime_now = datetime.datetime.now()
-        cursor.execute("INSERT INTO invites (inviter_id, invited_id, invite_code, datetime) VALUES (%s, %s, %s, %s)", (inviter_id, member.id, used_invite.code, datetime_now))
-        conn.commit()
+        try:
+            cursor.execute("INSERT INTO invites (inviter_id, invited_id, invite_code, datetime) VALUES (%s, %s, %s, %s)", (inviter_id, member.id, used_invite.code, datetime_now))
+            conn.commit()
+        except:
+            conn.rollback()
 
         welcome_embed = discord.Embed(title=f"{member} vient de rejoindre le serveur!",
                                       description=f"Il a été invité par <@{inviter.id}> qui a désormais {invites_count[inviter_id]} invitations! <a:pepeclap:1453682464181588065>\n Nous sommes désormais {guild.member_count} membres sur le serveur! <a:birb:1452995535882555524>", 
