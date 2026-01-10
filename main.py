@@ -718,13 +718,13 @@ class TicketCloseConfirmation(View):
         user = interaction.guild.get_member(interaction.user.id)
         moderator = any(role in user.roles for role in self.moderator_roles)
         if (moderator or user.guild_permissions.administrator) and user.id != OWNER_ID:
-            cursor.execute("UPDATE tickets VALUES (status, user_id) (%s, %s)", ("deleted", user.id))
+            cursor.execute("UPDATE tickets SET status = %s, user_id = %s WHERE channel_id = %s", ("deleted", user.id, str(interaction.channel.id)))
             await self.member.send(f"Votre ticket sur {interaction.guild.name} a été supprimé par {user.mention}")
             await interaction.channel.delete(reason="Ticket fermé")
         else:
             embed=discord.Embed(title="Ticket fermé", description=f"{user.mention} vient de fermer son ticket.")
             await interaction.response.send_message(embed=embed)
-            cursor.execute("UPDATE tickets VALUES (status, user_id) (%s, %s)", ("closed", user.id))
+            cursor.execute("UPDATE tickets SET status = %s, user_id = %s WHERE channel_id = %s", ("closed", user.id, str(interaction.channel.id)))
             conn.commit()
             ticket_msg = await interaction.channel.fetch_message(self.ticket_msg_id)
             ticket_view = TicketOptionsView(self.moderator_roles, self.member)
@@ -758,7 +758,7 @@ class TicketOptionsView(View):
         if moderator or user.guild_permissions.administrator:
             handle_embed = discord.Embed(title="Ticket pris en charge!", description=f"Votre ticket a été pris en charge par {user.mention}!", color=discord.Color.green())
             await interaction.response.send_message(content=self.member.mention, embed=handle_embed)
-            cursor.execute("UPDATE tickets VALUES (status, user_id)", ("handeled", str(user.id)))
+            cursor.execute("UPDATE tickets SET status = %s, user_id = %s WHERE channel_id=%s", ("handeled", str(user.id), str(interaction.channel.id)))
             conn.commit()
             button.disabled = True
             button.label = "Ticket pris en charge"
