@@ -208,7 +208,7 @@ async def on_member_join(member):
         except:
             conn.rollback()
 
-        cursor.execute("SELECT * FROM invites WHERE inviter_id = %s", (str(inviter.id)))
+        cursor.execute("SELECT * FROM invites WHERE inviter_id = %s", (str(inviter.id),))
         invites_count = cursor.fetchall()
 
         welcome_embed = discord.Embed(title=f"{member} vient de rejoindre le serveur!",
@@ -676,7 +676,7 @@ class ReopenDeleteTicket(View):
                 break
         if moderator or user.guild_permissions.administrator:
             delete_confirmation_embed = discord.Embed(title="Confirmation", description="Êtes-vous sûr de vouloir supprimer ce ticket?", color=discord.Color.red())
-            await interaction.response.send_message(embed=delete_confirmation_embed, view=TicketCloseConfirmation(None, self.member), ephemeral=True)
+            await interaction.response.send_message(embed=delete_confirmation_embed, view=TicketCloseConfirmation(self.moderator_roles, self.member, ), ephemeral=True)
         else:
             delete_confirmation_embed = discord.Embed(title="Manque de permissions", description="Vous n'avez pas la permission de supprimer ce ticket.", color=discord.Color.red())
             await interaction.response.send_message(embed=delete_confirmation_embed, ephemeral=True)
