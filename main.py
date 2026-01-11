@@ -656,7 +656,7 @@ class ReopenDeleteTicket(View):
     @discord.ui.button(label="Réouvrir le ticket", style=discord.ButtonStyle.green)
     async def reopen_ticket_button(self, interaction:discord.Interaction, button:discord.Button):
         user = interaction.guild.get_member(interaction.user.id)
-        reopened_embed = discord.Embed(title=f"Ticket réouvert", description=f"Votre ticket a été ouvert par {user.mention}", color=discord.Color.green())
+        reopened_embed = discord.Embed(title=f"Ticket réouvert", description=f"{"Votre" if user.id != self.member.id else "Ce"} ticket a été ouvert par {user.mention}", color=discord.Color.green())
         if user.id != self.member.id:
             await self.member.send(f"Votre ticket sur {interaction.guild.name} a été réouvert par {user.mention}")
         cursor.execute("UPDATE tickets SET status = %s, user_id = %s WHERE channel_id = %s", ("reopened", user.id, str(interaction.channel.id)))
@@ -665,7 +665,7 @@ class ReopenDeleteTicket(View):
 
     @discord.ui.button(label="Supprimer le ticket", style=discord.ButtonStyle.danger)
     async def delete_ticket_button(self, interaction:discord.Interaction, button:discord.Button):
-        user = interaction.guild.get_member(interaction.member.id)
+        user = interaction.guild.get_member(interaction.user.id)
         for moderator_role in self.moderator_roles:
             if moderator_role in user.roles:
                 moderator = True
