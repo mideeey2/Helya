@@ -201,11 +201,6 @@ async def on_member_join(member):
         inviter = used_invite.inviter
         inviter_id = str(inviter.id)
 
-        # mettre à jour le nombre d'invites
-        if inviter_id not in invites_count:
-            invites_count[inviter_id] = 0
-        invites_count[inviter_id] += 1
-
         datetime_now = datetime.datetime.now()
         try:
             cursor.execute("INSERT INTO invites (inviter_id, invited_id, invite_code, datetime) VALUES (%s, %s, %s, %s)", (inviter_id, member.id, used_invite.code, datetime_now))
@@ -263,29 +258,6 @@ async def on_member_remove(member:discord.Member):
             )
         )
 
-@bot.command()
-async def leave(ctx, member: discord.Member):
-    await ctx.channel.send("leave")
-
-@bot.command()
-async def join(ctx, member: discord.Member):
-    if ctx.author.id != OWNER_ID:
-        print("not join")
-        await ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande.")
-        return
-    print("join")
-        # mettre à jour le nombre d'invites
-    channel = bot.get_channel(ctx.channel.id)
-    
-    async def invite_callback(interaction: discord.Interaction):
-        message = get_invites_count(interaction.user, True)
-        await interaction.response.send_message(message, ephemeral=True)
-    
-    personal_invites_button = Button(color=discord.ButtonStyle.green, label="Voir mes invitations", callback=invite_callback, json_file=None)
-    await channel.send(
-        content=f"# <a:tada:1453048315779481752> Bienvenue {member.mention} <a:tada:1453048315779481752>",
-        view=personal_invites_button
-    )
 # --------- COMMANDE SLASH /invites ---------
 
 @bot.tree.command(name="topinvites", description="Voir le classement des invitations.")
