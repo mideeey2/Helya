@@ -656,13 +656,12 @@ class ReopenDeleteTicket(View):
     @discord.ui.button(label="Réouvrir le ticket", style=discord.ButtonStyle.green)
     async def reopen_ticket_button(self, interaction:discord.Interaction, button:discord.Button):
         user = interaction.guild.get_member(interaction.user.id)
-        await interaction.response.send_message(content=self.member.mention, embed=reopened_embed)
         reopened_embed = discord.Embed(title=f"Ticket réouvert", description=f"Votre ticket a été ouvert par {user.mention}", color=discord.Color.green())
         if user.id != self.member.id:
             await self.member.send(f"Votre ticket sur {interaction.guild.name} a été réouvert par {user.mention}")
         cursor.execute("UPDATE tickets SET status = %s, user_id = %s WHERE channel_id = %s", ("reopened", user.id, str(interaction.channel.id)))
         conn.commit()
-        await interaction.response.send_message(content=self.member.mention if user.id == self.member.id else None, embed=reopened_embed)
+        await interaction.response.send_message(content=self.member.mention if user.id != self.member.id else None, embed=reopened_embed)
 
     @discord.ui.button(label="Supprimer le ticket", style=discord.ButtonStyle.danger)
     async def delete_ticket_button(self, interaction:discord.Interaction, button:discord.Button):
@@ -716,7 +715,7 @@ class TicketCloseConfirmation(View):
     async def no_button(self, interaction:discord.Interaction, button:discord.ui.Button):
         user = interaction.guild.get_member(interaction.user.id)
         canceled_embed = discord.Embed(title="Action annulée", description="La fermeture du ticket a été annulée avec succès!", color=discord.Color.blue())
-        await interaction.response.edit_message(embed=canceled_embed, view=None)
+        await interaction.response.edit_message(embed=canceled_embed, view=None, delete_after=60)
 
 class TicketOptionsView(View):
     def __init__(self, moderator_roles, member:discord.Member):
