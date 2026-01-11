@@ -208,7 +208,7 @@ async def on_member_join(member):
         except:
             conn.rollback()
 
-        cursor.execute("SELECT * FROM invites WHERE inviter_id = %s", (inviter.id))
+        cursor.execute("SELECT * FROM invites WHERE inviter_id = %s", (str(inviter.id)))
         invites_count = cursor.fetchall()
 
         welcome_embed = discord.Embed(title=f"{member} vient de rejoindre le serveur!",
