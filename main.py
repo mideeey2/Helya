@@ -675,7 +675,7 @@ class ReopenDeleteTicket(View):
                 moderator = False
                 break
         if moderator or user.guild_permissions.administrator:
-            delete_confirmation_embed = discord.Embed(title="Confirmation", description="Êtes-vous sûr de vouloir supprimer ce ticket?", color=discord.Color.red)
+            delete_confirmation_embed = discord.Embed(title="Confirmation", description="Êtes-vous sûr de vouloir supprimer ce ticket?", color=discord.Color.red())
             await interaction.response.send_message(embed=delete_confirmation_embed, view=TicketCloseConfirmation(None, self.member), ephemeral=True)
         else:
             delete_confirmation_embed = discord.Embed(title="Manque de permissions", description="Vous n'avez pas la permission de supprimer ce ticket.", color=discord.Color.red())
