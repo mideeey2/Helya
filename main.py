@@ -817,7 +817,7 @@ class TicketReasonModal(Modal):
         ticket_debut_embed.set_thumbnail(url=member.avatar.url if member.avatar else member.default_avatar.url)
         ticket_debut_embed.set_author(name=interaction.guild.name, icon_url=interaction.guild.icon.url)
         datetime_now = datetime.datetime.now().timestamp()
-        cursor.execute("INSERT INTO tickets VALUES (member_id, reason, timestamp, status, channel_id) (%s, %s, %s, %s, %s)", (member.id, self.values[0], str(datetime_now), "open", ticket_channel.id))
+        cursor.execute("INSERT INTO tickets (member_id, reason, timestamp, status, channel_id) VALUES (%s, %s, %s, %s, %s)", (member.id, self.values[0], str(datetime_now), "open", ticket_channel.id))
         conn.commit()
         await ticket_channel.send(content=f"Bienvenue {member.mention} dans votre ticket, un membre du staff vous prendra le plus vite possible en charge. Restez là!", embed=ticket_debut_embed, view=TicketOptionsView(mods, member))
         ticket_created_success_embed = discord.Embed(title="Succès", description=f"Votre ticket a été créé avec succès dans {ticket_channel.jump_url}", color=discord.Color.green())
