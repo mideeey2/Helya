@@ -701,7 +701,7 @@ class TicketCloseConfirmation(View):
             await interaction.channel.delete(reason="Ticket fermé")
         else:
             embed=discord.Embed(title="Ticket fermé", description=f"{user.mention} vient de fermer son ticket.")
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, view=ReopenDeleteTicket(self.member))
             cursor.execute("UPDATE tickets SET status = %s, user_id = %s WHERE channel_id = %s", ("closed", user.id, str(interaction.channel.id)))
             conn.commit()
             ticket_msg = await interaction.channel.fetch_message(self.ticket_msg_id)
