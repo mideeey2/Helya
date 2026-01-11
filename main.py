@@ -213,8 +213,11 @@ async def on_member_join(member):
         except:
             conn.rollback()
 
+        cursor.execute("SELECT * FROM invites WHERE inviter_id = %s", (inviter.id))
+        invites_count = cursor.fetchall()
+
         welcome_embed = discord.Embed(title=f"{member} vient de rejoindre le serveur!",
-                                      description=f"Il a été invité par <@{inviter.id}> qui a désormais {invites_count[inviter_id]} invitations! <a:pepeclap:1453682464181588065>\n Nous sommes désormais {guild.member_count} membres sur le serveur! <a:birb:1452995535882555524>", 
+                                      description=f"Il a été invité par <@{inviter.id}> qui a désormais {len(invites_count)} invitations! <a:pepeclap:1453682464181588065>\n Nous sommes désormais {guild.member_count} membres sur le serveur! <a:birb:1452995535882555524>", 
                                       color=discord.Color.green())
         welcome_embed.set_thumbnail(url=member.avatar.url if member.avatar else member.default_avatar.url)
         await channel.send(
@@ -685,6 +688,8 @@ class ReopenDeleteTicket(View):
         reopened_embed = discord.Embed(title=f"Ticket réouvert", description=f"Votre ticket a été ouvert par {user.mention}", color=discord.Color.green())
         if user.id != self.member.id:
             await self.member.send(f"Votre ticket sur {interaction.guild.name} a été réouvert par {user.mention}")
+        cursor.execute("UPDATE tickets SET status = %s, user_id = %s WHERE channel_id = %s", ("reopened", user.id, str(interaction.channel.id)))
+        conn.commit()
         await interaction.response.send_message(content=self.member.mention if user.id == self.member.id else None, embed=reopened_embed)
 
     @discord.ui.button(label="Supprimer le ticket", style=discord.ButtonStyle.danger)
@@ -719,6 +724,7 @@ class TicketCloseConfirmation(View):
         moderator = any(role in user.roles for role in self.moderator_roles)
         if (moderator or user.guild_permissions.administrator) and user.id != OWNER_ID:
             cursor.execute("UPDATE tickets SET status = %s, user_id = %s WHERE channel_id = %s", ("deleted", user.id, str(interaction.channel.id)))
+            conn.commit()
             await self.member.send(f"Votre ticket sur {interaction.guild.name} a été supprimé par {user.mention}")
             await interaction.channel.delete(reason="Ticket fermé")
         else:
