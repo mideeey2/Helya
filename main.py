@@ -649,9 +649,10 @@ async def newyearstats(ctx, member:discord.Member=None):
         await ctx.channel.send(content=f"{target_member.mention} a reçu {count} message{'s' if count > 1 else ''} de bonne année.")
 
 class ReopenDeleteTicket(View):
-    def __init__(self, member:discord.Member):
+    def __init__(self, member:discord.Member, moderator_roles):
         super().__init__()
         self.member = member
+        self.moderator_roles = moderator_roles
     
     @discord.ui.button(label="Réouvrir le ticket", style=discord.ButtonStyle.green)
     async def reopen_ticket_button(self, interaction:discord.Interaction, button:discord.Button):
@@ -700,7 +701,7 @@ class TicketCloseConfirmation(View):
             await interaction.channel.delete(reason="Ticket fermé")
         else:
             embed=discord.Embed(title="Ticket fermé", description=f"{user.mention} vient de fermer son ticket.")
-            await interaction.response.send_message(embed=embed, view=ReopenDeleteTicket(self.member))
+            await interaction.response.send_message(embed=embed, view=ReopenDeleteTicket(self.member, self.moderator_roles))
             cursor.execute("UPDATE tickets SET status = %s, user_id = %s WHERE channel_id = %s", ("closed", user.id, str(interaction.channel.id)))
             conn.commit()
             ticket_msg = await interaction.channel.fetch_message(self.ticket_msg_id)
