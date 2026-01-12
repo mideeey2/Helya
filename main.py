@@ -905,11 +905,10 @@ async def renew(ctx, channel:discord.TextChannel=None):
         channel_topic = channel.topic
         channel_perms = channel.overwrites
         nsfw = channel.is_nsfw()
-        channel_type = channel.type
         channel_category = channel.category
         slowmode = channel.slowmode_delay
         await channel.delete()
-        new_channel = await ctx.guild.create_channel(name=channel_name, type=channel_type, category=channel_category, overwrites=channel_perms)
+        new_channel = await ctx.guild.create_text_channel(name=channel_name, category=channel_category, overwrites=channel_perms)
         await new_channel.edit( topic=channel_topic, slowmode_delay=slowmode, nsfw=nsfw, position=channel_position)
         msg = await new_channel.send(".")
         await msg.delete()
