@@ -14,39 +14,42 @@ conn = psycopg2.connect(DATABASE_URL)
 cursor = conn.cursor()
 
 
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS vouchs (
-               vouch_id SERIAL PRIMARY KEY,
-               user_id TEXT,
-               voucher_id TEXT,
-               reason TEXT,
-               datetime TEXT
-               );
-CREATE TABLE IF NOT EXISTS invites (
-               invite_id SERIAL PRIMARY KEY,
-               inviter_id TEXT,
-               invited_id TEXT,
-               invite_code TEXT,
-               datetime TEXT
-               );
-CREATE TABLE IF NOT EXISTS tickets (
-               ticket_id SERIAL PRIMARY KEY,
-               member_id TEXT,
-               reason TEXT,
-               timestamp TEXT,
-               status TEXT,
-               channel_id TEXT
-               );
-CREATE TABLE IF NOT EXISTS newyear (
-               newyear_id SERIAL PRIMARY KEY,
-               sending TEXT,
-               receiving TEXT,
-               datetime TEXT
-               );
-CREATE TABLE IF NOT EXISTS ticket_msg_id (
-               id TEXT,
-               );
-""")
+cursor.execute("""CREATE TABLE IF NOT EXISTS vouchs (
+    vouch_id SERIAL PRIMARY KEY,
+    user_id TEXT,
+    voucher_id TEXT,
+    reason TEXT,
+    datetime TEXT
+);""")
+
+cursor.execute("""CREATE TABLE IF NOT EXISTS invites (
+    invite_id SERIAL PRIMARY KEY,
+    inviter_id TEXT,
+    invited_id TEXT,
+    invite_code TEXT,
+    datetime TEXT
+);""")
+
+cursor.execute("""CREATE TABLE IF NOT EXISTS tickets (
+    ticket_id SERIAL PRIMARY KEY,
+    member_id TEXT,
+    reason TEXT,
+    timestamp TEXT,
+    status TEXT,
+    channel_id TEXT
+);""")
+
+cursor.execute("""CREATE TABLE IF NOT EXISTS newyear (
+    newyear_id SERIAL PRIMARY KEY,
+    sending TEXT,
+    receiving TEXT,
+    datetime TEXT
+);""")
+
+cursor.execute("""CREATE TABLE IF NOT EXISTS ticket_msg_id (
+    id TEXT
+);""")
+
 conn.commit()
 
 # --------- CONFIG ---------
