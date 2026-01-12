@@ -43,6 +43,9 @@ CREATE TABLE IF NOT EXISTS newyear (
                receiving TEXT,
                datetime TEXT
                );
+CREATE TABLE IF NOT EXISTS ticket_msg_id (
+               id TEXT,
+               );
 """)
 conn.commit()
 
@@ -155,6 +158,21 @@ async def on_ready():
             if guild.get_role(1455978240777650439) in member.roles:
                 await member.remove_roles(discord.utils.get(member.guild.roles, id=1455978240777650439))
 
+    cursor.execute("SELECT id FROM ticket_msg_id")
+    ticket_creation_msg_id = cursor.fetchall()[0][0]
+    ticket_channel = bot.get_channel(TICKET_CHANNEL_ID)
+    ticket_creation_msg = await ticket_channel.fetch_message(int(ticket_creation_msg_id))
+    await ticket_creation_msg.delete()
+
+    guild = bot.get_guild(1438222268185706599)
+    
+    embed = discord.Embed(title="Création de tickets", description="Pour ouvrir un ticket, sélectionnez une raison à l'aide du sélecteur ci-dessous!", color=discord.Color.green())
+    embed.set_thumbnail(url=guild.icon.url)
+    embed.set_footer(text="Merci de ne pas créer des tickets sans raison!", icon_url=guild.icon.url)
+    embed.set_author(name=guild.name, url="https://discord.gg/H4JNyVMkjH")
+    ticket_creation_msg = await ticket_channel.send(embed=embed, view=TicketReasonView())
+    cursor.execute("UPDATE ticket_msg_id SET id=%s", (ticket_creation_msg.id,))
+    conn.commit()
 
     for guild in bot.guilds:
         try:
@@ -860,13 +878,20 @@ class TicketReasonView(View):
 @bot.command()
 async def ticketsystem(ctx):
     if ctx.author.id == OWNER_ID or ctx.author.id == TEST_ACCOUNT_ID:
-        ticket_channel = bot.get_channel(BOTS_CHANNEL_ID)
+        cursor.execute("SELECT id FROM ticket_msg_id")
+        ticket_creation_msg_id = cursor.fetchall()[0][0]
+        ticket_channel = bot.get_channel(TICKET_CHANNEL_ID)
+        ticket_creation_msg = await ticket_channel.fetch_message(int(ticket_creation_msg_id))
+        await ticket_creation_msg.delete()
+        
         embed = discord.Embed(title="Création de tickets", description="Pour ouvrir un ticket, sélectionnez une raison à l'aide du sélecteur ci-dessous!", color=discord.Color.green())
         embed.set_thumbnail(url=ctx.guild.icon.url)
         embed.set_footer(text="Merci de ne pas créer des tickets sans raison!", icon_url=ctx.guild.icon.url)
         embed.set_author(name=ctx.guild.name, url="https://discord.gg/H4JNyVMkjH")
         await ticket_channel.send(embed=embed, view=TicketReasonView())
         await ctx.message.delete()
+        cursor.execute("UPDATE ticket_msg_id SET id=%s", (ticket_creation_msg.id,))
+        conn.commit()
 
 # @bot.event
 # async def on_message(message):
