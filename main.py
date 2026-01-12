@@ -29,6 +29,20 @@ CREATE TABLE IF NOT EXISTS invites (
                invite_code TEXT,
                datetime TEXT
                );
+CREATE TABLE IF NOT EXISTS tickets (
+               ticket_id SERIAL PRIMARY KEY,
+               member_id TEXT,
+               reason TEXT,
+               timestamp TEXT,
+               status TEXT,
+               channel_id TEXT
+               );
+CREATE TABLE IF NOT EXISTS newyear (
+               newyear_id SERIAL PRIMARY KEY,
+               sending TEXT,
+               receiving TEXT,
+               datetime TEXT
+               );
 """)
 conn.commit()
 
@@ -551,7 +565,7 @@ async def invites(ctx, member:discord.Member=None):
     if member:
         class PersonnalInvitesButton(View):
             def __init__ (self):
-                super().__init__(timeout=180)
+                super().__init__(timeout=None)
             @discord.ui.button(label="Voir mes invitations", style=discord.ButtonStyle.green)
             async def personal_invites_button(self, interaction: discord.Interaction, button: discord.ui.Button):
                 message = get_invites_count(interaction.user, True)
@@ -650,7 +664,7 @@ async def newyearstats(ctx, member:discord.Member=None):
 
 class ReopenDeleteTicket(View):
     def __init__(self, member:discord.Member, moderator_roles):
-        super().__init__()
+        super().__init__(timeout=None)
         self.member = member
         self.moderator_roles = moderator_roles
     
@@ -676,7 +690,7 @@ class ReopenDeleteTicket(View):
                 break
         if moderator or user.guild_permissions.administrator:
             delete_confirmation_embed = discord.Embed(title="Confirmation", description="Êtes-vous sûr de vouloir supprimer ce ticket?", color=discord.Color.red())
-            await interaction.response.send_message(embed=delete_confirmation_embed, view=TicketCloseConfirmation(self.moderator_roles, self.member, ), ephemeral=True)
+            await interaction.response.send_message(embed=delete_confirmation_embed, view=TicketCloseConfirmation(self.moderator_roles, self.member, interaction.message.id), ephemeral=True)
         else:
             delete_confirmation_embed = discord.Embed(title="Manque de permissions", description="Vous n'avez pas la permission de supprimer ce ticket.", color=discord.Color.red())
             await interaction.response.send_message(embed=delete_confirmation_embed, ephemeral=True)
@@ -685,7 +699,7 @@ ticket_msg_id = None
 
 class TicketCloseConfirmation(View):
     def __init__(self, moderator_roles, member:discord.Member, ticket_msg_id):
-        super().__init__()
+        super().__init__(timeout=None)
         self.moderator_roles = moderator_roles
         self.member = member
         self.ticket_msg_id = ticket_msg_id
@@ -694,23 +708,16 @@ class TicketCloseConfirmation(View):
     async def yes_button(self, interaction:discord.Interaction, button:discord.ui.Button):
         user = interaction.guild.get_member(interaction.user.id)
         moderator = any(role in user.roles for role in self.moderator_roles)
-        if (moderator or user.guild_permissions.administrator) and user.id != OWNER_ID:
-            cursor.execute("UPDATE tickets SET status = %s, user_id = %s WHERE channel_id = %s", ("deleted", user.id, str(interaction.channel.id)))
+        if moderator or user.guild_permissions.administrator:
+            cursor.execute("UPDATE tickets SET status = %s WHERE channel_id = %s", ("deleted", str(interaction.channel.id)))
             conn.commit()
             await self.member.send(f"Votre ticket sur {interaction.guild.name} a été supprimé par {user.mention}")
             await interaction.channel.delete(reason="Ticket fermé")
         else:
-            embed=discord.Embed(title="Ticket fermé", description=f"{user.mention} vient de fermer son ticket.")
+            embed=discord.Embed(title="Ticket fermé", description=f"{user.mention} vient de fermer son ticket.", color=discord.Color.blue())
             await interaction.response.send_message(embed=embed, view=ReopenDeleteTicket(self.member, self.moderator_roles))
-            cursor.execute("UPDATE tickets SET status = %s, user_id = %s WHERE channel_id = %s", ("closed", user.id, str(interaction.channel.id)))
+            cursor.execute("UPDATE tickets SET status = %s WHERE channel_id = %s", ("closed", str(interaction.channel.id)))
             conn.commit()
-            ticket_msg = await interaction.channel.fetch_message(self.ticket_msg_id)
-            ticket_view = TicketOptionsView(self.moderator_roles, self.member)
-            close_ticket_button = ticket_view.children[1]
-            close_ticket_button.label="Rouvrir le ticket"
-            close_ticket_button.emoji="🔓"
-            close_ticket_button.style=discord.ButtonStyle.green
-            await ticket_msg.edit(view=ticket_view)
 
     @discord.ui.button(label="Non", style=discord.ButtonStyle.danger)
     async def no_button(self, interaction:discord.Interaction, button:discord.ui.Button):
@@ -720,7 +727,7 @@ class TicketCloseConfirmation(View):
 
 class TicketOptionsView(View):
     def __init__(self, moderator_roles, member:discord.Member):
-        super().__init__()
+        super().__init__(timeout=None)
         self.moderator_roles = moderator_roles
         self.member = member
     @discord.ui.button(label="Prendre en charge", style=discord.ButtonStyle.blurple, emoji="🛠️")
@@ -736,7 +743,7 @@ class TicketOptionsView(View):
         if moderator or user.guild_permissions.administrator:
             handle_embed = discord.Embed(title="Ticket pris en charge!", description=f"Votre ticket a été pris en charge par {user.mention}!", color=discord.Color.green())
             await interaction.response.send_message(content=self.member.mention, embed=handle_embed)
-            cursor.execute("UPDATE tickets SET status = %s, user_id = %s WHERE channel_id=%s", ("handeled", str(user.id), str(interaction.channel.id)))
+            cursor.execute("UPDATE tickets SET status = %s WHERE channel_id=%s", ("handled", str(interaction.channel.id)))
             conn.commit()
             button.disabled = True
             button.label = "Ticket pris en charge"
@@ -766,13 +773,11 @@ class TicketOptionsView(View):
 class TicketReasonModal(Modal):
     def __init__(self):
         super().__init__(title="Raison d'ouverture de ticket")
-        self.reason_required_display = discord.ui.TextDisplay(content="### Veuillez éviter d'ouvrir des tickets sans raison sous peine d'un avertissement.")
-        self.reason_input = discord.ui.TextInput(label="Raison", style=discord.TextStyle.paragraph)
-        self.add_item(self.reason_required_display)
+        self.reason_input = discord.ui.TextInput(label="Raison", style=discord.TextStyle.paragraph, placeholder="Décrivez votre demande...")
         self.add_item(self.reason_input)
 
     async def on_submit(self, interaction:discord.Interaction):
-        mods = [interaction.guild.get_role(1456391253783740530),]
+        mods = [interaction.guild.get_role(MOD_ROLE_ID),]
         member = interaction.guild.get_member(interaction.user.id)
         ticket_category = discord.utils.get(interaction.guild.categories, id=TICKET_CATEGORY_ID)
         overwrites = {
@@ -782,18 +787,23 @@ class TicketReasonModal(Modal):
         for mod in mods:
             if mod:
                 overwrites[mod] = discord.PermissionOverwrite(view_channel=True, send_messages=True)
-        ticket_channel = await interaction.guild.create_text_channel(name=f"{self.reason_input}-{member.display_name}", category=ticket_category, overwrites=overwrites)
+        ticket_channel = await interaction.guild.create_text_channel(name=f"ticket-{member.display_name}", category=ticket_category, overwrites=overwrites)
         await interaction.response.send_message(content="Votre ticket est en cours de création", ephemeral=True)
-        await interaction.guild.get_member(OWNER_ID).send(f"{member.mention} vient de créer un ticket pour la raison `{self.reason_input}`. {ticket_channel.jump_url}")
+        try:
+            owner = interaction.guild.get_member(OWNER_ID)
+            if owner:
+                await owner.send(f"{member.mention} vient de créer un ticket pour la raison `{self.reason_input.value}`. {ticket_channel.jump_url}")
+        except:
+            pass
         ticket_debut_embed = discord.Embed(title=f"Ticket ouvert par {member}", description=f"{member.mention} vient d'ouvrir un ticket!\nRaison : **{self.reason_input.value}**", color=discord.Color.green())
         ticket_debut_embed.set_thumbnail(url=member.avatar.url if member.avatar else member.default_avatar.url)
         ticket_debut_embed.set_author(name=interaction.guild.name, icon_url=interaction.guild.icon.url)
         datetime_now = datetime.datetime.now().timestamp()
-        cursor.execute("INSERT INTO tickets (member_id, reason, timestamp, status, channel_id) VALUES (%s, %s, %s, %s, %s)", (member.id, self.values[0], str(datetime_now), "open", ticket_channel.id))
+        cursor.execute("INSERT INTO tickets (member_id, reason, timestamp, status, channel_id) VALUES (%s, %s, %s, %s, %s)", (str(member.id), self.reason_input.value, str(datetime_now), "open", str(ticket_channel.id)))
         conn.commit()
-        await ticket_channel.send(content=f"Bienvenue {member.mention} dans votre ticket, un membre du staff vous prendra le plus vite possible en charge. Restez là!", embed=ticket_debut_embed, view=TicketOptionsView(mods, member))
+        ticket_msg = await ticket_channel.send(content=f"Bienvenue {member.mention} dans votre ticket, un membre du staff vous prendra le plus vite possible en charge. Restez là!", embed=ticket_debut_embed, view=TicketOptionsView(mods, member))
         ticket_created_success_embed = discord.Embed(title="Succès", description=f"Votre ticket a été créé avec succès dans {ticket_channel.jump_url}", color=discord.Color.green())
-        await interaction.followup.send(content=member.mention ,embed=ticket_created_success_embed, ephemeral=True)
+        await interaction.followup.send(content=member.mention, embed=ticket_created_success_embed, ephemeral=True)
 
 class TicketReasonSelect(Select):
     def __init__(self):
@@ -810,11 +820,11 @@ class TicketReasonSelect(Select):
         super().__init__(placeholder="Veuillez choisir une raison pour ouvrir un ticket...", options=options, min_values=1, max_values=1)
 
     async def callback(self, interaction:discord.Interaction):
-        global ticket_msg_id
         if self.values[0] == "Autre":
             await interaction.response.send_modal(TicketReasonModal())
-        else:
-            mods = [interaction.guild.get_role(1456391253783740530),]
+            return
+        
+        mods = [interaction.guild.get_role(MOD_ROLE_ID),]
         member = interaction.guild.get_member(interaction.user.id)
         ticket_category = discord.utils.get(interaction.guild.categories, id=TICKET_CATEGORY_ID)
         overwrites = {
@@ -824,33 +834,39 @@ class TicketReasonSelect(Select):
         for mod in mods:
             if mod:
                 overwrites[mod] = discord.PermissionOverwrite(view_channel=True, send_messages=True)
-        ticket_channel = await interaction.guild.create_text_channel(name=f"{self.values[0]}-{member.display_name}", category=ticket_category, overwrites=overwrites)
+        ticket_channel = await interaction.guild.create_text_channel(name=f"ticket-{member.display_name}", category=ticket_category, overwrites=overwrites)
         await interaction.response.send_message(content="Votre ticket est en cours de création", ephemeral=True)
-        await interaction.guild.get_member(OWNER_ID).send(f"{member.mention} vient de créer un ticket pour la raison `{self.values[0]}`. {ticket_channel.jump_url}")
+        try:
+            owner = interaction.guild.get_member(OWNER_ID)
+            if owner:
+                await owner.send(f"{member.mention} vient de créer un ticket pour la raison `{self.values[0]}`. {ticket_channel.jump_url}")
+        except:
+            pass
         ticket_debut_embed = discord.Embed(title=f"Ticket ouvert par {member}", description=f"{member.mention} vient d'ouvrir un ticket!\nRaison : **{self.values[0]}**", color=discord.Color.green())
         ticket_debut_embed.set_thumbnail(url=member.avatar.url if member.avatar else member.default_avatar.url)
         ticket_debut_embed.set_author(name=interaction.guild.name, icon_url=interaction.guild.icon.url)
-        await ticket_channel.send(content=f"Bienvenue {member.mention} dans votre ticket, un membre du staff vous prendra le plus vite possible en charge. Restez là!", embed=ticket_debut_embed, view=TicketOptionsView(mods, member))
         datetime_now = datetime.datetime.now().timestamp()
-        cursor.execute("INSERT INTO tickets (member_id, reason, timestamp, status, channel_id) VALUES (%s, %s, %s, %s, %s)", (member.id, self.values[0], str(datetime_now), "open", ticket_channel.id))
+        ticket_msg = await ticket_channel.send(content=f"Bienvenue {member.mention} dans votre ticket, un membre du staff vous prendra le plus vite possible en charge. Restez là!", embed=ticket_debut_embed, view=TicketOptionsView(mods, member))
+        cursor.execute("INSERT INTO tickets (member_id, reason, timestamp, status, channel_id) VALUES (%s, %s, %s, %s, %s)", (str(member.id), self.values[0], str(datetime_now), "open", str(ticket_channel.id)))
         conn.commit()
         ticket_created_success_embed = discord.Embed(title="Succès", description=f"Votre ticket a été créé avec succès dans {ticket_channel.jump_url}", color=discord.Color.green())
-        await interaction.followup.send(content=member.mention ,embed=ticket_created_success_embed, ephemeral=True)
+        await interaction.followup.send(content=member.mention, embed=ticket_created_success_embed, ephemeral=True)
 
 class TicketReasonView(View):
     def __init__(self):
-        super().__init__()
+        super().__init__(timeout=None)
         self.add_item(TicketReasonSelect())
 
 @bot.command()
 async def ticketsystem(ctx):
-    if ctx.author.id == OWNER_ID or TEST_ACCOUNT_ID:
+    if ctx.author.id == OWNER_ID or ctx.author.id == TEST_ACCOUNT_ID:
         ticket_channel = bot.get_channel(BOTS_CHANNEL_ID)
         embed = discord.Embed(title="Création de tickets", description="Pour ouvrir un ticket, sélectionnez une raison à l'aide du sélecteur ci-dessous!", color=discord.Color.green())
         embed.set_thumbnail(url=ctx.guild.icon.url)
         embed.set_footer(text="Merci de ne pas créer des tickets sans raison!", icon_url=ctx.guild.icon.url)
         embed.set_author(name=ctx.guild.name, url="https://discord.gg/H4JNyVMkjH")
         await ticket_channel.send(embed=embed, view=TicketReasonView())
+        await ctx.message.delete()
 
 # @bot.event
 # async def on_message(message):
