@@ -908,7 +908,7 @@ async def renew(ctx, channel:discord.TextChannel=None, *, args=None):
             msg = await new_channel.send(".")
             await msg.delete()
     else:
-        ctx.message.send_response("Vous n'avez pas les permissions nécessaires pour utiliser cette commande.")
+        ctx.send("Vous n'avez pas les permissions nécessaires pour utiliser cette commande.")
 
 # @bot.event
 # async def on_message(message):
