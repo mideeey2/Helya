@@ -70,11 +70,10 @@ TICKET_CHANNEL_ID = 1438250538163634176
 TICKET_CATEGORY_ID = 1438249962331705476
 MOD_ROLE_ID = 1456391253783740530
 MM_ROLE_ID = 1443685365545177270
-
-INVITES_JSON_FILE = "invites.json"
-GIVEAWAYS_JSON_FILE = "giveaways.json"
-MEMBER_INVITER_FILE = "member_inviter.json"
-VOUCHS_JSON_FILE = "vouchs.json"
+MEMBER_COUNT_CHANNEL_ID = 1460268450038546432
+BOT_COUNT_CHANNEL_ID = 1460268646667517994
+ONLINE_COUNT_CHANNEL_ID = 1460268512747589876
+BOOST_COUNT_CHANNEL_ID = 1460268694251769893
 
 intents = discord.Intents.default()
 intents.members = True
@@ -93,28 +92,7 @@ invites_count = cursor.fetchall()
 cursor.execute("SELECT * FROM vouchs;")
 vouchs = cursor.fetchall()
 
-# charger mapping member -> inviter
-if os.path.exists(MEMBER_INVITER_FILE):
-    with open(MEMBER_INVITER_FILE, "r") as f:
-        try:
-            member_inviter = json.load(f)
-        except json.JSONDecodeError:
-            member_inviter = {}
-else:
-    member_inviter = {}
-
 # --------- FONCTION POUR SAUVEGARDER ---------
-def save_invites():
-    with open(INVITES_JSON_FILE, "w") as f:
-        json.dump(invites_count, f)
-
-def save_giveaways(data):
-    with open(GIVEAWAYS_JSON_FILE, "w") as f:
-        json.dump(data, f)
-
-def save_member_inviter():
-    with open(MEMBER_INVITER_FILE, "w") as f:
-        json.dump(member_inviter, f)
 
 def vouch_user(member:discord.Member, reason:str, voucher:discord.Member):
     user_id = str(member.id)
@@ -177,6 +155,19 @@ async def on_ready():
     cursor.execute("UPDATE ticket_msg_id SET id=%s", (ticket_creation_msg.id,))
     conn.commit()
 
+    member_count_channel = bot.get_channel(MEMBER_COUNT_CHANNEL_ID)
+    await member_count_channel.edit(name=f"「👥」𝑴𝑬𝑴𝑩𝑹𝑬𝑺 : {member.guild.member_count}")
+
+    bot_count_channel = bot.get_channel(BOT_COUNT_CHANNEL_ID)
+    await bot_count_channel.edit(name=f"「🤖」𝑩𝑶𝑻𝑺 : {len([m for m in member.guild.members if m.bot])}")
+
+    online_count_channel = guild.get_channel(ONLINE_COUNT_CHANNEL_ID)
+    actifs = sum(1 for m in guild.members if m.status in (discord.Status.online, discord.Status.idle, discord.Status.dnd))
+    await online_count_channel.edit(name=f"「🟢」𝑬𝑵-𝑳𝑰𝑮𝑵𝑬 : {actifs}")
+
+    boost_count_channel = bot.get_channel(BOOST_COUNT_CHANNEL_ID)
+    await boost_count_channel.edit(name=f"「⚡」𝑩𝑶𝑶𝑺𝑻𝑺 : {guild.premium_subscription_count}")
+
     for guild in bot.guilds:
         try:
             invites_cache[guild.id] = await guild.invites()
@@ -207,7 +198,7 @@ class PersonnalInvitesButton(View):
         await interaction.response.send_message(embed=message, ephemeral=True)
 
 @bot.event
-async def on_member_join(member):
+async def on_member_join(member:discord.Member):
     guild = member.guild
     before = invites_cache.get(guild.id, [])
     try:
@@ -231,6 +222,12 @@ async def on_member_join(member):
     if not channel:
         print("⚠️ Salon introuvable ou ID incorrect")
         return
+    
+    member_count_channel = bot.get_channel(MEMBER_COUNT_CHANNEL_ID)
+    await member_count_channel.edit(name=f"「👥」𝑴𝑬𝑴𝑩𝑹𝑬𝑺 : {member.guild.member_count}")
+
+    bot_count_channel = bot.get_channel(BOT_COUNT_CHANNEL_ID)
+    await bot_count_channel.edit(name=f"「🤖」𝑩𝑶𝑻𝑺 : {len([m for m in member.guild.members if m.bot])}")
 
     if used_invite:
         inviter = used_invite.inviter
@@ -260,38 +257,11 @@ async def on_member_join(member):
 
 @bot.event
 async def on_member_remove(member:discord.Member):
-    channel = bot.get_channel(LEAVS_CHANNEL_ID)
-    guild = member.guild
-    before = invites_cache.get(guild.id, [])
-    try:
-        after = await guild.invites()
-    except discord.Forbidden:
-        after = before
+    member_count_channel = bot.get_channel(MEMBER_COUNT_CHANNEL_ID)
+    await member_count_channel.edit(name=f"「👥」𝑴𝑬𝑴𝑩𝑹𝑬𝑺 : {member.guild.member_count}")
 
-    used_invite = None
-    for new in after:
-        for old in before:
-            if new.code == old.code and new.uses > old.uses:
-                used_invite = new
-                break
-
-    # mise à jour du cache
-    invites_cache[guild.id] = after
-    if not channel:
-        print("⚠️ Salon introuvable ou ID incorrect")
-        return
-    if used_invite:
-        inviter = used_invite.inviter
-        invites_count[inviter.id] -= 1
-        save_invites()
-        await channel.send(
-            content="Un membre vient de quitter le serveur.",
-            embed=discord.Embed(
-                title=f"{member} vient de quitter le serveur.",
-                description=f"Il a été invité par <@{inviter.id}> qui a désormais {invites_count[inviter.id]} invitations.",
-                color=discord.Color.red()
-            )
-        )
+    bot_count_channel = bot.get_channel(BOT_COUNT_CHANNEL_ID)
+    await bot_count_channel.edit(name=f"「🤖」𝑩𝑶𝑻𝑺 : {len([m for m in member.guild.members if m.bot])}")
 
 # --------- COMMANDE SLASH /invites ---------
 
@@ -336,24 +306,6 @@ async def on_message(message):
 
     await bot.process_commands(message)
 
-@bot.tree.command(name="giveaway", description="Lancer un giveaway.")
-@app_commands.checks.has_permissions(administrator=True)
-async def giveaway(interaction : discord.Interaction, titre:str, récompense : str, durée : int, gagnants : int, salon : discord.TextChannel = None, mention : discord.Member = None, text : str = None):
-    end = datetime.datetime.now() + datetime.timedelta(minutes=durée)
-    embed = discord.Embed(title=titre,
-                          description=f"Récompense : {récompense}\nNombre de gagnants : {gagnants}\nFin <t:{int(end.timestamp())}:R> (<t:{int(end.timestamp())}:F>)\nParticipants : {0}",
-                          color=0x00ff00,)
-    target_channel = salon or interaction.channel
-    giveaway_button_onclick = """
-import json
-with open(json_file, "w") as f:
-    json.dump(user, f) 
-    """
-    save_giveaways({"recompense": récompense, "fin": end.timestamp(), "gagnants": gagnants, "participants": []})
-    giveaway_button = Button(label="Participer 🎁", color=discord.ButtonStyle.green, interaction_msg="Vous participez désormais au giveaway! 🎁", onclick_code=giveaway_button_onclick, json_file=GIVEAWAYS_JSON_FILE)
-    await target_channel.send(content=f"Giveaway 🎉\n{text}\nMention(s) : {mention.mention}", embed=embed, view=giveaway_button)
-    await interaction.response.send_message(f"Giveaway lancé dans {target_channel.mention}! 🎉", ephemeral=True)
-
 @bot.command()
 async def detruire(ctx):
     if ctx.author.id != OWNER_ID:
@@ -366,10 +318,13 @@ async def detruire(ctx):
             pass
 
 @bot.command()
-async def vouch(ctx, member:discord.Member, reason:str):
-    if ctx.channel.id == VOUCH_CHANNEL_ID:
+async def vouch(ctx, member:discord.Member, *, args):
+    if ctx.channel.id == VOUCH_CHANNEL_ID and ctx.author.id != member.id:
         await ctx.message.add_reaction("❤️")
-        vouch_user(member, reason, ctx.author)
+        vouch_user(member, args, ctx.author)
+    elif ctx.author.id == member.id:
+        await ctx.send("Vous ne pouvez pas vous vouch vous-même 😓", delete_after=3000)
+        await ctx.message.delete()
 
 async def vouch_public_button_callback(interaction: discord.Interaction):
     await interaction.response.send_message(f"Vous avez {get_vouchs_count(interaction.user)} {'vouch' if get_vouchs_count(interaction.user) == 1 else 'vouchs'}." if get_vouchs_count(interaction.user) > 0 else "Vous n'avez aucun vouch <a:triste:1453390284762124450>", ephemeral=False)
@@ -488,13 +443,13 @@ async def mute(ctx, member:discord.Member, duration:int=40320, reason:str="Aucun
         await ctx.channel.send(f"Une erreur est survenue lors de l'exécution de l'action. Erreur : `{e}`")
 
 @bot.command()
-async def unmute(ctx, member:discord.Member, reason:str=None):
+async def unmute(ctx, member:discord.Member, *, args=None):
     guild = bot.get_guild(1438222268185706599)
     mod_role = guild.get_role(1456391253783740530)
     if (ctx.author.id == OWNER_ID or (mod_role in ctx.author.roles or ctx.author.guild_permissions.administrator) and ctx.author.top_role > member.top_role) and member.is_timed_out():
         await member.edit(timed_out_until=None)
         await ctx.channel.send(content=f"{member.mention} a été unmute.")
-        await member.send(f"Vous avez été unmute sur le serveur {ctx.guild.name} par {ctx.author.mention}{f" pour la raison `{reason}`" if reason else ""}.")
+        await member.send(f"Vous avez été unmute sur le serveur {ctx.guild.name} par {ctx.author.mention}{f" pour la raison `{args}`" if args else ""}.")
     elif mod_role not in ctx.author.roles and ctx.author.guild_permissions.administrator:
         await ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande car vous n'êtes pas modérateur sur le serveur.")
     elif ctx.author.top_role <= member.top_role:
@@ -505,7 +460,7 @@ async def unmute(ctx, member:discord.Member, reason:str=None):
         await ctx.channel.send("Je n'ai pas la permission de unmute de membre car il a un rôle égal ou plus haut que le mien.")
 
 @bot.command()
-async def kick(ctx, member:discord.Member, reason:str=None):
+async def kick(ctx, member:discord.Member, *, args=None):
     guild = bot.get_guild(1438222268185706599)
     mod_role = guild.get_role(1456391253783740530)
     try:
@@ -514,9 +469,9 @@ async def kick(ctx, member:discord.Member, reason:str=None):
         elif member.id == OWNER_ID:
             await ctx.channel.send(f"Vous n'avez pas la permission d'expulser mon créateur, développeur, et propriétaire : <@{OWNER_ID}><a:coeurbleu:1453664603744505896>")
         elif (ctx.author.id == OWNER_ID or (mod_role in ctx.author.roles or ctx.author.guild_permissions.administrator) and ctx.author.top_role > member.top_role):
-            await member.kick(reason=reason)
-            await ctx.channel.send(content=f"{member.mention} a été explulsé du serveur{f" pour la raison `{reason}`" if reason else " mais aucune raison n'a été spécifiée"}.")
-            await member.send(f"Vous avez été expulsé du serveur {ctx.guild.name} par {ctx.author.mention}{f" pour la raison `{reason}`" if reason else " mais aucune raison n'a été spécifiée"}.")
+            await member.kick(reason=args)
+            await ctx.channel.send(content=f"{member.mention} a été explulsé du serveur{f" pour la raison `{args}`" if args else " mais aucune raison n'a été spécifiée"}.")
+            await member.send(f"Vous avez été expulsé du serveur {ctx.guild.name} par {ctx.author.mention}{f" pour la raison `{args}`" if args else " mais aucune raison n'a été spécifiée"}.")
         elif mod_role not in ctx.author.roles and ctx.author.guild_permissions.administrator:
             await ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande car vous n'êtes pas modérateur sur le serveur.")
         elif ctx.author.top_role <= member.top_role:
@@ -529,7 +484,7 @@ async def kick(ctx, member:discord.Member, reason:str=None):
         await ctx.channel.send(f"Une erreur est survenue lors de l'exécution de l'action. Erreur : `{e}`")
 
 @bot.command()
-async def ban(ctx, member:discord.Member, reason:str=None):
+async def ban(ctx, member:discord.Member, *, args=None):
     guild = bot.get_guild(1438222268185706599)
     mod_role = guild.get_role(1456391253783740530)
     try:
@@ -549,9 +504,9 @@ async def ban(ctx, member:discord.Member, reason:str=None):
                         interaction.response.send_message(f"{member.mention} a été unban avec succès!")
                         member.send(f"Vous avez été unban du serveur **{guild.name}** par {user.mention}!")
                         user.send(f"Vous avez unban {member.mention} sur le serveur **{guild.name}**")
-            await member.ban(reason=reason)
-            await ctx.channel.send(content=f"{member.mention} a été banni du serveur{f" pour la raison `{reason}`" if reason else " mais aucune raison n'a été spécifiée"}.")
-            await member.send(f"Vous avez été banni du serveur {ctx.guild.name} par {ctx.author.mention}{f" pour la raison `{reason}`" if reason else " mais aucune raison n'a été spécifiée"}.")
+            await member.ban(reason=args)
+            await ctx.channel.send(content=f"{member.mention} a été banni du serveur{f" pour la raison `{args}`" if args else " mais aucune raison n'a été spécifiée"}.")
+            await member.send(f"Vous avez été banni du serveur {ctx.guild.name} par {ctx.author.mention}{f" pour la raison `{args}`" if args else " mais aucune raison n'a été spécifiée"}.")
         elif mod_role not in ctx.author.roles and ctx.author.guild_permissions.administrator:
             await ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande car vous n'êtes pas modérateur sur le serveur.")
         elif ctx.author.top_role <= member.top_role:
@@ -610,6 +565,10 @@ async def on_presence_update(before:discord.Member, after:discord.Member):
             else:
                 if role in after.roles:
                     await after.remove_roles(role)
+
+    online_count_channel = after.guild.get_channel(ONLINE_COUNT_CHANNEL_ID)
+    actifs = sum(1 for m in after.guild.members if m.status in (discord.Status.online, discord.Status.idle, discord.Status.dnd))
+    await online_count_channel.edit(name=f"「🟢」𝑬𝑵-𝑳𝑰𝑮𝑵𝑬 : {actifs}")
 
 @bot.command()
 async def newyear(ctx):
@@ -910,10 +869,16 @@ async def renew(ctx, channel:discord.TextChannel=None):
         await channel.delete()
         new_channel = await ctx.guild.create_text_channel(name=channel_name, category=channel_category, overwrites=channel_perms)
         await new_channel.edit( topic=channel_topic, slowmode_delay=slowmode, nsfw=nsfw, position=channel_position)
-        msg = await new_channel.send(".")
+        msg = await new_channel.send(ctx.author.mention)
         await msg.delete()
     else:
         await ctx.send("Vous n'avez pas les permissions nécessaires pour utiliser cette commande.")
+
+@bot.event
+async def on_guild_update(before:discord.Guild, after:discord.Guild):
+    if before.premium_subscription_count != after.premium_subscription_count:
+        boost_count_channel = bot.get_channel(BOOST_COUNT_CHANNEL_ID)
+        await boost_count_channel.edit(name=f"「⚡」𝑩𝑶𝑶𝑺𝑻𝑺 : {after.premium_subscription_count}")
 
 # @bot.event
 # async def on_message(message):
