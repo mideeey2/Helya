@@ -897,7 +897,7 @@ async def ticketsystem(ctx):
         conn.commit()
 
 @bot.command()
-async def renew(ctx, channel:discord.TextChannel=None, *, args):
+async def renew(ctx, channel:discord.TextChannel=None, *, args=None):
     if ctx.author.guild_permissions.administrator or ctx.author.id == OWNER_ID:
         if channel:
             channel_position = channel.position
