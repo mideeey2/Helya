@@ -896,6 +896,20 @@ async def ticketsystem(ctx):
         cursor.execute("UPDATE ticket_msg_id SET id=%s", (ticket_creation_msg.id,))
         conn.commit()
 
+@bot.command()
+async def renew(ctx, channel:discord.TextChannel=None, *, args):
+    if ctx.author.guild_permissions.administrator or ctx.author.id == OWNER_ID:
+        if channel:
+            channel_position = channel.position
+            channel_name = channel.name
+            channel_topic = channel.topic
+            await channel.delete()
+            new_channel = await ctx.guild.create_text_channel(name=channel_name, topic=channel_topic, position=channel_position)
+            msg = await new_channel.send(".")
+            await msg.delete()
+    else:
+        ctx.message.send_response("Vous n'avez pas les permissions nécessaires pour utiliser cette commande.")
+
 # @bot.event
 # async def on_message(message):
 #     content = message.content[1:]
