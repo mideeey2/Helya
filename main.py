@@ -566,7 +566,7 @@ async def on_presence_update(before:discord.Member, after:discord.Member):
                 if role in after.roles:
                     await after.remove_roles(role)
 
-    online_count_channel = after.guild.get_channel(ONLINE_COUNT_CHANNEL_ID)
+    online_count_channel = bot.get_channel(ONLINE_COUNT_CHANNEL_ID)
     actifs = sum(1 for m in after.guild.members if m.status in (discord.Status.online, discord.Status.idle, discord.Status.dnd))
     await online_count_channel.edit(name=f"「🟢」𝑬𝑵-𝑳𝑰𝑮𝑵𝑬 : {actifs}")
 
