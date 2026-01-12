@@ -161,7 +161,7 @@ async def on_ready():
     bot_count_channel = bot.get_channel(BOT_COUNT_CHANNEL_ID)
     await bot_count_channel.edit(name=f"「🤖」𝑩𝑶𝑻𝑺 : {len([m for m in guild.members if m.bot])}")
 
-    online_count_channel = guild.get_channel(ONLINE_COUNT_CHANNEL_ID)
+    online_count_channel = bot.get_channel(ONLINE_COUNT_CHANNEL_ID)
     actifs = sum(1 for m in guild.members if m.status in (discord.Status.online, discord.Status.idle, discord.Status.dnd))
     await online_count_channel.edit(name=f"「🟢」𝑬𝑵-𝑳𝑰𝑮𝑵𝑬 : {actifs}")
 
