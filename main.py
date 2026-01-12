@@ -899,22 +899,16 @@ async def ticketsystem(ctx):
 @bot.command()
 async def renew(ctx, channel:discord.TextChannel=None, *, args=None):
     if ctx.author.guild_permissions.administrator or ctx.author.id == OWNER_ID:
-        if type(channel) == discord.TextChannel:
-            channel_position = channel.position
-            channel_name = channel.name
-            channel_topic = channel.topic
-            await channel.delete()
-            new_channel = await ctx.guild.create_text_channel(name=channel_name, topic=channel_topic, position=channel_position)
-            msg = await new_channel.send(".")
-            await msg.delete()
-        else:
-            channel_position = ctx.channel.position
-            channel_name = ctx.channel.name
-            channel_topic = ctx.channel.topic
-            await ctx.channel.delete()
-            new_channel = await ctx.guild.create_text_channel(name=channel_name, topic=channel_topic, position=channel_position)
-            msg = await new_channel.send(".")
-            await msg.delete()
+        channel = channel if type(channel) == discord.TextChannel else ctx.channel
+        channel_position = channel.position
+        channel_name = channel.name
+        channel_topic = channel.topic
+        channel_perms = channel.overwrites
+        await channel.delete()
+        new_channel = await ctx.guild.create_text_channel(name=channel_name)
+        new_channel.edit(overwrite=channel_perms, position=channel_position, topic=channel_topic)
+        msg = await new_channel.send(".")
+        await msg.delete()
     else:
         ctx.send("Vous n'avez pas les permissions nécessaires pour utiliser cette commande.")
 
