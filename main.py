@@ -897,7 +897,7 @@ async def ticketsystem(ctx):
         conn.commit()
 
 @bot.command()
-async def renew(ctx, channel:discord.TextChannel=None, *, args=None):
+async def renew(ctx, channel:discord.TextChannel=None):
     if ctx.author.guild_permissions.administrator or ctx.author.id == OWNER_ID:
         channel = channel if type(channel) == discord.TextChannel else ctx.channel
         channel_position = channel.position
@@ -906,11 +906,11 @@ async def renew(ctx, channel:discord.TextChannel=None, *, args=None):
         channel_perms = channel.overwrites
         await channel.delete()
         new_channel = await ctx.guild.create_text_channel(name=channel_name)
-        new_channel.edit(overwrite=channel_perms, position=channel_position, topic=channel_topic)
+        await new_channel.edit(overwrites=channel_perms, position=channel_position, topic=channel_topic)
         msg = await new_channel.send(".")
         await msg.delete()
     else:
-        ctx.send("Vous n'avez pas les permissions nécessaires pour utiliser cette commande.")
+        await ctx.send("Vous n'avez pas les permissions nécessaires pour utiliser cette commande.")
 
 # @bot.event
 # async def on_message(message):
