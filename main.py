@@ -855,7 +855,7 @@ class TicketReasonSelect(Select):
         for mod in mods:
             if mod:
                 overwrites[mod] = discord.PermissionOverwrite(view_channel=True, send_messages=True)
-        ticket_channel = await interaction.guild.create_text_channel(name=f"ticket-{member.display_name}", category=ticket_category, overwrites=overwrites)
+        ticket_channel = await interaction.guild.create_text_channel(name=f"{self.values[0]}-{member.display_name}", category=ticket_category, overwrites=overwrites)
         await interaction.response.send_message(content="Votre ticket est en cours de création", ephemeral=True)
         try:
             owner = interaction.guild.get_member(OWNER_ID)
@@ -867,7 +867,7 @@ class TicketReasonSelect(Select):
         ticket_debut_embed.set_thumbnail(url=member.avatar.url if member.avatar else member.default_avatar.url)
         ticket_debut_embed.set_author(name=interaction.guild.name, icon_url=interaction.guild.icon.url)
         datetime_now = datetime.datetime.now().timestamp()
-        ticket_msg = await ticket_channel.send(content=f"Bienvenue {member.mention} dans votre ticket, un membre du staff vous prendra le plus vite possible en charge. Restez là!", embed=ticket_debut_embed, view=TicketOptionsView(mods, member))
+        ticket_msg = await ticket_channel.send(content=f"Bienvenue {member.mention} dans votre ticket, un membre du staff vous prendra le plus vite possible en charge. Restez là! {[mod_role.mention for mod_role in mods]}", embed=ticket_debut_embed, view=TicketOptionsView(mods, member))
         cursor.execute("INSERT INTO tickets (member_id, reason, timestamp, status, channel_id) VALUES (%s, %s, %s, %s, %s)", (str(member.id), self.values[0], str(datetime_now), "open", str(ticket_channel.id)))
         conn.commit()
         ticket_created_success_embed = discord.Embed(title="Succès", description=f"Votre ticket a été créé avec succès dans {ticket_channel.jump_url}", color=discord.Color.green())
