@@ -191,7 +191,7 @@ async def on_invite_create(invite):
 # --------- QUAND UN MEMBRE REJOINT ---------
 class PersonnalInvitesButton(View):
     def __init__ (self):
-        super().__init__(timeout=180)
+        super().__init__(timeout=None)
     @discord.ui.button(label="Voir mes invitations", style=discord.ButtonStyle.green)
     async def personal_invites_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         message = get_invites_count(interaction.user, True)
@@ -567,7 +567,7 @@ async def on_presence_update(before:discord.Member, after:discord.Member):
                     await after.remove_roles(role)
 
     online_count_channel = bot.get_channel(ONLINE_COUNT_CHANNEL_ID)
-    actifs = sum(1 for m in after.guild.members if m.status in (discord.Status.online, discord.Status.idle, discord.Status.dnd))
+    actifs = sum(1 for m in guild.members if m.status in (discord.Status.online, discord.Status.idle, discord.Status.dnd))
     await online_count_channel.edit(name=f"「🟢」𝑬𝑵-𝑳𝑰𝑮𝑵𝑬 : {actifs}")
 
 @bot.command()
