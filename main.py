@@ -967,9 +967,11 @@ async def on_guild_update(before:discord.Guild, after:discord.Guild):
 async def rainbowrole(ctx, member:discord.Member):
     if ctx.author.guild_permissions.administrator or ctx.author.id == 1373746108601471077:
         if ctx.guild.get_role(1461089163334910013) in member.roles:
-            member.add_roles(ctx.guild.get_role(1461089163334910013))
+            await member.add_roles(ctx.guild.get_role(1461089163334910013))
+            await ctx.send(f"Le rôle a été donné à {member.mention} avec succès")
         else:
-            member.remove_roles(ctx.guild.get_role(1461089163334910013))
+            await member.remove_roles(ctx.guild.get_role(1461089163334910013))
+            await ctx.send(f"Le rôle a été retiré à {member.mention} avec succès")
 
 # @bot.command()
 # async def roleicon(ctx, *, args):
