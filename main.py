@@ -969,9 +969,11 @@ async def rainbowrole(ctx, member:discord.Member):
         if not ctx.guild.get_role(1461089163334910013) in member.roles:
             await member.add_roles(ctx.guild.get_role(1461089163334910013))
             await ctx.send(f"Le rôle a été donné à {member.mention} avec succès")
+            return
         else:
             await member.remove_roles(ctx.guild.get_role(1461089163334910013))
             await ctx.send(f"Le rôle a été retiré à {member.mention} avec succès")
+            return
 
 # @bot.command()
 # async def roleicon(ctx, *, args):
