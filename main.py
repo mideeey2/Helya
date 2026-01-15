@@ -372,8 +372,6 @@ async def on_message(message:discord.Message):
     if len(conversation_memory) > MAX_MEMORY:
         conversation_memory.pop(0)
 
-    await bot.process_commands(message)
-
     if message.author.id == OWNER_ID and (message.content.startswith("# Vote2Profil") or message.content.startswith("# Vote2Fame")):
         if message.channel.id == VOTE2PROFIL_CHANNEL_ID or message.channel.id == VOTE2FAME_CHANNEL_ID:
             await message.add_reaction("<:un:1453699994090733602>")
