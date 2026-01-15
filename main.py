@@ -8,6 +8,72 @@ from types import FunctionType
 from discord.utils import utcnow
 import psycopg2
 from discord.ui import Button, View, Modal, Select
+import re
+import aiohttp
+import asyncio
+
+SAFE_BUILTINS = {
+    "print": print,
+    "len": len,
+    "range": range,
+    "str": str,
+    "int": int,
+    "float": float,
+    "list": list,
+    "dict": dict,
+    "set": set,
+    "sum": sum,
+}
+
+def execute_sandbox(code: str):
+    sandbox_globals = {
+        "__builtins__": SAFE_BUILTINS
+    }
+    sandbox_locals = {}
+
+    exec(code, sandbox_globals, sandbox_locals)
+    return sandbox_locals
+
+FORBIDDEN_KEYWORDS = [
+    "import", "os.", "sys.", "eval", "exec", "__", "subprocess", "socket"
+]
+
+def is_code_safe(code: str) -> bool:
+    return not any(word in code for word in FORBIDDEN_KEYWORDS)
+
+def execute_sandbox(code: str):
+    sandbox_globals = {"__builtins__": SAFE_BUILTINS}
+    sandbox_locals = {}
+    exec(code, sandbox_globals, sandbox_locals)
+    return sandbox_locals
+
+async def run_with_timeout(code, timeout=2):
+    loop = asyncio.get_running_loop()
+    return await asyncio.wait_for(
+        loop.run_in_executor(None, execute_sandbox, code),
+        timeout=timeout
+    )
+
+
+async def call_ai(memory_text):
+    payload = {
+        "model": "deepseek-coder",
+        "messages": [
+            {"role": "system", "content": "Return only valid Python and discord.py code. No text."},
+            {"role": "user", "content": memory_text}
+        ]
+    }
+
+    async with aiohttp.ClientSession() as session:
+        async with session.post(
+            "https://api.deepseek.com/chat/completions",
+            headers={"Authorization": f"Bearer {os.getenv("AI_API_KEY")}"},
+            json=payload
+        ) as r:
+            data = await r.json()
+            return data["choices"][0]["message"]["content"]
+        
+    
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 conn = psycopg2.connect(DATABASE_URL)
@@ -74,6 +140,9 @@ MEMBER_COUNT_CHANNEL_ID = 1460268450038546432
 BOT_COUNT_CHANNEL_ID = 1460268646667517994
 ONLINE_COUNT_CHANNEL_ID = 1460268512747589876
 BOOST_COUNT_CHANNEL_ID = 1460268694251769893
+MAX_MEMORY = 100
+
+conversation_memory = []
 
 intents = discord.Intents.default()
 intents.members = True
@@ -282,14 +351,28 @@ async def top_invites(interaction: discord.Interaction):
 
     await interaction.response.send_message(top_message)
 
-
 @bot.event
-async def on_message(message):
+async def on_message(message:discord.Message):
     if message.author == bot.user:
         return
-    if message.channel.id == CHAT_CHANNEL_ID:
-        if "trade" in message.content.lower():
-            await message.delete()
+    
+    entry = {
+        "channel_id" : message.channel.id,
+        "channel_name" : message.channel.name,
+        "message_id" : message.id,
+        "author_id" : message.author.id,
+        "author_name" : str(message.author),
+        "content" : message.content,
+        "timestamp" : message.created_at.isoformat(),
+        "media" : message.attachments
+    }
+
+    conversation_memory.append(entry)
+
+    if len(conversation_memory) > MAX_MEMORY:
+        conversation_memory.pop(0)
+
+    await bot.process_commands(message)
 
     if message.author.id == OWNER_ID and (message.content.startswith("# Vote2Profil") or message.content.startswith("# Vote2Fame")):
         if message.channel.id == VOTE2PROFIL_CHANNEL_ID or message.channel.id == VOTE2FAME_CHANNEL_ID:
@@ -421,14 +504,14 @@ async def mute(ctx, member:discord.Member, duration:int=40320, reason:str="Aucun
                     guild = bot.get_guild(1438222268185706599)
                     user = guild.get_member(interaction.user.id)
                     mod_role = guild.get_role(1456391253783740530)
-                    if (mod_role in user.roles or user.guild_permissions.administrator) and user.top_role > member.top_role and member.id != OWNER_ID:
+                    if (mod_role in user.roles or user.guild_permissions.administrator) and user.top_role > member.top_role and member.id != OWNER_ID and member.id != user.id:
                         await member.edit(timed_out_until=None)
                         await member.send(f"Le mute qui vous avait été appliqué sur le serveur {ctx.guild.name} a été annulé par {interaction.user.mention}.")
-                        await interaction.response.send_message(content=f"Vous avez annulé le mute de {member.mention}.", ephemeral=True)
+                        await interaction.response.send_message(content=f"{user.mention} vient tout juste d'annuler le mute de {member.mention}.", ephemeral=False, delete_after=20)
                     else:
                         await interaction.response.send_message("Vous n'avez pas la permission d'utiliser cette commande.")
             await member.edit(timed_out_until=date, reason=reason)
-            await ctx.channel.send(content=f"{member.mention} a été mute pendant {duration} minutes pour la raison `{reason}`.", view=CancelMuteButton())
+            await ctx.channel.send(content=f"{member.mention} a été mute pendant {duration} minutes pour la raison `{reason}`.", view=CancelMuteButton(), )
             await member.send(f"Vous avez été mute sur le serveur {ctx.guild.name} jusqu'au <t:{int(timestamp)}:F>(<t:{int(timestamp)}:R>) pour la raison `{reason}`.")
             await ctx.author.send(content=f"Vous avez mute {member.mention} sur le serveur {ctx.guild.name} jusqu'au <t:{int(timestamp)}:F>(<t:{int(timestamp)}:R>) pour la raison `{reason}`.", view=CancelMuteButton())
         elif guild.get_role(1456391253783740530) not in ctx.author.roles and not ctx.author.guild_permissions.administrator:
@@ -505,7 +588,7 @@ async def ban(ctx, member:discord.Member, *, args=None):
                         member.send(f"Vous avez été unban du serveur **{guild.name}** par {user.mention}!")
                         user.send(f"Vous avez unban {member.mention} sur le serveur **{guild.name}**")
             await member.ban(reason=args)
-            await ctx.channel.send(content=f"{member.mention} a été banni du serveur{f" pour la raison `{args}`" if args else " mais aucune raison n'a été spécifiée"}.")
+            await ctx.channel.send(content=f"{member.mention} a été banni du serveur{f" pour la raison `{args}`" if args else " mais aucune raison n'a été spécifiée"}.", view=CancelBanButton(member))
             await member.send(f"Vous avez été banni du serveur {ctx.guild.name} par {ctx.author.mention}{f" pour la raison `{args}`" if args else " mais aucune raison n'a été spécifiée"}.")
         elif mod_role not in ctx.author.roles and ctx.author.guild_permissions.administrator:
             await ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande car vous n'êtes pas modérateur sur le serveur.")
@@ -879,6 +962,25 @@ async def on_guild_update(before:discord.Guild, after:discord.Guild):
     if before.premium_subscription_count != after.premium_subscription_count:
         boost_count_channel = bot.get_channel(BOOST_COUNT_CHANNEL_ID)
         await boost_count_channel.edit(name=f"「⚡」𝑩𝑶𝑶𝑺𝑻𝑺 : {after.premium_subscription_count}")
+
+@bot.command()
+async def rainbowrole(ctx, member:discord.Member):
+    if ctx.author.guild_persmissions.administator or ctx.author.id == 1373746108601471077:
+        if ctx.guild.get_role(1461089163334910013) in member.roles:
+            member.add_roles(ctx.guild.get_role(1461089163334910013))
+        else:
+            member.remove_roles(ctx.guild.get_role(1461089163334910013))
+
+# @bot.command()
+# async def roleicon(ctx, *, args):
+#     role_mentions=ctx.message.role_mentions
+#     if "add" or "ajouter" or "edit" or "modifier" in args and ctx.message.attachments and role_mentions:
+#         icons = {}
+#         for attachment, role_mention in ctx.message.attachments, role_mentions:
+#             icons.pop(key=role_mention)
+#             icons[role_mention]=attachment
+#         for role, icon in icons.items():
+#             with open(icon.)
 
 # @bot.event
 # async def on_message(message):
