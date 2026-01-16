@@ -933,7 +933,7 @@ async def ticketsystem(ctx):
         embed.set_author(name=ctx.guild.name, url="https://discord.gg/H4JNyVMkjH")
         await ticket_channel.send(embed=embed, view=TicketReasonView())
         await ctx.message.delete()
-        cursor.execute("UPDATE ticket_msg_id SET id=%s", (ticket_creation_msg.id,))
+        cursor.execute("UPDATE ticket_msg_id SET id=%s WHERE id=%s", (ticket_creation_msg.id, ticket_creation_msg_id))
         conn.commit()
 
 @bot.command()
