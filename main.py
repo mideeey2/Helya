@@ -900,6 +900,11 @@ async def rainbowrole(ctx, member:discord.Member):
             await ctx.send(f"Le rôle a été retiré à {member.mention} avec succès")
             return
 
+@bot.command()
+async def replace(ctx, item:discord.TextChannel|discord.ForumChannel|discord.VoiceChannel|discord.Role|discord.CategoryChannel, position:int):
+    await item.edit(position=position)
+    await ctx.message.send_response("Le salon ou le rôle spécifié a été déplacé avec succès")
+
 # @bot.command()
 # async def roleicon(ctx, *, args):
 #     role_mentions=ctx.message.role_mentions
