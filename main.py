@@ -35,17 +35,11 @@ def execute_sandbox(code: str):
     return sandbox_locals
 
 FORBIDDEN_KEYWORDS = [
-    "import", "os.", "sys.", "eval", "exec", "__", "subprocess", "socket"
+    "os.", "sys.", "eval", "exec", "subprocess", "socket"
 ]
 
 def is_code_safe(code: str) -> bool:
     return not any(word in code for word in FORBIDDEN_KEYWORDS)
-
-def execute_sandbox(code: str):
-    sandbox_globals = {"__builtins__": SAFE_BUILTINS}
-    sandbox_locals = {}
-    exec(code, sandbox_globals, sandbox_locals)
-    return sandbox_locals
 
 async def run_with_timeout(code, timeout=2):
     loop = asyncio.get_running_loop()
@@ -54,25 +48,31 @@ async def run_with_timeout(code, timeout=2):
         timeout=timeout
     )
 
-
 async def call_ai(memory_text):
+    headers = {
+        "Authorization": f"Bearer {os.getenv("AI_API_KEY")}",
+        "Content-Type": "application/json"
+    }
+
     payload = {
-        "model": "deepseek-coder",
+        "model": "deepseek-chat",  # ✅ IMPORTANT
         "messages": [
-            {"role": "system", "content": "Return only valid Python and discord.py code. No text."},
-            {"role": "user", "content": memory_text}
+            {
+                "role": "system",
+                "content": "Return only valid Python and discord.py code. No text."
+            },
+            {
+                "role": "user",
+                "content": memory_text
+            }
         ]
     }
 
     async with aiohttp.ClientSession() as session:
-        async with session.post(
-            "https://api.deepseek.com/chat/completions",
-            headers={"Authorization": f"Bearer {os.getenv("AI_API_KEY")}"},
-            json=payload
-        ) as r:
+        async with session.post("https://api.deepseek.com/chat/completions", headers=headers, json=payload) as r:
             data = await r.json()
-            return data["choices"][0]["message"]["content"]
-        
+            print(data)  # 🔍 DEBUG
+            return data.get("choices", [{}])[0].get("message", {}).get("content", "")
     
 
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -515,8 +515,10 @@ async def mute(ctx, member:discord.Member, duration:int=40320, reason:str="Aucun
                         await member.edit(timed_out_until=None)
                         await member.send(f"Le mute qui vous avait été appliqué sur le serveur {ctx.guild.name} a été annulé par {interaction.user.mention}.")
                         await interaction.response.send_message(content=f"{user.mention} vient tout juste d'annuler le mute de {member.mention}.", ephemeral=False, delete_after=20)
+                        button.disabled=True
+                        interaction.edit_original_response(view=self)
                     else:
-                        await interaction.response.send_message("Vous n'avez pas la permission d'utiliser cette commande.")
+                        await interaction.response.send_message("Vous n'avez pas la permission d'utiliser cette commande.", ephemeral=True)
             await member.edit(timed_out_until=date, reason=reason)
             await ctx.channel.send(content=f"{member.mention} a été mute pendant {duration} minutes pour la raison `{reason}`.", view=CancelMuteButton(), )
             await member.send(f"Vous avez été mute sur le serveur {ctx.guild.name} jusqu'au <t:{int(timestamp)}:F>(<t:{int(timestamp)}:R>) pour la raison `{reason}`.")
