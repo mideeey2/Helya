@@ -55,7 +55,7 @@ async def call_ai(memory_text):
     }
 
     payload = {
-        "model": "deepseek-chat",  # ✅ IMPORTANT
+        "model": "llama-3.1-8b-instant",  # ✅ IMPORTANT.
         "messages": [
             {
                 "role": "system",
@@ -69,7 +69,7 @@ async def call_ai(memory_text):
     }
 
     async with aiohttp.ClientSession() as session:
-        async with session.post("https://api.deepseek.com/chat/completions", headers=headers, json=payload) as r:
+        async with session.post("https://api.groq.com/openai/v1/chat/completions", headers=headers, json=payload) as r:
             data = await r.json()
             print(data)  # 🔍 DEBUG
             return data.get("choices", [{}])[0].get("message", {}).get("content", "")
