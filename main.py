@@ -12,6 +12,9 @@ import re
 import aiohttp
 import asyncio
 
+bot = commands.Bot(command_prefix="+", intents=intents)
+guild = bot.get_guild(1438222268185706599)
+
 GROQ_API_KEY = os.getenv("AI_API_KEY")
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 
@@ -150,9 +153,6 @@ intents.message_content = True
 intents.presences = True
 
 # client = genai.Client()
-
-bot = commands.Bot(command_prefix="+", intents=intents)
-guild = bot.get_guild(1438222268185706599)
 
 # --------- CHARGER LES INVITES DU FICHIER ---------
 
