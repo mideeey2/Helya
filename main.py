@@ -12,76 +12,68 @@ import re
 import aiohttp
 import asyncio
 
-SAFE_BUILTINS = {
-    "print": print,
-    "len": len,
-    "range": range,
-    "str": str,
-    "int": int,
-    "float": float,
-    "list": list,
-    "dict": dict,
-    "set": set,
-    "sum": sum,
-}
+GROQ_API_KEY = os.getenv("AI_API_KEY")
+GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 
-def execute_sandbox(code: str):
-    sandbox_globals = {
-        "__builtins__": SAFE_BUILTINS
-    }
-    sandbox_locals = {}
-
-    exec(code, sandbox_globals, sandbox_locals)
-    return sandbox_locals
-
-FORBIDDEN_KEYWORDS = [
-    "os.", "sys.", "eval", "exec", "subprocess", "socket"
-]
-
-def is_code_safe(code: str) -> bool:
-    return not any(word in code for word in FORBIDDEN_KEYWORDS)
-
-def clean_code(code: str) -> str:
-    code = code.strip()
-
-    if code.startswith("```"):
-        code = code.split("```")[1]
-
-    return code.strip()
-
-async def run_with_timeout(code, timeout=2):
-    loop = asyncio.get_running_loop()
-    return await asyncio.wait_for(
-        loop.run_in_executor(None, execute_sandbox, code),
-        timeout=timeout
-    )
-
-async def call_ai(memory_text):
+# ---- UTIL AI ----
+async def call_ai(prompt: str):
     headers = {
-        "Authorization": f"Bearer {os.getenv("AI_API_KEY")}",
+        "Authorization": f"Bearer {GROQ_API_KEY}",
         "Content-Type": "application/json"
     }
-
     payload = {
-        "model": "llama-3.1-8b-instant",  # ✅ IMPORTANT.
+        "model": "llama-3.1-8b-instant",
         "messages": [
-            {
-                "role": "system",
-                "content": "Return only valid Python and discord.py code. No text."
-            },
-            {
-                "role": "user",
-                "content": memory_text
-            }
+            {"role": "system", "content": "You are a Discord UI planner. Respond ONLY in valid JSON, describing embeds, buttons, and modals. Do NOT write Python code. Your name is May. You are created, owned and developed by @mideeey"},
+            {"role": "user", "content": prompt}
         ]
     }
 
     async with aiohttp.ClientSession() as session:
-        async with session.post("https://api.groq.com/openai/v1/chat/completions", headers=headers, json=payload) as r:
+        async with session.post(GROQ_URL, headers=headers, json=payload) as r:
             data = await r.json()
-            print(data)  # 🔍 DEBUG
-            return data.get("choices", [{}])[0].get("message", {}).get("content", "")
-    
+            content = data["choices"][0]["message"]["content"]
+            return json.loads(content)  # Convertit JSON en dict Python
+
+# ---- TRAITEMENT DES ACTIONS ----
+async def handle_ai_action(data, channel):
+    if data["type"] == "send_message":
+        embed = discord.Embed(
+            title=data["embed"]["title"],
+            description=data["embed"]["description"],
+            color=data["embed"].get("color", 0x2F3136)
+        )
+
+        view = discord.ui.View(timeout=None)
+
+        for btn in data.get("buttons", []):
+            view.add_item(
+                discord.ui.Button(
+                    label=btn["label"],
+                    style=getattr(discord.ButtonStyle, btn["style"]),
+                    custom_id=btn["custom_id"]
+                )
+            )
+
+        await channel.send(embed=embed, view=view)
+
+# ---- CLIQUE BOUTON ----
+@bot.event
+async def on_interaction(interaction: discord.Interaction):
+    if interaction.type != discord.InteractionType.component:
+        return
+    cid = interaction.data.get("custom_id")
+    # Tu peux définir des actions dynamiques ici si besoin
+    await interaction.response.send_message(f"Vous avez cliqué sur : {cid}", ephemeral=True)
+
+# ---- COMMANDE POUR LANCER L’IA ----
+@bot.command()
+async def ai(ctx, *, prompt):
+    try:
+        data = await call_ai(prompt)
+        await handle_ai_action(data, ctx.channel)
+    except Exception as e:
+        await ctx.send(f"Erreur IA : {e}")
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 conn = psycopg2.connect(DATABASE_URL)
