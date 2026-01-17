@@ -901,9 +901,13 @@ async def rainbowrole(ctx, member:discord.Member):
             return
 
 @bot.command()
-async def replacechannel(ctx, item:discord.abc.GuildChannel, position:int):
-    await item.edit(position=position)
+async def replacechannel(ctx, channel:discord.abc.GuildChannel, position:int):
+    await channel.edit(position=position)
     await ctx.send("Le salon ou le rôle spécifié a été déplacé avec succès")
+
+@bot.command()
+async def tempo(ctx):
+    print(type(ctx))
 
 # @bot.command()
 # async def roleicon(ctx, *, args):
