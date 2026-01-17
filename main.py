@@ -12,6 +12,11 @@ import re
 import aiohttp
 import asyncio
 
+intents = discord.Intents.default()
+intents.members = True
+intents.message_content = True
+intents.presences = True
+
 bot = commands.Bot(command_prefix="+", intents=intents)
 guild = bot.get_guild(1438222268185706599)
 
@@ -146,11 +151,6 @@ BOOST_COUNT_CHANNEL_ID = 1460268694251769893
 MAX_MEMORY = 100
 
 conversation_memory = []
-
-intents = discord.Intents.default()
-intents.members = True
-intents.message_content = True
-intents.presences = True
 
 # client = genai.Client()
 
@@ -355,31 +355,6 @@ async def top_invites(interaction: discord.Interaction):
 async def on_message(message:discord.Message):
     if message.author == bot.user:
         return
-    
-    entry = {
-        "channel_id" : message.channel.id,
-        "channel_name" : message.channel.name,
-        "message_id" : message.id,
-        "author_id" : message.author.id,
-        "author_name" : str(message.author),
-        "content" : message.content,
-        "timestamp" : message.created_at.isoformat(),
-        "media" : message.attachments
-    }
-
-    conversation_memory.append(entry)
-
-    if len(conversation_memory) > MAX_MEMORY:
-        conversation_memory.pop(0)
-
-    if message.guild.get_member(bot.user.id) in message.mentions:
-        conversation_text = "\n".join(
-            f"[identifiant du salon: {m['channel_id']}], nom du salon: #{m['channel_name']}, id du message : {m['message_id']}, heure : {m['timestamp']}, nom d'utilisateur de l'auteur : {m['author_name']}, id de l'auteur : {m['author_id']}, contenu du message : {m['content']}"
-            for m in conversation_memory
-        )
-
-        code = await call_ai(conversation_text)
-        result = await run_with_timeout(code=clean_code(code=code), timeout=None)
 
     if message.author.id == OWNER_ID and (message.content.startswith("# Vote2Profil") or message.content.startswith("# Vote2Fame")):
         if message.channel.id == VOTE2PROFIL_CHANNEL_ID or message.channel.id == VOTE2FAME_CHANNEL_ID:
