@@ -29,59 +29,106 @@ async def call_ai(prompt: str):
         "Authorization": f"Bearer {GROQ_API_KEY}",
         "Content-Type": "application/json"
     }
+
     payload = {
         "model": "llama-3.1-8b-instant",
         "messages": [
-            {"role": "system", "content": "You are a Discord UI planner. Respond ONLY in valid JSON, describing embeds, buttons, and modals. Do NOT write Python code. Your name is May. You are created, owned and developed by @mideeey"},
+            {
+                "role": "system",
+                "content": (
+                    "You are a Discord UI generator.\n"
+                    "You MUST reply ONLY with valid JSON.\n"
+                    "ALWAYS include a 'type' field.\n"
+                    "Example:\n"
+                    "{"
+                    "\"type\":\"send_message\","
+                    "\"embed\":{\"title\":\"Hi\",\"description\":\"Hello\"},"
+                    "\"buttons\":[]"
+                    "}"
+                )
+            },
             {"role": "user", "content": prompt}
-        ]
+        ],
+        "temperature": 0.2
     }
 
     async with aiohttp.ClientSession() as session:
         async with session.post(GROQ_URL, headers=headers, json=payload) as r:
             data = await r.json()
             content = data["choices"][0]["message"]["content"]
-            return json.loads(content)  # Convertit JSON en dict Python
 
-# ---- TRAITEMENT DES ACTIONS ----
-async def handle_ai_action(data, channel):
-    if data["type"] == "send_message":
-        embed = discord.Embed(
-            title=data["embed"]["title"],
-            description=data["embed"]["description"],
-            color=data["embed"].get("color", 0x2F3136)
-        )
+            # 🔒 sécurité JSON
+            try:
+                return json.loads(content)
+            except Exception:
+                return {
+                    "type": "send_message",
+                    "embed": {
+                        "title": "Erreur IA",
+                        "description": "Réponse invalide"
+                    },
+                    "buttons": []
+                }
 
-        view = discord.ui.View(timeout=None)
+# ========== TRAITEMENT IA ==========
+async def handle_ai_action(data: dict, channel: discord.TextChannel):
+    action_type = data.get("type")
 
-        for btn in data.get("buttons", []):
+    if action_type != "send_message":
+        await channel.send("❌ Action IA inconnue")
+        return
+
+    embed_data = data.get("embed", {})
+    embed = discord.Embed(
+        title=embed_data.get("title", "Sans titre"),
+        description=embed_data.get("description", ""),
+        color=embed_data.get("color", 0x5865F2)
+    )
+
+    view = discord.ui.View(timeout=None)
+
+    for btn in data.get("buttons", []):
+        try:
             view.add_item(
                 discord.ui.Button(
-                    label=btn["label"],
-                    style=getattr(discord.ButtonStyle, btn["style"]),
-                    custom_id=btn["custom_id"]
+                    label=btn.get("label", "Bouton"),
+                    style=getattr(
+                        discord.ButtonStyle,
+                        btn.get("style", "secondary")
+                    ),
+                    custom_id=btn.get("custom_id", "btn_default")
                 )
             )
+        except Exception:
+            pass
 
-        await channel.send(embed=embed, view=view)
+    await channel.send(embed=embed, view=view)
 
-# ---- CLIQUE BOUTON ----
+# ========== CLIC BOUTONS ==========
 @bot.event
 async def on_interaction(interaction: discord.Interaction):
     if interaction.type != discord.InteractionType.component:
         return
-    cid = interaction.data.get("custom_id")
-    # Tu peux définir des actions dynamiques ici si besoin
-    await interaction.response.send_message(f"Vous avez cliqué sur : {cid}", ephemeral=True)
 
-# ---- COMMANDE POUR LANCER L’IA ----
+    cid = interaction.data.get("custom_id")
+
+    if cid == "btn_default":
+        await interaction.response.send_message(
+            "Bouton cliqué ✅",
+            ephemeral=True
+        )
+    else:
+        await interaction.response.send_message(
+            f"Bouton `{cid}` cliqué",
+            ephemeral=True
+        )
+
+# ========== COMMANDE IA ==========
 @bot.command()
-async def ai(ctx, *, prompt):
-    try:
-        data = await call_ai(prompt)
-        await handle_ai_action(data, ctx.channel)
-    except Exception as e:
-        await ctx.send(f"Erreur IA : {e}")
+async def ai(ctx, *, prompt: str):
+    data = await call_ai(prompt)
+    await handle_ai_action(data, ctx.channel)
+
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 conn = psycopg2.connect(DATABASE_URL)
