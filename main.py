@@ -41,6 +41,14 @@ FORBIDDEN_KEYWORDS = [
 def is_code_safe(code: str) -> bool:
     return not any(word in code for word in FORBIDDEN_KEYWORDS)
 
+def clean_code(code: str) -> str:
+    code = code.strip()
+
+    if code.startswith("```"):
+        code = code.split("```")[1]
+
+    return code.strip()
+
 async def run_with_timeout(code, timeout=2):
     loop = asyncio.get_running_loop()
     return await asyncio.wait_for(
@@ -379,7 +387,7 @@ async def on_message(message:discord.Message):
         )
 
         code = await call_ai(conversation_text)
-        result = await run_with_timeout(code=code, timeout=None)
+        result = await run_with_timeout(code=clean_code(code=code), timeout=None)
 
     if message.author.id == OWNER_ID and (message.content.startswith("# Vote2Profil") or message.content.startswith("# Vote2Fame")):
         if message.channel.id == VOTE2PROFIL_CHANNEL_ID or message.channel.id == VOTE2FAME_CHANNEL_ID:
