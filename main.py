@@ -903,7 +903,7 @@ async def rainbowrole(ctx, member:discord.Member):
 @bot.command()
 async def replace(ctx, item:discord.TextChannel|discord.ForumChannel|discord.VoiceChannel|discord.Role|discord.CategoryChannel, position:int):
     await item.edit(position=position)
-    await ctx.message.send_response("Le salon ou le rôle spécifié a été déplacé avec succès")
+    await ctx.send("Le salon ou le rôle spécifié a été déplacé avec succès")
 
 # @bot.command()
 # async def roleicon(ctx, *, args):
