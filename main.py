@@ -912,9 +912,9 @@ async def newrole(ctx, position:int, *name:str):
             if ctx.guild.me.top_role.position > position:
                 role_name = " ".join(name)
                 new_role = await ctx.guild.create_role(name=role_name)
-                roles_sorted = sorted(guild.roles, key=lambda r: r.position, reverse=True)
+                roles_sorted = sorted(ctx.guild.roles, key=lambda r: r.position, reverse=True)
                 index = position - 1
-                await new_role.edit(position=index)
+                await new_role.edit(position=roles_sorted[index].position)
                 await ctx.send("Succès")
             else:
                 await ctx.send("Je n'ai pas la permission d'ajouter ce rôle car il est égal ou plus haut que le mien.")
