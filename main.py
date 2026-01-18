@@ -906,11 +906,11 @@ async def replacechannel(ctx, channel:discord.abc.GuildChannel, position:int):
     await ctx.send("Le salon ou le rôle spécifié a été déplacé avec succès")
 
 @bot.command()
-async def newrole(ctx, position:int, *name:str):
+async def newrole(ctx, position:int, name:str):
     if ctx.author.guild_permissions.manage_roles or ctx.author.id == OWNER_ID:
         if ctx.author.top_role.position > position:
             if ctx.guild.me.top_role.position > position:
-                name = " ".join(name)
+                # name = " ".join(name)
                 new_role = await ctx.guild.create_role(name=name)
                 await new_role.edit(position=position)
                 await ctx.send("Succès")
