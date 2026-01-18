@@ -906,13 +906,15 @@ async def replacechannel(ctx, channel:discord.abc.GuildChannel, position:int):
     await ctx.send("Le salon ou le rôle spécifié a été déplacé avec succès")
 
 @bot.command()
-async def newrole(ctx, position:int, name:str):
+async def newrole(ctx, position:int, *name:str):
     if ctx.author.guild_permissions.manage_roles or ctx.author.id == OWNER_ID:
         if ctx.author.top_role.position > position:
             if ctx.guild.me.top_role.position > position:
                 role_name = " ".join(name)
                 new_role = await ctx.guild.create_role(name=role_name)
-                await new_role.edit(position=position)
+                roles_sorted = sorted(guild.roles, key=lambda r: r.position, reverse=True)
+                index = position - 1
+                await new_role.edit(position=index)
                 await ctx.send("Succès")
             else:
                 await ctx.send("Je n'ai pas la permission d'ajouter ce rôle car il est égal ou plus haut que le mien.")
