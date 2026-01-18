@@ -910,6 +910,7 @@ async def newrole(ctx, position:int, *name:str):
     if ctx.author.guild_permissions.manage_roles or ctx.author.id == OWNER_ID:
         if ctx.author.top_role.position > position:
             if ctx.guild.me.top_role.position > position:
+                name = " ".join(name)
                 ctx.guild.create_role(name=name, position=position)
             else:
                 await ctx.send("Je n'ai pas la permission d'ajouter ce rôle car il est égal ou plus haut que le mien.")
