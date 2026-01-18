@@ -930,9 +930,9 @@ async def addrole(ctx, *, args):
     members = []
     
     for arg in args:
-        if arg.isinstance(discord.Member):
+        if isinstance(arg, discord.Member):
             members.append(arg)
-        elif arg.isinstance(discord.Role):
+        elif isinstance(arg, discord.Role):
             roles.append(arg)
 
     if ctx.author.guild_permissions.manage_roles or ctx.author.id == OWNER_ID:
