@@ -936,15 +936,15 @@ async def addrole(ctx, *, args):
             roles.append(arg)
 
     if ctx.author.guild_permissions.manage_roles or ctx.author.id == OWNER_ID:
-        if ctx.author.top_role > roles:
-            if ctx.guild.me.top_role > roles:
-                for member in members:
+        for member in members:
+            if ctx.author.top_role > roles:
+                if ctx.guild.me.top_role > roles:
                     for role in roles:
                         await member.add_role(role)
+                else:
+                    await ctx.send("Je n'ai pas la permission d'ajouter ce rôle car il est égal ou plus haut que le mien.")
             else:
-                await ctx.send("Je n'ai pas la permission d'ajouter ce rôle car il est égal ou plus haut que le mien.")
-        else:
-            await ctx.send("Le role que vous voulez ajouter est égal ou plus haut que le vôtre.")
+                await ctx.send("Le role que vous voulez ajouter est égal ou plus haut que le vôtre.")
     else:
         await ctx.send("Vous n'avez pas les permissions nécessaires pour utiliser cette commande.")
     
