@@ -142,7 +142,7 @@ async def on_ready():
     guild = bot.get_guild(1438222268185706599)
     for member in guild.members:
         custom = next((a for a in member.activities if isinstance(a, discord.CustomActivity)), None)
-        if custom and custom.name and "/may".lower() in custom.name.lower():
+        if custom and custom.name and "/himura".lower() in custom.name.lower():
             if guild.get_role(1455978240777650439) not in member.roles:
                 await member.add_roles(discord.utils.get(member.guild.roles, id=1455978240777650439))
         else:
@@ -567,7 +567,7 @@ async def on_presence_update(before:discord.Member, after:discord.Member):
     after_custom = next((a for a in after.activities if isinstance(a, discord.CustomActivity)), None)
     if before_custom != after_custom:
         if after_custom and after_custom.name:
-            if after_custom and after_custom.name and "/may".lower() in after_custom.name.lower():
+            if after_custom and after_custom.name and "/himura".lower() in after_custom.name.lower():
                 if role not in after.roles:
                     await after.add_roles(role)
             else:
