@@ -906,9 +906,37 @@ async def replacechannel(ctx, channel:discord.abc.GuildChannel, position:int):
     await ctx.send("Le salon ou le rôle spécifié a été déplacé avec succès")
 
 @bot.command()
-async def tempo(ctx):
-    print(type(ctx))
+async def newrole(ctx, *name:str, position:int, color:str=None):
+    if ctx.author.guild_permissions.manage_roles or ctx.author.id == OWNER_ID:
+        if ctx.author.top_role.position > position:
+            if ctx.guild.me.top_role.position > position:
+                discord.Guild.create_role(name=name, position=position)
+            else:
+                await ctx.send("Je n'ai pas la permission d'ajouter ce rôle car il est égal ou plus haut que le mien.")
+        else:
+            await ctx.send("Le role que vous voulez ajouter est égal ou plus haut que le vôtre.")
+    else:
+        await ctx.send("Vous n'avez pas les permissions nécessaires pour utiliser cette commande.")
+    
 
+@bot.command()
+async def addrole(ctx, *, args):
+    roles = []
+    members = []
+    
+    if ctx.author.guild_permissions.manage_roles or ctx.author.id == OWNER_ID:
+        if ctx.author.top_role > roles:
+            if ctx.guild.me.top_role > roles:
+                for member in members:
+                    for role in roles:
+                        await member.add_role(role)
+            else:
+                await ctx.send("Je n'ai pas la permission d'ajouter ce rôle car il est égal ou plus haut que le mien.")
+        else:
+            await ctx.send("Le role que vous voulez ajouter est égal ou plus haut que le vôtre.")
+    else:
+        await ctx.send("Vous n'avez pas les permissions nécessaires pour utiliser cette commande.")
+    
 # @bot.command()
 # async def roleicon(ctx, *, args):
 #     role_mentions=ctx.message.role_mentions
