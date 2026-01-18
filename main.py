@@ -941,6 +941,7 @@ async def addrole(ctx, *, args):
                 if ctx.guild.me.top_role > roles:
                     for role in roles:
                         await member.add_role(role)
+                    await ctx.send("Succès")
                 else:
                     await ctx.send("Je n'ai pas la permission d'ajouter ce rôle car il est égal ou plus haut que le mien.")
             else:
