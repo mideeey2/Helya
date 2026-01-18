@@ -913,6 +913,7 @@ async def newrole(ctx, position:int, *name:str):
                 name = " ".join(name)
                 new_role = await ctx.guild.create_role(name=name)
                 await new_role.edit(position=position)
+                await ctx.send("Succès")
             else:
                 await ctx.send("Je n'ai pas la permission d'ajouter ce rôle car il est égal ou plus haut que le mien.")
         else:
