@@ -944,8 +944,11 @@ async def addrole(ctx, members:commands.Greedy[discord.Member], roles:commands.G
                 if ctx.guild.me.top_role > role:
                     roles.pop(i-1)
 
-            await member.add_roles(*roles)
-            await ctx.send("Succès")
+            if len(roles) > 0:
+                await member.add_roles(*roles)
+                await ctx.send("Succès")
+            else:
+                await ctx.send("Erreur")
     else:
         await ctx.send("Vous n'avez pas les permissions nécessaires pour utiliser cette commande.")
 
