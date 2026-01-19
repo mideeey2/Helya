@@ -940,9 +940,11 @@ async def addrole(ctx, members:commands.Greedy[discord.Member], roles:commands.G
             for i, role in enumerate(roles):
                 if ctx.author.top_role > role or ctx.author.id != OWNER_ID:
                     roles.pop(i-1)
+                    await ctx.send("Vous n'avez pas les permissions")
 
                 if ctx.guild.me.top_role > role:
                     roles.pop(i-1)
+                    await ctx.send("Je n'ai pas les permissions")
 
             if len(roles) > 0:
                 await member.add_roles(*roles)
