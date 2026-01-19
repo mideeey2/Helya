@@ -151,7 +151,10 @@ async def on_ready():
 
     cursor.execute("SELECT id FROM ticket_msg_id")
     ticket_creation_msg_id = cursor.fetchall()[0][0]
-    ticket_channel = bot.get_channel(TICKET_CHANNEL_ID)
+    try:
+        ticket_channel = bot.get_channel(TICKET_CHANNEL_ID)
+    except:
+        print("Cannot find ticket message.")
     ticket_creation_msg = await ticket_channel.fetch_message(int(ticket_creation_msg_id))
     await ticket_creation_msg.delete()
 
@@ -178,6 +181,11 @@ async def on_ready():
     boost_count_channel = bot.get_channel(BOOST_COUNT_CHANNEL_ID)
     await boost_count_channel.edit(name=f"「⚡」𝑩𝑶𝑶𝑺𝑻𝑺 : {guild.premium_subscription_count}")
 
+    views = [TicketReasonView(), TicketOptionsView(), TicketCloseConfirmation(), TicketReasonModal(), TicketReasonSelect(), PersonnalInvitesButton()]
+
+    for view in views:
+        bot.add_view(view=view)
+
     for guild in bot.guilds:
         try:
             invites_cache[guild.id] = await guild.invites()
@@ -202,7 +210,7 @@ async def on_invite_create(invite):
 class PersonnalInvitesButton(View):
     def __init__ (self):
         super().__init__(timeout=None)
-    @discord.ui.button(label="Voir mes invitations", style=discord.ButtonStyle.green)
+    @discord.ui.button(label="Voir mes invitations", style=discord.ButtonStyle.green, custom_id="personal_invites_button")
     async def personal_invites_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         message = get_invites_count(interaction.user, True)
         await interaction.response.send_message(embed=message, ephemeral=True)
@@ -373,25 +381,22 @@ async def vouchcount_callback(ctx, member:discord.Member, personal:bool):
                 message = f"{interaction.user.mention} a {get_vouchs_count(interaction.user)} {'vouch' if get_vouchs_count(interaction.user) == 1 else 'vouchs'}." if get_vouchs_count(interaction.user) > 0 else f"{interaction.user.mention} n'a aucun vouch <a:triste:1453390284762124450>"
                 await interaction.response.send_message(content=message, ephemeral=False)
 
-        public_vouchs_button = PublicVouchsButton()
-
         class PersonalVouchsButton(View):
             def __init__ (self):
                 super().__init__(timeout=180)
             @discord.ui.button(label="Voir mon nombre de vouchs", style=discord.ButtonStyle.green)
             async def personal_vouchs_button(self, interaction: discord.Interaction, button: discord.ui.Button):
                 message = f"Vous avez {get_vouchs_count(interaction.user)} {'vouch' if get_vouchs_count(interaction.user) == 1 else 'vouchs'}." if get_vouchs_count(interaction.user) > 0 else "Vous n'avez aucun vouch <a:triste:1453390284762124450>"
-                await interaction.response.send_message(content=message, view=public_vouchs_button, ephemeral=True)
+                await interaction.response.send_message(content=message, view=PublicVouchsButton(), ephemeral=True)
 
-        personal_vouchs_button = PersonalVouchsButton()
         if len(user_vouchs) > 0:
-            embed = discord.Embed(title=f"Nombre de vouchs :", description=f"{member.mention} a {len(user_vouchs)} {"vouch" if len(user_vouchs) == 1 else "vouchs"}. <a:pepeclap:1453682464181588065>\nPour voir sa liste de vouchs, utilisez la commande `+vouchs_list`", color=discord.Color.green())
+            embed = discord.Embed(title=f"Nombre de vouchs :", description=f"{member.mention} a {len(user_vouchs)} {"vouch" if len(user_vouchs) == 1 else "vouchs"}. <a:pepeclap:1453682464181588065>\nPour voir sa liste de vouchs, utilisez la commande `+vouchs_list`", color=discord.Color.green(), view=PersonalVouchsButton())
             embed.set_thumbnail(url=member.avatar.url if member.avatar else member.default_avatar.url)
-            await ctx.channel.send(embed=embed, view=personal_vouchs_button)
-            return embed, personal_vouchs_button
+            await ctx.channel.send(embed=embed, view=PersonalVouchsButton())
+            return embed, PersonalVouchsButton()
         else:
             embed = discord.Embed(title=f"Nombre de vouchs :", description=f"{member.mention} n'a aucun vouch <a:triste:1453390284762124450>", color=discord.Color.red())
-            return embed, personal_vouchs_button
+            return embed, PersonalVouchsButton()
     else:
         cursor.execute("SELECT user_id FROM vouchs WHERE user_id = %s;", (str(ctx.author.id),))
         user_vouchs = cursor.fetchall()
@@ -422,7 +427,7 @@ async def mute(ctx, member:discord.Member, duration:int=40320, reason:str="Aucun
             class CancelMuteButton(View):
                 def __init__ (self):
                     super().__init__(timeout=180)
-                @discord.ui.button(label="Annuler l'action", style=discord.ButtonStyle.red, emoji="<a:non:1453011584569053197>")
+                @discord.ui.button(label="Annuler l'action", style=discord.ButtonStyle.red, emoji="<a:non:1453011584569053197>", custom_id="cancel_mute_button")
                 async def cancel_mute_button(self, interaction: discord.Interaction, button: discord.ui.Button):
                     guild = bot.get_guild(1438222268185706599)
                     user = guild.get_member(interaction.user.id)
@@ -504,7 +509,7 @@ async def ban(ctx, member:discord.Member, *, args=None):
             class CancelBanButton(View):
                 def __init__(self, member):
                     super().__init__()
-                @discord.ui.button(label="Annuler l'action", emoji="<a:non:1453011584569053197>", style=discord.ButtonStyle.red)
+                @discord.ui.button(label="Annuler l'action", emoji="<a:non:1453011584569053197>", style=discord.ButtonStyle.red, custom_id="cancel_ban_button")
                 async def cancel_ban_button(self, interaction: discord.Interaction, button:discord.Button):
                     user = guild.get_member(interaction.user.id)
                     if (mod_role in user.roles or user.guild_permissions.administrator) and user.top_role > member.top_role and member.id != OWNER_ID:
@@ -550,7 +555,7 @@ async def invites(ctx, member:discord.Member=None):
         class PersonnalInvitesButton(View):
             def __init__ (self):
                 super().__init__(timeout=None)
-            @discord.ui.button(label="Voir mes invitations", style=discord.ButtonStyle.green)
+            @discord.ui.button(label="Voir mes invitations", style=discord.ButtonStyle.green, custom_id="personal_invites_button")
             async def personal_invites_button(self, interaction: discord.Interaction, button: discord.ui.Button):
                 message = get_invites_count(interaction.user, True)
                 await interaction.response.send_message(embed=message, ephemeral=True)
@@ -656,7 +661,7 @@ class ReopenDeleteTicket(View):
         self.member = member
         self.moderator_roles = moderator_roles
     
-    @discord.ui.button(label="Réouvrir le ticket", style=discord.ButtonStyle.green)
+    @discord.ui.button(label="Rouvrir le ticket", style=discord.ButtonStyle.green, custom_id="reopen_ticket_button")
     async def reopen_ticket_button(self, interaction:discord.Interaction, button:discord.Button):
         user = interaction.guild.get_member(interaction.user.id)
         reopened_embed = discord.Embed(title=f"Ticket réouvert", description=f"{"Votre" if user.id != self.member.id else "Ce"} ticket a été ouvert par {user.mention}", color=discord.Color.green())
@@ -666,7 +671,7 @@ class ReopenDeleteTicket(View):
         conn.commit()
         await interaction.response.send_message(content=self.member.mention if user.id != self.member.id else None, embed=reopened_embed)
 
-    @discord.ui.button(label="Supprimer le ticket", style=discord.ButtonStyle.danger)
+    @discord.ui.button(label="Supprimer le ticket", style=discord.ButtonStyle.danger, custom_id="delete_ticket_button")
     async def delete_ticket_button(self, interaction:discord.Interaction, button:discord.Button):
         user = interaction.guild.get_member(interaction.user.id)
         for moderator_role in self.moderator_roles:
@@ -692,7 +697,7 @@ class TicketCloseConfirmation(View):
         self.member = member
         self.ticket_msg_id = ticket_msg_id
     
-    @discord.ui.button(label="Oui", style=discord.ButtonStyle.green)
+    @discord.ui.button(label="Oui", style=discord.ButtonStyle.green, custom_id="yes_close_ticket_confirmation")
     async def yes_button(self, interaction:discord.Interaction, button:discord.ui.Button):
         user = interaction.guild.get_member(interaction.user.id)
         moderator = any(role in user.roles for role in self.moderator_roles)
@@ -707,7 +712,7 @@ class TicketCloseConfirmation(View):
             cursor.execute("UPDATE tickets SET status = %s WHERE channel_id = %s", ("closed", str(interaction.channel.id)))
             conn.commit()
 
-    @discord.ui.button(label="Non", style=discord.ButtonStyle.danger)
+    @discord.ui.button(label="Non", style=discord.ButtonStyle.danger, custom_id="no_close_ticket_confirmation")
     async def no_button(self, interaction:discord.Interaction, button:discord.ui.Button):
         user = interaction.guild.get_member(interaction.user.id)
         canceled_embed = discord.Embed(title="Action annulée", description="La fermeture du ticket a été annulée avec succès!", color=discord.Color.blue())
@@ -718,7 +723,7 @@ class TicketOptionsView(View):
         super().__init__(timeout=None)
         self.moderator_roles = moderator_roles
         self.member = member
-    @discord.ui.button(label="Prendre en charge", style=discord.ButtonStyle.blurple, emoji="🛠️")
+    @discord.ui.button(label="Prendre en charge", style=discord.ButtonStyle.blurple, emoji="🛠️", custom_id="handle_ticket")
     async def handle_button(self, interaction:discord.Interaction, button:discord.ui.Button):
         user = interaction.guild.get_member(interaction.user.id)
         for moderator_role in self.moderator_roles:
@@ -741,7 +746,7 @@ class TicketOptionsView(View):
             handle_embed = discord.Embed(title="Manque de permissions", description="Vous n'avez pas la permission de prendre en charge ce ticket!", color=discord.Color.red())
             await interaction.response.send_message(embed=handle_embed, ephemeral=True)
     
-    @discord.ui.button(label="Fermer le ticket", emoji="🔒", style=discord.ButtonStyle.danger)
+    @discord.ui.button(label="Fermer le ticket", emoji="🔒", style=discord.ButtonStyle.danger, custom_id="close_ticket")
     async def close_ticket(self, interaction:discord.Interaction, button:discord.Button):
         user = interaction.guild.get_member(interaction.user.id)
         for moderator_role in self.moderator_roles:
@@ -852,8 +857,11 @@ async def ticketsystem(ctx):
         ticket_creation_msg_id = cursor.fetchall()[0][0]
         ticket_channel = bot.get_channel(TICKET_CHANNEL_ID)
         ticket_creation_msg = await ticket_channel.fetch_message(int(ticket_creation_msg_id))
-        await ticket_creation_msg.delete()
-        
+        try:
+            await ticket_creation_msg.delete()
+        except:
+            print("Cannot find ticket message")
+
         embed = discord.Embed(title="Création de tickets", description="Pour ouvrir un ticket, sélectionnez une raison à l'aide du sélecteur ci-dessous!", color=discord.Color.green())
         embed.set_thumbnail(url=ctx.guild.icon.url)
         embed.set_footer(text="Merci de ne pas créer des tickets sans raison!", icon_url=ctx.guild.icon.url)
@@ -925,22 +933,13 @@ async def newrole(ctx, position:int, *name:str):
     
 
 @bot.command()
-async def addrole(ctx, *, args):
-    roles = []
-    members = []
-    
-    for arg in args:
-        if isinstance(arg, discord.Member):
-            members.append(arg)
-        elif isinstance(arg, discord.Role):
-            roles.append(arg)
+async def addrole(ctx, members:commands.Greedy[discord.Member], roles:commands.Greedy[discord.Role]):
 
     if ctx.author.guild_permissions.manage_roles or ctx.author.id == OWNER_ID:
         for member in members:
             if ctx.author.top_role > roles:
                 if ctx.guild.me.top_role > roles:
-                    for role in roles:
-                        await member.add_role(role)
+                    await member.add_roles(*roles)
                     await ctx.send("Succès")
                 else:
                     await ctx.send("Je n'ai pas la permission d'ajouter ce rôle car il est égal ou plus haut que le mien.")
@@ -948,7 +947,7 @@ async def addrole(ctx, *, args):
                 await ctx.send("Le role que vous voulez ajouter est égal ou plus haut que le vôtre.")
     else:
         await ctx.send("Vous n'avez pas les permissions nécessaires pour utiliser cette commande.")
-    
+
 # @bot.command()
 # async def roleicon(ctx, *, args):
 #     role_mentions=ctx.message.role_mentions
