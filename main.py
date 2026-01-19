@@ -938,10 +938,10 @@ async def addrole(ctx, members:commands.Greedy[discord.Member], roles:commands.G
     if ctx.author.guild_permissions.manage_roles or ctx.author.id == OWNER_ID:
         for member in members:
             for role, i in roles, range(len(roles)):
-                if ctx.author.top_role > roles:
+                if ctx.author.top_role > role:
                     roles.pop(i-1)
 
-                if ctx.guild.me.top_role > roles:
+                if ctx.guild.me.top_role > role:
                     await ctx.send("Je n'ai pas la permission d'ajouter ce rôle car il est égal ou plus haut que le mien.")
                     roles.pop(i-1)
 
