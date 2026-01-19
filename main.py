@@ -937,7 +937,7 @@ async def addrole(ctx, members:commands.Greedy[discord.Member], roles:commands.G
 
     if ctx.author.guild_permissions.manage_roles or ctx.author.id == OWNER_ID:
         for member in members:
-            for role, i in roles, range(len(roles)):
+            for i, role in enumerate(roles):
                 if ctx.author.top_role > role:
                     roles.pop(i-1)
 
