@@ -163,9 +163,9 @@ async def on_ready():
     embed = discord.Embed(title="Création de tickets", description="Pour ouvrir un ticket, sélectionnez une raison à l'aide du sélecteur ci-dessous!", color=discord.Color.green())
     embed.set_thumbnail(url=guild.icon.url)
     embed.set_footer(text="Merci de ne pas créer des tickets sans raison!", icon_url=guild.icon.url)
-    embed.set_author(name=guild.name, url="https://discord.gg/H4JNyVMkjH")
+    embed.set_author(name=guild.name, url="https://discord.gg/himura")
     ticket_creation_msg = await ticket_channel.send(embed=embed, view=TicketReasonView())
-    cursor.execute("UPDATE ticket_msg_id SET id=%s", (ticket_creation_msg.id,))
+    cursor.execute("UPDATE ticket_msg_id SET id=%s WHERE id=%s", (ticket_creation_msg.id, ticket_creation_msg_id))
     conn.commit()
 
     member_count_channel = bot.get_channel(MEMBER_COUNT_CHANNEL_ID)
