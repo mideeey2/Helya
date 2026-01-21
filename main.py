@@ -270,6 +270,15 @@ async def on_member_join(member:discord.Member):
             embed=welcome_embed,
             view=PersonnalInvitesButton()
         )
+    elif used_invite.code == "himura":
+        welcome_embed = discord.Embed(title=f"{member} vient de rejoindre le serveur!",
+                                      description=f"Il a rejoint grâce à l'invitation personnalisée **himura** qui a désormais {used_invite.uses} utilisations! <a:pepeclap:1453682464181588065>\n Nous sommes désormais {guild.member_count} membres sur le serveur! <a:birb:1452995535882555524>", 
+                                      color=discord.Color.green())
+        await channel.send(
+            content=f"# <a:tada:1453048315779481752> Bienvenue {member.mention} <a:tada:1453048315779481752>",
+            embed=welcome_embed,
+            view=PersonnalInvitesButton()
+        )
     else:
         await channel.send(f"👀 {member.mention} a rejoint, mais je suis incapable de déterminer qui l'a invité.")
 
@@ -938,7 +947,7 @@ async def addrole(ctx, members:commands.Greedy[discord.Member], roles:commands.G
     if ctx.author.guild_permissions.manage_roles or ctx.author.id == OWNER_ID:
         for member in members:
             for i, role in enumerate(roles):
-                if ctx.author.top_role > role or ctx.author.id != OWNER_ID:
+                if ctx.author.top_role > role and ctx.author.id != OWNER_ID:
                     roles.pop(i-1)
                     await ctx.send("Vous n'avez pas les permissions")
 
