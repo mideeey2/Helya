@@ -996,22 +996,33 @@ async def clearemojis(ctx):
             ctx.guild.delete_emoji(emoji)
         await ctx.send("Tous les emojis du serveur ont été supprimés avec succès.")
 
+@bot.command()
 async def createemoji(ctx, *emojis):
-    if ctx.author.guild_permissions.administator or ctx.author.guild_permissions.manage_emojis_and_stickers or ctx.author.id == OWNER_ID:
-        for emoji in emojis:
-            if isinstance(emoji, discord.Emoji):
-                async with aiohttp.ClientSession() as session:
+    # Vérifie les permissions
+    if (ctx.author.guild_permissions.administrator or 
+        ctx.author.guild_permissions.manage_emojis_and_stickers or 
+        ctx.author.id == OWNER_ID):
+
+        async with aiohttp.ClientSession() as session:
+            for emoji in emojis:
+                if isinstance(emoji, discord.Emoji):
                     async with session.get(str(emoji.url)) as resp:
                         if resp.status != 200:
-                            await ctx.send("Impossible de récupérer l'emoji 😢.")
-                            return
+                            await ctx.send(f"Impossible de récupérer l'emoji {emoji.name} 😢")
+                            continue
                         data = await resp.read()
 
-                discord.Guild.create_custom_emoji(ctx.guild, name=emoji.name, image=data)
-        await ctx.send("Emojis ajoutés avec succès!")
-    else:
-        await ctx.send("Vous n'avez pas la permissione d'utiliser cette commande")
+                    # Création de l'emoji (il faut await)
+                    try:
+                        new_emoji = await ctx.guild.create_custom_emoji(name=emoji.name, image=data)
+                        await ctx.send(f"Emoji ajouté avec succès : {new_emoji}")
+                    except discord.Forbidden:
+                        await ctx.send(f"Je n'ai pas la permission de créer {emoji.name} ❌")
+                    except discord.HTTPException as e:
+                        await ctx.send(f"Erreur lors de la création de {emoji.name} : {e}")
 
+    else:
+        await ctx.send("Vous n'avez pas la permission d'utiliser cette commande ❌")
 # @bot.command()
 # async def roleicon(ctx, *, args):
 #     role_mentions=ctx.message.role_mentions
