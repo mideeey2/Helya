@@ -1003,7 +1003,7 @@ async def createemoji(ctx, *emojis):
                 async with aiohttp.ClientSession() as session:
                     async with session.get(str(emoji.url)) as resp:
                         if resp.status != 200:
-                            await ctx.send("Impossible de récupérer l'emoji 😢")
+                            await ctx.send("Impossible de récupérer l'emoji 😢.")
                             return
                         data = await resp.read()
 
