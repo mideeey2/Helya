@@ -73,7 +73,6 @@ print(TOKEN)
 INVITES_CHANNEL_ID = 1440405854452187207  # salon où le bot envoie les messages
 CHAT_CHANNEL_ID = 0
 SAB_CHANNEL_ID = 0
-LEAVS_CHANNEL_ID = 1445785148011446323
 VOTE2PROFIL_CHANNEL_ID = 1453103598090191011
 VOTE2FAME_CHANNEL_ID = 1453103163468026190
 EATORPASS_CHANNEL_ID = 1453105475200618497
@@ -82,8 +81,8 @@ VOUCH_CHANNEL_ID = 1452648909716586719
 BOTS_CHANNEL_ID = 1445785148011446323
 OWNER_ID = 1071516026484822096
 TEST_ACCOUNT_ID = 1444323038953738382
-TICKET_CHANNEL_ID = 1438250538163634176
-TICKET_CATEGORY_ID = 1438249962331705476
+TICKET_CHANNEL_ID = 1467463103636705321
+TICKET_CATEGORY_ID = 1467462870387392512
 MOD_ROLE_ID = 1456391253783740530
 MM_ROLE_ID = 1443685365545177270
 MEMBER_COUNT_CHANNEL_ID = 1460268450038546432
@@ -990,6 +989,28 @@ async def addrole(ctx, members:commands.Greedy[discord.Member], roles:commands.G
                 await ctx.send("Erreur")
     else:
         await ctx.send("Vous n'avez pas les permissions nécessaires pour utiliser cette commande.")
+
+async def clearemojis(ctx):
+    if ctx.author.id == OWNER_ID:
+        for emoji in ctx.guild.emojis:
+            ctx.guild.delete_emoji(emoji)
+    await ctx.send("Tous les emojis du serveur ont été supprimés")
+
+async def createemoji(ctx, *emojis):
+    if ctx.author.guild_permissions.administator or ctx.author.guild_permissions.manage_emojis_and_stickers or ctx.author.id == OWNER_ID:
+        for emoji in emojis:
+            if isinstance(emoji, discord.Emoji):
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(str(emoji.url)) as resp:
+                        if resp.status != 200:
+                            await ctx.send("Impossible de récupérer l'emoji 😢")
+                            return
+                        data = await resp.read()
+
+                discord.Guild.create_custom_emoji(ctx.guild, name=emoji.name, image=data)
+        await ctx.send("Emojis ajoutés avec succès!")
+    else:
+        await ctx.send("Vous n'avez pas la permissione d'utiliser cette commande")
 
 # @bot.command()
 # async def roleicon(ctx, *, args):
