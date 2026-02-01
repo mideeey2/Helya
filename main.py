@@ -68,7 +68,7 @@ cursor.execute("""CREATE TABLE IF NOT EXISTS ticket_msg_id (
 conn.commit()
 
 # --------- CONFIG ---------
-TOKEN = "MTQzNjQyMDI1Njk4OTA1MzExMw.Ghan8_.v-fREaSEJyTW_Yxw00c2YA3XcQ506Fgbh3McoI"
+TOKEN = os.getenv("TOKEN")
 INVITES_CHANNEL_ID = 1440405854452187207  # salon où le bot envoie les messages
 CHAT_CHANNEL_ID = 0
 SAB_CHANNEL_ID = 0
