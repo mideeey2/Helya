@@ -994,7 +994,7 @@ async def clearemojis(ctx):
     if ctx.author.id == OWNER_ID:
         for emoji in ctx.guild.emojis:
             ctx.guild.delete_emoji(emoji)
-    await ctx.send("Tous les emojis du serveur ont été supprimés")
+        await ctx.send("Tous les emojis du serveur ont été supprimés.")
 
 async def createemoji(ctx, *emojis):
     if ctx.author.guild_permissions.administator or ctx.author.guild_permissions.manage_emojis_and_stickers or ctx.author.id == OWNER_ID:
