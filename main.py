@@ -879,16 +879,18 @@ async def ticketsystem(ctx):
         await ctx.message.delete()
         cursor.execute("UPDATE ticket_msg_id SET id=%s WHERE id=%s", (ticket_creation_msg.id, ticket_creation_msg_id))
         conn.commit()
-
+        
 async def ticketclose(ctx, channel:discord.TextChannel=None):
     user = ctx.author
     moderator_role = ctx.guild.get_role(1456391253783740530)
     is_mod = moderator_role in ctx.author.roles
-    cursor.execute("SELECT channel_id FROM tickets WHERE channel_id=%s", (channel.id if channel else ctx.channel.id,))
+    target_channel = channel if channel else ctx.channel
+    cursor.execute("SELECT channel_id FROM tickets WHERE channel_id=%s", (target_channel.id,))
     channel_exists = 1 if len(cursor.fetchall()) > 0 else None
     if channel_exists:
-        cursor.execute("SELECT * FROM tickets WHERE channel_id=%s", (channel.id if channel else ctx.channel.id,))
+        cursor.execute("SELECT * FROM tickets WHERE channel_id=%s", (target_channel.id,))
         ticket = cursor.fetchall()
+        
         member = ctx.guild.get_member(int(ticket[0][5]))
         ticket_channel = bot.get_channel(int(ticket[0][6]))
         if is_mod or user.guild_permissions.administrator:
