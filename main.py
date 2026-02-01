@@ -69,6 +69,7 @@ conn.commit()
 
 # --------- CONFIG ---------
 TOKEN = os.getenv("TOKEN")
+print(TOKEN)
 INVITES_CHANNEL_ID = 1440405854452187207  # salon où le bot envoie les messages
 CHAT_CHANNEL_ID = 0
 SAB_CHANNEL_ID = 0
