@@ -1222,9 +1222,9 @@ async def reglement(ctx):
 async def roleschoice(ctx):
     if ctx.author.id == OWNER_ID:
         await ctx.message.delete()
-        embed = discord.Embed(title="Rôles de notifications", description="Pour récupérer tes rôles de notifications, je t'invite à cliquer sur les réactions ci-dessous!\nVoici les rôles :\n↪<@&1467961939123507222>\n↪<@&1467962712863539420>\n↪<@&1467963534448132248>\n↪<@&1467962551789818033>\n↪<@&1467962389549940849>\n↪<@&1467962148058562592>")
+        embed = discord.Embed(title="Rôles de notifications", description="Pour récupérer tes rôles de notifications, je t'invite à cliquer sur les réactions ci-dessous!\nVoici les rôles :\n↪<@&1467961939123507222>\n↪<@&1467962712863539420>\n↪<@&1467963534448132248>\n↪<@&1467962551789818033>\n↪<@&1467962389549940849>\n↪<@&1467962148058562592>", color=discord.Color.orange())
         embed.set_thumbnail(url=ctx.guild.icon)
-        embed.set_thumbnail(url=ctx.guild.name)
+        embed.set_author(name=ctx.guild.name)
         message = await ctx.send(embed=embed)
         await message.add_reaction("🎉")
         await message.add_reaction("🎨")
