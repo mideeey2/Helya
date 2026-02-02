@@ -1078,6 +1078,7 @@ async def on_raw_reaction_remove(payload:discord.RawReactionActionEvent):
 
         await member.remove_roles(role)
 
+@bot.command()
 async def reglement(ctx):
     if ctx.author.id == OWNER_ID:
         embed = discord.Embed(title="RÈGLEMENT — SERVEUR HELYA", description="""# RÈGLEMENT — SERVEUR HELYA
