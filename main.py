@@ -1053,7 +1053,6 @@ async def on_raw_reaction_add(payload:discord.RawReactionActionEvent):
     if payload.message_id == int(message_id):
         guild = bot.get_guild(payload.guild_id)
         role = guild.get_role(1467844452637868158)
-        print(role.name)
 
         member = guild.get_member(payload.user_id)
         if member is None:
@@ -1070,8 +1069,14 @@ async def on_raw_reaction_remove(payload:discord.RawReactionActionEvent):
     message_id = cursor.fetchall()[0][0]
 
     if payload.message_id == int(message_id):
-        bot.get_guild(id=payload.guild_id).get_member(id=payload.user_id).add_roles(bot.get_guild(id=payload.guild_id).get_role(1467844452637868158))
+        guild = bot.get_guild(payload.guild_id)
+        role = guild.get_role(1467844452637868158)
 
+        member = guild.get_member(payload.user_id)
+        if member is None:
+            member = await guild.fetch_member(payload.user_id)
+
+        await member.remove_roles(role)
 
 # @bot.command()
 # async def roleicon(ctx, *, args):
