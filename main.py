@@ -1037,7 +1037,7 @@ async def coinsroleembed(ctx):
         embed.set_thumbnail(url=ctx.guild.icon if ctx.guild.icon else None)
         embed.set_author(name=ctx.guild.name, url="https://discord.gg/HaBx6cp9H3")
         message = await ctx.send(embed=embed)
-        message.add_reaction("🪙")
+        await message.add_reaction("🪙")
         cursor.execute("UPDATE coinsreactionmessage SET id=%s WHERE id=%s", (message.id, message_id))
         conn.commit()
         await ctx.message.delete()
