@@ -1060,7 +1060,7 @@ async def on_raw_reaction_add(payload:discord.RawReactionActionEvent):
 
         await member.add_roles(role)
 
-    elif payload.message_id == 1467971802075500676:
+    elif payload.message_id == 1467982521164763187:
         giveaways_role = guild.get_role(1467961939123507222)
         collab_role = guild.get_role(1467962148058562592)
         revive_role = guild.get_role(1467962389549940849)
@@ -1102,7 +1102,7 @@ async def on_raw_reaction_remove(payload:discord.RawReactionActionEvent):
 
         await member.remove_roles(role)
 
-    elif payload.message_id == 1467971802075500676:
+    elif payload.message_id == 1467982521164763187:
         giveaways_role = guild.get_role(1467961939123507222)
         collab_role = guild.get_role(1467962148058562592)
         revive_role = guild.get_role(1467962389549940849)
