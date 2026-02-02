@@ -83,8 +83,7 @@ OWNER_ID = 1071516026484822096
 TEST_ACCOUNT_ID = 1444323038953738382
 TICKET_CHANNEL_ID = 1467463103636705321
 TICKET_CATEGORY_ID = 1467462870387392512
-MOD_ROLE_ID = 1456391253783740530
-MM_ROLE_ID = 1443685365545177270
+MOD_ROLE_ID = 1467556491010769183
 MEMBER_COUNT_CHANNEL_ID = 1460268450038546432
 BOT_COUNT_CHANNEL_ID = 1460268646667517994
 ONLINE_COUNT_CHANNEL_ID = 1460268512747589876
@@ -810,12 +809,11 @@ class TicketReasonModal(Modal):
 class TicketReasonSelect(Select):
     def __init__(self):
         options = [
-            discord.SelectOption(label="Récompense Giveaway/Event", description="Réclamez votre récompense pour un giveaway ou un event!", emoji="<a:gift:1453461527154921666>"),
-            discord.SelectOption(label="Signaler un membre", description="Signalez un membre (ou même un staff) du serveur pour non respect des règles", emoji="<a:danger:1453146172876259432>"),
+            discord.SelectOption(label="Récompense Giveaway/Event", description="Réclamez votre récompense pour un giveaway ou un event!", emoji="<a:gift:1453461527154921666>", value="gw"),
+            discord.SelectOption(label="Signaler un membre", description="Signalez un membre (ou même un staff) du serveur pour non respect des règles", emoji="<a:danger:1453146172876259432>", value="signalement"),
+            discord.SelectOption(label="Abus de permissions", description="Signaler un abus de permissions d'un membre du staff.", emoji="⛔", value="abus-perm"),
             discord.SelectOption(label="Proposition", description="Proposer un concept pour améliorer le serveur!", emoji="💡"),
             discord.SelectOption(label="Partenariat", description="Demande de partenariat avec un serveur Discord ou autre", emoji="🤝"),
-            discord.SelectOption(label="Demande de Middle Man", description="Demander un Middle Man Steal a Brainrot pour sécuriser un trade ou un index.", emoji="<:staff:1452235667856687204>"),
-            discord.SelectOption(label="Animations", description="Demander de participer à une animation ou en proposer une.", emoji="<a:birb:1452995535882555524>"),
             discord.SelectOption(label="Autre", emoji="<:jsp:1453042316347572274>"),
         ]
 
