@@ -1071,17 +1071,17 @@ async def on_raw_reaction_add(payload:discord.RawReactionActionEvent):
         print(payload.emoji == "🎉")
 
         if str(payload.emoji) == "🎉":
-            member.add_roles(giveaways_role)
+            await member.add_roles(giveaways_role)
         elif str(payload.emoji) == "🤝":
-            member.add_roles(collab_role)
+            await member.add_roles(collab_role)
         elif str(payload.emoji) == "🗨️":
-            member.add_roles(revive_role)
+            await member.add_roles(revive_role)
         elif str(payload.emoji) == "🔊":
-            member.add_roles(voc_role)
+            await member.add_roles(voc_role)
         elif str(payload.emoji) == "🎨":
-            member.add_roles(anim_role)
+            await member.add_roles(anim_role)
         elif str(payload.emoji) == "📊":
-            member.add_roles(sondage_role)
+            await member.add_roles(sondage_role)
 
 @bot.event
 async def on_raw_reaction_remove(payload:discord.RawReactionActionEvent):
