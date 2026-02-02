@@ -1051,7 +1051,14 @@ async def on_raw_reaction_add(payload:discord.RawReactionActionEvent):
     message_id = cursor.fetchall()
 
     if payload.message_id == message_id:
-        await bot.get_guild(id=payload.guild_id).get_member(id=payload.user_id).add_roles(bot.get_guild(id=payload.guild_id).get_role(1467844452637868158))
+        guild = bot.get_guild(payload.guild_id)
+        role = guild.get_role(1467844452637868158)
+
+        member = guild.get_member(payload.user_id)
+        if member is None:
+            member = await guild.fetch_member(payload.user_id)
+
+        await member.add_roles(role)
 
 @bot.event
 async def on_raw_reaction_remove(payload:discord.RawReactionActionEvent):
