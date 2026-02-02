@@ -1070,17 +1070,17 @@ async def on_raw_reaction_add(payload:discord.RawReactionActionEvent):
 
         print(payload.emoji == "🎉")
 
-        if payload.emoji == "🎉":
+        if payload.emoji == discord.PartialEmoji(name="🎉"):
             member.add_roles(giveaways_role)
-        elif payload.emoji == "🤝":
+        elif payload.emoji == discord.PartialEmoji(name="🤝"):
             member.add_roles(collab_role)
-        elif payload.emoji == "🗨️":
+        elif payload.emoji == discord.PartialEmoji(name="🗨️"):
             member.add_roles(revive_role)
-        elif payload.emoji == "🔊":
+        elif payload.emoji == discord.PartialEmoji(name="🔊"):
             member.add_roles(voc_role)
-        elif payload.emoji == "🎨":
+        elif payload.emoji == discord.PartialEmoji(name="🎨"):
             member.add_roles(anim_role)
-        elif payload.emoji == "📊":
+        elif payload.emoji == discord.PartialEmoji(name="📊"):
             member.add_roles(sondage_role)
 
 @bot.event
