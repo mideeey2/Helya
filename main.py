@@ -1081,7 +1081,7 @@ async def on_raw_reaction_remove(payload:discord.RawReactionActionEvent):
 @bot.command()
 async def reglement(ctx):
     if ctx.author.id == OWNER_ID:
-        embed = discord.Embed(title="RÈGLEMENT — SERVEUR HELYA", description="""# RÈGLEMENT — SERVEUR HELYA
+        embed = discord.Embed(description="""# RÈGLEMENT — SERVEUR HELYA
 
 ---
 
@@ -1171,7 +1171,7 @@ async def reglement(ctx):
     embed.set_thumbnail(url=ctx.guild.icon)
     await ctx.message.delete()
     message = await ctx.send(embed=embed)
-    await message.add_reaction(emoji="<a:oui:1467958627901112390>")
+    await message.add_reaction("<a:oui:1467958627901112390>")
 
 # @bot.command()
 # async def roleicon(ctx, *, args):
