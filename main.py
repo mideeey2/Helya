@@ -1078,6 +1078,100 @@ async def on_raw_reaction_remove(payload:discord.RawReactionActionEvent):
 
         await member.remove_roles(role)
 
+async def reglement(ctx):
+    if ctx.author.id == OWNER_ID:
+        embed = discord.Embed(title="RÈGLEMENT — SERVEUR HELYA", description="""# RÈGLEMENT — SERVEUR HELYA
+
+---
+
+## **1. Respect et comportement**
+- Tout membre doit faire preuve de **respect**, de **courtoisie** et de **maturité**.
+- Sont **strictement interdits** :
+  - **Insultes**, **harcèlement**, **menaces**
+  - Propos **haineux**, **discriminatoires** ou **provocateurs**
+- *Aucun comportement toxique ne sera toléré.*
+
+---
+
+## **2. Contenus et échanges**
+- Il est **interdit** de partager :
+  - Du contenu **illégal**
+  - Du contenu **choquant**, **violent** ou **sexuel**
+- Les **scams**, **liens malveillants** et **publicités non autorisées** sont interdits.
+- *Les échanges doivent rester appropriés à un serveur communautaire.*
+
+---
+
+## **3. Publicité et partenariats**
+- Toute **publicité** ou **demande de partenariat** :
+  - Doit être faite **uniquement** dans les salons prévus
+  - Nécessite l’**accord préalable du staff**
+- Le **spam publicitaire** est **strictement interdit**.
+
+---
+
+## **4. Utilisation des salons**
+- Chaque salon possède une **fonction précise**.
+- Sont interdits :
+  - Le **flood**
+  - Le **hors-sujet volontaire**
+  - Les messages **inutiles ou répétitifs**
+
+---
+
+## **5. Respect du staff**
+- Les décisions du **staff** doivent être **respectées**.
+- Toute contestation :
+  - Doit se faire **en privé**
+  - De manière **calme et respectueuse**
+- Tout abus peut être **signalé à la direction**.
+
+---
+
+## **6. Profils et pseudonymes**
+- Les **pseudonymes**, **photos de profil** et **statuts** doivent être :
+  - **Appropriés**
+  - **Respectueux**
+- Tout élément jugé inapproprié pourra être **modifié ou sanctionné**.
+
+---
+
+## **7. Comptes et sécurité**
+- Chaque membre est **responsable de son compte**.
+- Sont interdits :
+  - Le **partage de compte**
+  - L’**usurpation d’identité**
+  - L’utilisation de **comptes secondaires malveillants**
+
+---
+
+## **8. Sanctions**
+- En cas de non-respect :
+  - **Avertissement**
+  - **Mute**
+  - **Kick**
+  - **Bannissement définitif**
+- Les sanctions sont appliquées selon la **gravité des faits**.
+
+---
+
+## **9. Modification du règlement**
+- Le règlement peut être **modifié à tout moment**.
+- Il appartient aux membres de **se tenir informés**.
+
+---
+
+## **10. Acceptation**
+- En rejoignant le serveur et en réagissant avec <a:oui:1467958627901112390>, vous **acceptez l’intégralité du règlement**.
+- *Aucune excuse ne sera acceptée en cas de non-respect.*
+
+---
+""", color=discord.Color.pink())
+    embed.set_thumbnail(url=ctx.guild.icon)
+    await ctx.message.delete()
+    message = await ctx.send(embed=embed)
+    await message.add_reaction(emoji="<a:oui:1467958627901112390>")
+
 # @bot.command()
 # async def roleicon(ctx, *, args):
 #     role_mentions=ctx.message.role_mentions
