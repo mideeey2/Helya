@@ -1068,7 +1068,7 @@ async def on_raw_reaction_add(payload:discord.RawReactionActionEvent):
         anim_role = guild.get_role(1467962712863539420)
         sondage_role = guild.get_role(1467963534448132248)
 
-        print(payload.emoji)
+        print(payload.emoji == "🎉")
 
         if payload.emoji == "🎉":
             member.add_roles(giveaways_role)
