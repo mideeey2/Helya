@@ -1110,18 +1110,18 @@ async def on_raw_reaction_remove(payload:discord.RawReactionActionEvent):
         anim_role = guild.get_role(1467962712863539420)
         sondage_role = guild.get_role(1467963534448132248)
 
-        if payload.emoji == "🎉":
-            member.remove_roles(giveaways_role)
-        elif payload.emoji == "🤝":
-            member.remove_roles(collab_role)
-        elif payload.emoji == "🗨️":
-            member.remove_roles(revive_role)
-        elif payload.emoji == "🔊":
-            member.remove_roles(voc_role)
-        elif payload.emoji == "🎨":
-            member.remove_roles(anim_role)
-        elif payload.emoji == "📊":
-            member.remove_roles(sondage_role)
+        if str(payload.emoji) == "🎉":
+            await member.remove_roles(giveaways_role)
+        elif str(payload.emoji) == "🤝":
+            await member.remove_roles(collab_role)
+        elif str(payload.emoji) == "🗨️":
+            await member.remove_roles(revive_role)
+        elif str(payload.emoji) == "🔊":
+            await member.remove_roles(voc_role)
+        elif str(payload.emoji) == "🎨":
+            await member.remove_roles(anim_role)
+        elif str(payload.emoji) == "📊":
+            await member.remove_roles(sondage_role)
 
 @bot.command()
 async def reglement(ctx):
