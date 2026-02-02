@@ -159,7 +159,7 @@ async def on_ready():
     ticket_creation_msg = await ticket_channel.fetch_message(int(ticket_creation_msg_id))
     await ticket_creation_msg.delete()
 
-    guild = bot.get_guild(1438222268185706599)
+    guild = bot.get_guild(1467451712485851341)
     
     embed = discord.Embed(title="Création de tickets", description="Pour ouvrir un ticket, sélectionnez une raison à l'aide du sélecteur ci-dessous!", color=discord.Color.green())
     embed.set_thumbnail(url=guild.icon.url)
