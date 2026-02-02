@@ -66,6 +66,10 @@ cursor.execute("""CREATE TABLE IF NOT EXISTS ticket_msg_id (
     id TEXT
 );""")
 
+cursor.execute("""CREATE TABLE IF NOT EXISTS coinsreactionmessage (
+               id TEXT
+               );""")
+
 conn.commit()
 
 # --------- CONFIG ---------
