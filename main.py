@@ -1050,15 +1050,36 @@ async def on_raw_reaction_add(payload:discord.RawReactionActionEvent):
     cursor.execute("SELECT id FROM coinsreactionmessage")
     message_id = cursor.fetchall()[0][0]
 
-    if payload.message_id == int(message_id):
-        guild = bot.get_guild(payload.guild_id)
-        role = guild.get_role(1467844452637868158)
+    guild = bot.get_guild(payload.guild_id)
 
-        member = guild.get_member(payload.user_id)
+    member = guild.get_member(payload.user_id)
+    if payload.message_id == int(message_id):
+        role = guild.get_role(1467844452637868158)
         if member is None:
             member = await guild.fetch_member(payload.user_id)
 
         await member.add_roles(role)
+
+    elif payload.message_id == 1467971802075500676:
+        giveaways_role = guild.get_role(1467961939123507222)
+        collab_role = guild.get_role(1467962148058562592)
+        revive_role = guild.get_role(1467962389549940849)
+        voc_role = guild.get_role(1467962551789818033)
+        anim_role = guild.get_role(1467962712863539420)
+        sondage_role = guild.get_role(1467963534448132248)
+
+        if payload.emoji == "🎉":
+            member.add_roles(giveaways_role)
+        elif payload.emoji == "🤝":
+            member.add_roles(collab_role)
+        elif payload.emoji == "🗨️":
+            member.add_roles(revive_role)
+        elif payload.emoji == "🔊":
+            member.add_roles(voc_role)
+        elif payload.emoji == "🎨":
+            member.add_roles(anim_role)
+        elif payload.emoji == "📊":
+            member.add_roles(sondage_role)
 
 @bot.event
 async def on_raw_reaction_remove(payload:discord.RawReactionActionEvent):
@@ -1068,15 +1089,37 @@ async def on_raw_reaction_remove(payload:discord.RawReactionActionEvent):
     cursor.execute("SELECT id FROM coinsreactionmessage")
     message_id = cursor.fetchall()[0][0]
 
+    guild = bot.get_guild(payload.guild_id)
+    member = guild.get_member(payload.user_id)
+    if member is None:
+        member = await guild.fetch_member(payload.user_id)
+
     if payload.message_id == int(message_id):
-        guild = bot.get_guild(payload.guild_id)
         role = guild.get_role(1467844452637868158)
 
-        member = guild.get_member(payload.user_id)
-        if member is None:
-            member = await guild.fetch_member(payload.user_id)
 
         await member.remove_roles(role)
+
+    elif payload.message_id == 1467971802075500676:
+        giveaways_role = guild.get_role(1467961939123507222)
+        collab_role = guild.get_role(1467962148058562592)
+        revive_role = guild.get_role(1467962389549940849)
+        voc_role = guild.get_role(1467962551789818033)
+        anim_role = guild.get_role(1467962712863539420)
+        sondage_role = guild.get_role(1467963534448132248)
+
+        if payload.emoji == "🎉":
+            member.remove_roles(giveaways_role)
+        elif payload.emoji == "🤝":
+            member.remove_roles(collab_role)
+        elif payload.emoji == "🗨️":
+            member.remove_roles(revive_role)
+        elif payload.emoji == "🔊":
+            member.remove_roles(voc_role)
+        elif payload.emoji == "🎨":
+            member.remove_roles(anim_role)
+        elif payload.emoji == "📊":
+            member.remove_roles(sondage_role)
 
 @bot.command()
 async def reglement(ctx):
