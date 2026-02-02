@@ -1047,6 +1047,8 @@ async def on_raw_reaction_add(payload:discord.RawReactionActionEvent):
     if payload.user_id == bot.user.id:
         return
     
+    print("reaction")
+    
     cursor.execute("SELECT id FROM coinsreactionmessage")
     message_id = cursor.fetchall()[0][0]
 
