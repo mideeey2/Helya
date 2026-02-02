@@ -17,6 +17,7 @@ intents.members = True
 intents.message_content = True
 intents.presences = True
 intents.reactions = True
+intents.guilds = True
 
 bot = commands.Bot(command_prefix="+", intents=intents)
 guild = bot.get_guild(1438222268185706599)
