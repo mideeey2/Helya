@@ -16,6 +16,7 @@ intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
 intents.presences = True
+intents.reactions = True
 
 bot = commands.Bot(command_prefix="+", intents=intents)
 guild = bot.get_guild(1438222268185706599)
@@ -88,6 +89,7 @@ MEMBER_COUNT_CHANNEL_ID = 1460268450038546432
 BOT_COUNT_CHANNEL_ID = 1460268646667517994
 ONLINE_COUNT_CHANNEL_ID = 1460268512747589876
 BOOST_COUNT_CHANNEL_ID = 1460268694251769893
+COINS_ROLE_ID = 1467844452637868158
 MAX_MEMORY = 100
 
 conversation_memory = []
@@ -162,7 +164,7 @@ async def on_ready():
     embed = discord.Embed(title="Création de tickets", description="Pour ouvrir un ticket, sélectionnez une raison à l'aide du sélecteur ci-dessous!", color=discord.Color.green())
     embed.set_thumbnail(url=guild.icon.url)
     embed.set_footer(text="Merci de ne pas créer des tickets sans raison!", icon_url=guild.icon.url)
-    embed.set_author(name=guild.name, url="https://discord.gg/himura")
+    embed.set_author(name=guild.name, url="https://discord.gg/HaBx6cp9H3")
     ticket_creation_msg = await ticket_channel.send(embed=embed, view=TicketReasonView())
     cursor.execute("UPDATE ticket_msg_id SET id=%s WHERE id=%s", (ticket_creation_msg.id, ticket_creation_msg_id))
     conn.commit()
@@ -1021,6 +1023,44 @@ async def createemoji(ctx, *emojis):
 
     else:
         await ctx.send("Vous n'avez pas la permission d'utiliser cette commande ❌")
+
+@bot.command()
+async def coinsroleembed(ctx):
+    if ctx.author.id == OWNER_ID:
+        cursor.execute("SELECT id FROM coinsreactionmessage")
+        message_id = cursor.fetchall()[0][0]
+        embed = discord.Embed(title="Accès aux Coins 💰", description="Pour avoir le rôle <@&1467844452637868158> et accéder à l'Espace Coins, je t'invite à réagir avec l'emoji 🪙!", color=discord.Color.gold())
+        embed.set_thumbnail(url=ctx.guild.avatar if ctx.guild.avatar else ctx.guild.default_avatar)
+        embed.set_author(name=ctx.guild.name, url="https://discord.gg/HaBx6cp9H3")
+        message = await ctx.send(embed=embed)
+        message.add_reaction("🪙")
+        cursor.execute("UPDATE coinsreactionmessage SET id=%s WHERE id=%s", (message.id, message_id))
+        conn.commit()
+        await ctx.message.delete()
+
+@bot.event
+async def on_raw_reaction_add(payload:discord.RawReactionActionEvent):
+    if payload.user_id == bot.user.id:
+        return
+    
+    cursor.execute("SELECT id FROM coinsreactionmessage")
+    message_id = cursor.fetchall()
+
+    if payload.message_id == message_id:
+        bot.get_guild(id=payload.guild_id).get_member(id=payload.user_id).add_roles(bot.get_guild(id=payload.guild_id).get_role(1467844452637868158))
+
+@bot.event
+async def on_raw_reaction_remove(payload:discord.RawReactionActionEvent):
+    if payload.user_id == bot.user.id:
+        return
+    
+    cursor.execute("SELECT id FROM coinsreactionmessage")
+    message_id = cursor.fetchall()
+
+    if payload.message_id == message_id:
+        bot.get_guild(id=payload.guild_id).get_member(id=payload.user_id).add_roles(bot.get_guild(id=payload.guild_id).get_role(1467844452637868158))
+
+
 # @bot.command()
 # async def roleicon(ctx, *, args):
 #     role_mentions=ctx.message.role_mentions
