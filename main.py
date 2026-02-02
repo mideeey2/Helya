@@ -74,7 +74,6 @@ conn.commit()
 
 # --------- CONFIG ---------
 TOKEN = os.getenv("TOKEN")
-print(TOKEN)
 INVITES_CHANNEL_ID = 1440405854452187207  # salon où le bot envoie les messages
 CHAT_CHANNEL_ID = 0
 SAB_CHANNEL_ID = 0
@@ -1053,6 +1052,7 @@ async def on_raw_reaction_add(payload:discord.RawReactionActionEvent):
     if payload.message_id == message_id:
         guild = bot.get_guild(payload.guild_id)
         role = guild.get_role(1467844452637868158)
+        print(role.name)
 
         member = guild.get_member(payload.user_id)
         if member is None:
