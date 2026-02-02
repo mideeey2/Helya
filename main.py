@@ -1052,7 +1052,7 @@ async def on_raw_reaction_add(payload:discord.RawReactionActionEvent):
     cursor.execute("SELECT id FROM coinsreactionmessage")
     message_id = cursor.fetchall()[0][0]
 
-    if payload.message_id == message_id:
+    if payload.message_id == int(message_id):
         guild = bot.get_guild(payload.guild_id)
         role = guild.get_role(1467844452637868158)
         print(role.name)
