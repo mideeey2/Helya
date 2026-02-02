@@ -1034,7 +1034,7 @@ async def coinsroleembed(ctx):
         cursor.execute("SELECT id FROM coinsreactionmessage")
         message_id = cursor.fetchall()[0][0]
         embed = discord.Embed(title="Accès aux Coins 💰", description="Pour avoir le rôle <@&1467844452637868158> et accéder à l'Espace Coins, je t'invite à réagir avec l'emoji 🪙!", color=discord.Color.gold())
-        embed.set_thumbnail(url=ctx.guild.avatar if ctx.guild.avatar else ctx.guild.default_avatar)
+        embed.set_thumbnail(url=ctx.guild.icon if ctx.guild.icon else None)
         embed.set_author(name=ctx.guild.name, url="https://discord.gg/HaBx6cp9H3")
         message = await ctx.send(embed=embed)
         message.add_reaction("🪙")
