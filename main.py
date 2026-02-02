@@ -1047,8 +1047,6 @@ async def on_raw_reaction_add(payload:discord.RawReactionActionEvent):
     if payload.user_id == bot.user.id:
         return
     
-    print("reaction")
-    
     cursor.execute("SELECT id FROM coinsreactionmessage")
     message_id = cursor.fetchall()[0][0]
 
@@ -1069,9 +1067,9 @@ async def on_raw_reaction_remove(payload:discord.RawReactionActionEvent):
         return
     
     cursor.execute("SELECT id FROM coinsreactionmessage")
-    message_id = cursor.fetchall()
+    message_id = cursor.fetchall()[0][0]
 
-    if payload.message_id == message_id:
+    if payload.message_id == int(message_id):
         bot.get_guild(id=payload.guild_id).get_member(id=payload.user_id).add_roles(bot.get_guild(id=payload.guild_id).get_role(1467844452637868158))
 
 
