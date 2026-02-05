@@ -20,7 +20,7 @@ intents.reactions = True
 intents.guilds = True
 
 bot = commands.Bot(command_prefix="+", intents=intents)
-guild = bot.get_guild(1438222268185706599)
+guild = bot.get_guild(1467451712485851341)
 
 GROQ_API_KEY = os.getenv("AI_API_KEY")
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
@@ -144,7 +144,7 @@ invites_count = {}  # inviter_id : nombre total d'invites
 @bot.event
 async def on_ready():
     print(f"{bot.user} est connecté !")
-    guild = bot.get_guild(1438222268185706599)
+    guild = bot.get_guild(1467451712485851341)
     for member in guild.members:
         custom = next((a for a in member.activities if isinstance(a, discord.CustomActivity)), None)
         if custom and custom.name and "/himura".lower() in custom.name.lower():
@@ -426,7 +426,7 @@ async def vouchcount_callback(ctx, member:discord.Member, personal:bool):
 @bot.command()
 async def mute(ctx, member:discord.Member, duration:int=40320, reason:str="Aucun raison fournie"):
     try:
-        guild = bot.get_guild(1438222268185706599)
+        guild = bot.get_guild(1467451712485851341)
         mod_role = guild.get_role(1456391253783740530)
         if member.id == ctx.author.id:
             await ctx.channel.send("Vous ne pouvez pas vous mute vous-même <:lol:1453660116816760885><a:kekw:1438550949504225311>")
@@ -443,7 +443,7 @@ async def mute(ctx, member:discord.Member, duration:int=40320, reason:str="Aucun
                     super().__init__(timeout=180)
                 @discord.ui.button(label="Annuler l'action", style=discord.ButtonStyle.red, emoji="<a:non:1453011584569053197>", custom_id="cancel_mute_button")
                 async def cancel_mute_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-                    guild = bot.get_guild(1438222268185706599)
+                    guild = bot.get_guild(1467451712485851341)
                     user = guild.get_member(interaction.user.id)
                     mod_role = guild.get_role(1456391253783740530)
                     if (mod_role in user.roles or user.guild_permissions.administrator) and user.top_role > member.top_role and member.id != OWNER_ID and member.id != user.id:
@@ -471,7 +471,7 @@ async def mute(ctx, member:discord.Member, duration:int=40320, reason:str="Aucun
 
 @bot.command()
 async def unmute(ctx, member:discord.Member, *, args=None):
-    guild = bot.get_guild(1438222268185706599)
+    guild = bot.get_guild(1467451712485851341)
     mod_role = guild.get_role(1456391253783740530)
     if (ctx.author.id == OWNER_ID or (mod_role in ctx.author.roles or ctx.author.guild_permissions.administrator) and ctx.author.top_role > member.top_role) and member.is_timed_out():
         await member.edit(timed_out_until=None)
@@ -488,7 +488,7 @@ async def unmute(ctx, member:discord.Member, *, args=None):
 
 @bot.command()
 async def kick(ctx, member:discord.Member, *, args=None):
-    guild = bot.get_guild(1438222268185706599)
+    guild = bot.get_guild(1467451712485851341)
     mod_role = guild.get_role(1456391253783740530)
     try:
         if member.id == ctx.author.id:
@@ -512,7 +512,7 @@ async def kick(ctx, member:discord.Member, *, args=None):
 
 @bot.command()
 async def ban(ctx, member:discord.Member, *, args=None):
-    guild = bot.get_guild(1438222268185706599)
+    guild = bot.get_guild(1467451712485851341)
     mod_role = guild.get_role(1456391253783740530)
     try:
         if member.id == ctx.author.id:
@@ -547,7 +547,7 @@ async def ban(ctx, member:discord.Member, *, args=None):
 
 @bot.command()
 async def unban(ctx, member:discord.Member, reason:str=None):
-    guild = bot.get_guild(1438222268185706599)
+    guild = bot.get_guild(1467451712485851341)
     mod_role = guild.get_role(1456391253783740530)
     if (ctx.author.id == OWNER_ID or (mod_role in ctx.author.roles or ctx.author.guild_permissions.administrator) and ctx.author.top_role > member.top_role) and member.is_timed_out():
         await member.edit(timed_out_until=None)
@@ -580,7 +580,7 @@ async def invites(ctx, member:discord.Member=None):
 
 @bot.event
 async def on_presence_update(before:discord.Member, after:discord.Member):
-    guild = bot.get_guild(1438222268185706599)
+    guild = bot.get_guild(1467451712485851341)
     role = guild.get_role(1455978240777650439)
     before_custom = next((a for a in before.activities if isinstance(a, discord.CustomActivity)), None)
     after_custom = next((a for a in after.activities if isinstance(a, discord.CustomActivity)), None)
@@ -970,7 +970,6 @@ async def newrole(ctx, position:int, *name:str):
             await ctx.send("Le role que vous voulez ajouter est égal ou plus haut que le vôtre.")
     else:
         await ctx.send("Vous n'avez pas les permissions nécessaires pour utiliser cette commande.")
-    
 
 @bot.command()
 async def addrole(ctx, members:commands.Greedy[discord.Member], roles:commands.Greedy[discord.Role]):
