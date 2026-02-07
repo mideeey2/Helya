@@ -424,14 +424,16 @@ async def vouchcount_callback(ctx, member:discord.Member, personal:bool):
             return embed
 
 @bot.command()
-async def mute(ctx, member:discord.Member, duration:int=40320, reason:str="Aucun raison fournie"):
+async def mute(ctx, member:discord.Member, duration:int=40320, *reason:str):
     try:
+        if not reason:
+            reason = "Aucune raison spécifiée"
         guild = bot.get_guild(1467451712485851341)
         mod_role = guild.get_role(1456391253783740530)
         if member.id == ctx.author.id:
             await ctx.channel.send("Vous ne pouvez pas vous mute vous-même <:lol:1453660116816760885><a:kekw:1438550949504225311>")
         elif member.id == OWNER_ID:
-            await ctx.channel.send(f"Vous n'avez pas la permission de mute mon créateur, développeur, et propriétaire : <@{OWNER_ID}><a:coeurbleu:1453664603744505896>")
+            await ctx.channel.send(f"Vous n'avez pas la permission de mute mon créateur, développeur, et propriétaire : <@{OWNER_ID}><a:coeurbleu:1467518905747640362>")
         elif ((mod_role in ctx.author.roles or ctx.author.guild_permissions.administrator) and ctx.author.top_role > member.top_role) or ctx.author.id == OWNER_ID:
             date=None
             if duration:
@@ -455,7 +457,7 @@ async def mute(ctx, member:discord.Member, duration:int=40320, reason:str="Aucun
                     else:
                         await interaction.response.send_message("Vous n'avez pas la permission d'utiliser cette commande.", ephemeral=True)
             await member.edit(timed_out_until=date, reason=reason)
-            await ctx.channel.send(content=f"{member.mention} a été mute pendant {duration} minutes pour la raison `{reason}`.", view=CancelMuteButton(), )
+            await ctx.channel.send(content=f"{member.mention} a été mute {f'pendant {duration} minutes ' if duration != 40320 else None}pour la raison `{reason}`.", view=CancelMuteButton(), )
             await member.send(f"Vous avez été mute sur le serveur {ctx.guild.name} jusqu'au <t:{int(timestamp)}:F>(<t:{int(timestamp)}:R>) pour la raison `{reason}`.")
             await ctx.author.send(content=f"Vous avez mute {member.mention} sur le serveur {ctx.guild.name} jusqu'au <t:{int(timestamp)}:F>(<t:{int(timestamp)}:R>) pour la raison `{reason}`.", view=CancelMuteButton())
         elif guild.get_role(1456391253783740530) not in ctx.author.roles and not ctx.author.guild_permissions.administrator:
@@ -494,7 +496,7 @@ async def kick(ctx, member:discord.Member, *, args=None):
         if member.id == ctx.author.id:
             await ctx.channel.send("Vous ne pouvez pas vous expulser vous-même <:lol:1453660116816760885><a:kekw:1438550949504225311>")
         elif member.id == OWNER_ID:
-            await ctx.channel.send(f"Vous n'avez pas la permission d'expulser mon créateur, développeur, et propriétaire : <@{OWNER_ID}><a:coeurbleu:1453664603744505896>")
+            await ctx.channel.send(f"Vous n'avez pas la permission d'expulser mon créateur, développeur, et propriétaire : <@{OWNER_ID}><a:coeurbleu:1467518905747640362>")
         elif (ctx.author.id == OWNER_ID or (mod_role in ctx.author.roles or ctx.author.guild_permissions.administrator) and ctx.author.top_role > member.top_role):
             await member.kick(reason=args)
             await ctx.channel.send(content=f"{member.mention} a été explulsé du serveur{f" pour la raison `{args}`" if args else " mais aucune raison n'a été spécifiée"}.")
@@ -518,7 +520,7 @@ async def ban(ctx, member:discord.Member, *, args=None):
         if member.id == ctx.author.id:
             await ctx.channel.send("Vous ne pouvez pas vous bannir vous-même <:lol:1453660116816760885><a:kekw:1438550949504225311>")
         elif member.id == OWNER_ID:
-            await ctx.channel.send(f"Vous n'avez pas la permission de bannir mon créateur, développeur, et propriétaire : <@{OWNER_ID}><a:coeurbleu:1453664603744505896>")
+            await ctx.channel.send(f"Vous n'avez pas la permission de bannir mon créateur, développeur, et propriétaire : <@{OWNER_ID}><a:coeurbleu:1467518905747640362>")
         elif (ctx.author.id == OWNER_ID or (mod_role in ctx.author.roles or ctx.author.guild_permissions.administrator) and ctx.author.top_role > member.top_role):
             class CancelBanButton(View):
                 def __init__(self, member):
