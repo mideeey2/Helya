@@ -173,18 +173,18 @@ async def on_ready():
     cursor.execute("UPDATE ticket_msg_id SET id=%s WHERE id=%s", (ticket_creation_msg.id, ticket_creation_msg_id))
     conn.commit()
 
-    member_count_channel = bot.get_channel(MEMBER_COUNT_CHANNEL_ID)
-    await member_count_channel.edit(name=f"「👥」𝑴𝑬𝑴𝑩𝑹𝑬𝑺 : {guild.member_count}")
+    # member_count_channel = bot.get_channel(MEMBER_COUNT_CHANNEL_ID)
+    # await member_count_channel.edit(name=f"「👥」𝑴𝑬𝑴𝑩𝑹𝑬𝑺 : {guild.member_count}")
 
-    bot_count_channel = bot.get_channel(BOT_COUNT_CHANNEL_ID)
-    await bot_count_channel.edit(name=f"「🤖」𝑩𝑶𝑻𝑺 : {len([m for m in guild.members if m.bot])}")
+    # bot_count_channel = bot.get_channel(BOT_COUNT_CHANNEL_ID)
+    # await bot_count_channel.edit(name=f"「🤖」𝑩𝑶𝑻𝑺 : {len([m for m in guild.members if m.bot])}")
 
-    online_count_channel = bot.get_channel(ONLINE_COUNT_CHANNEL_ID)
-    actifs = sum(1 for m in guild.members if m.status in (discord.Status.online, discord.Status.idle, discord.Status.dnd))
-    await online_count_channel.edit(name=f"「🟢」𝑬𝑵-𝑳𝑰𝑮𝑵𝑬 : {actifs}")
+    # online_count_channel = bot.get_channel(ONLINE_COUNT_CHANNEL_ID)
+    # actifs = sum(1 for m in guild.members if m.status in (discord.Status.online, discord.Status.idle, discord.Status.dnd))
+    # await online_count_channel.edit(name=f"「🟢」𝑬𝑵-𝑳𝑰𝑮𝑵𝑬 : {actifs}")
 
-    boost_count_channel = bot.get_channel(BOOST_COUNT_CHANNEL_ID)
-    await boost_count_channel.edit(name=f"「⚡」𝑩𝑶𝑶𝑺𝑻𝑺 : {guild.premium_subscription_count}")
+    # boost_count_channel = bot.get_channel(BOOST_COUNT_CHANNEL_ID)
+    # await boost_count_channel.edit(name=f"「⚡」𝑩𝑶𝑶𝑺𝑻𝑺 : {guild.premium_subscription_count}")
 
     views = [TicketReasonView(), TicketOptionsView(), TicketCloseConfirmation(), TicketReasonModal(), TicketReasonSelect(), PersonnalInvitesButton()]
 
@@ -246,11 +246,11 @@ async def on_member_join(member:discord.Member):
         print("⚠️ Salon introuvable ou ID incorrect")
         return
     
-    member_count_channel = bot.get_channel(MEMBER_COUNT_CHANNEL_ID)
-    await member_count_channel.edit(name=f"「👥」𝑴𝑬𝑴𝑩𝑹𝑬𝑺 : {member.guild.member_count}")
+    # member_count_channel = bot.get_channel(MEMBER_COUNT_CHANNEL_ID)
+    # await member_count_channel.edit(name=f"「👥」𝑴𝑬𝑴𝑩𝑹𝑬𝑺 : {member.guild.member_count}")
 
-    bot_count_channel = bot.get_channel(BOT_COUNT_CHANNEL_ID)
-    await bot_count_channel.edit(name=f"「🤖」𝑩𝑶𝑻𝑺 : {len([m for m in member.guild.members if m.bot])}")
+    # bot_count_channel = bot.get_channel(BOT_COUNT_CHANNEL_ID)
+    # await bot_count_channel.edit(name=f"「🤖」𝑩𝑶𝑻𝑺 : {len([m for m in member.guild.members if m.bot])}")
 
     if used_invite:
         inviter = used_invite.inviter
@@ -287,13 +287,13 @@ async def on_member_join(member:discord.Member):
     else:
         await channel.send(f"👀 {member.mention} a rejoint, mais je suis incapable de déterminer qui l'a invité.")
 
-@bot.event
-async def on_member_remove(member:discord.Member):
-    member_count_channel = bot.get_channel(MEMBER_COUNT_CHANNEL_ID)
-    await member_count_channel.edit(name=f"「👥」𝑴𝑬𝑴𝑩𝑹𝑬𝑺 : {member.guild.member_count}")
+# @bot.event
+# async def on_member_remove(member:discord.Member):
+    # member_count_channel = bot.get_channel(MEMBER_COUNT_CHANNEL_ID)
+    # await member_count_channel.edit(name=f"「👥」𝑴𝑬𝑴𝑩𝑹𝑬𝑺 : {member.guild.member_count}")
 
-    bot_count_channel = bot.get_channel(BOT_COUNT_CHANNEL_ID)
-    await bot_count_channel.edit(name=f"「🤖」𝑩𝑶𝑻𝑺 : {len([m for m in member.guild.members if m.bot])}")
+    # bot_count_channel = bot.get_channel(BOT_COUNT_CHANNEL_ID)
+    # await bot_count_channel.edit(name=f"「🤖」𝑩𝑶𝑻𝑺 : {len([m for m in member.guild.members if m.bot])}")
 
 # --------- COMMANDE SLASH /invites ---------
 
@@ -597,7 +597,7 @@ async def on_presence_update(before:discord.Member, after:discord.Member):
 
     online_count_channel = bot.get_channel(ONLINE_COUNT_CHANNEL_ID)
     actifs = sum(1 for m in guild.members if m.status in (discord.Status.online, discord.Status.idle, discord.Status.dnd))
-    await online_count_channel.edit(name=f"「🟢」𝑬𝑵-𝑳𝑰𝑮𝑵𝑬 : {actifs}")
+    # await online_count_channel.edit(name=f"「🟢」𝑬𝑵-𝑳𝑰𝑮𝑵𝑬 : {actifs}")
 
 @bot.command()
 async def newyear(ctx):
@@ -879,6 +879,7 @@ async def ticketsystem(ctx):
 
         embed = discord.Embed(title="Création de tickets", description="Pour ouvrir un ticket, sélectionnez une raison à l'aide du sélecteur ci-dessous!", color=discord.Color.green())
         embed.set_thumbnail(url=ctx.guild.icon.url)
+
         embed.set_footer(text="Merci de ne pas créer des tickets sans raison!", icon_url=ctx.guild.icon.url)
         embed.set_author(name=ctx.guild.name, url="https://discord.gg/HaBx6cp9H3")
         await ticket_channel.send(embed=embed, view=TicketReasonView())
@@ -1233,7 +1234,7 @@ async def roleschoice(ctx):
         await message.add_reaction("🔊")
         await message.add_reaction("🗨️")
         await message.add_reaction("🤝")
-
+        
 # @bot.command()
 # async def roleicon(ctx, *, args):
 #     role_mentions=ctx.message.role_mentions
