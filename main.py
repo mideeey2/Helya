@@ -797,7 +797,7 @@ class TicketReasonModal(Modal):
             if mod:
                 overwrites[mod] = discord.PermissionOverwrite(view_channel=True, send_messages=True)
         ticket_channel = await interaction.guild.create_text_channel(name=f"ticket-{member.display_name}", category=ticket_category, overwrites=overwrites)
-        await interaction.response.send_message(content="Votre ticket est en cours de création", ephemeral=True)
+        await interaction.response.send_message(content="<a:loading:1472273804528189551> Votre ticket est en cours de création", ephemeral=True)
         try:
             owner = interaction.guild.get_member(OWNER_ID)
             if owner:
@@ -810,7 +810,7 @@ class TicketReasonModal(Modal):
         datetime_now = datetime.datetime.now().timestamp()
         cursor.execute("INSERT INTO tickets (member_id, reason, timestamp, status, channel_id) VALUES (%s, %s, %s, %s, %s)", (str(member.id), self.reason_input.value, str(datetime_now), "open", str(ticket_channel.id)))
         conn.commit()
-        ticket_msg = await ticket_channel.send(content=f"Bienvenue {member.mention} dans votre ticket, un membre du staff vous prendra le plus vite possible en charge. Restez là!", embed=ticket_debut_embed, view=TicketOptionsView(mods, member))
+        ticket_msg = await ticket_channel.send(content=f"Bienvenue {member.mention} dans votre ticket, un membre du staff vous prendra le plus vite possible en charge. Restez là! <@&1467556491010769183>", embed=ticket_debut_embed, view=TicketOptionsView(mods, member))
         ticket_created_success_embed = discord.Embed(title="Succès", description=f"Votre ticket a été créé avec succès dans {ticket_channel.jump_url}", color=discord.Color.green())
         await interaction.followup.send(content=member.mention, embed=ticket_created_success_embed, ephemeral=True)
 
@@ -843,7 +843,7 @@ class TicketReasonSelect(Select):
             if mod:
                 overwrites[mod] = discord.PermissionOverwrite(view_channel=True, send_messages=True)
         ticket_channel = await interaction.guild.create_text_channel(name=f"{self.values[0]}-{member.display_name}", category=ticket_category, overwrites=overwrites)
-        await interaction.response.send_message(content="Votre ticket est en cours de création", ephemeral=True)
+        await interaction.response.send_message(content="<a:loading:1472273804528189551> Votre ticket est en cours de création", ephemeral=True)
         try:
             owner = interaction.guild.get_member(OWNER_ID)
             if owner:
