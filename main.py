@@ -173,6 +173,9 @@ async def on_ready():
     cursor.execute("UPDATE ticket_msg_id SET id=%s WHERE id=%s", (ticket_creation_msg.id, ticket_creation_msg_id))
     conn.commit()
 
+    activity = discord.Activity(type=discord.ActivityType.watching, name="/helya on top")
+    await bot.change_presence(activity=activity, status=discord.Status.do_not_disturb)
+
     # member_count_channel = bot.get_channel(MEMBER_COUNT_CHANNEL_ID)
     # await member_count_channel.edit(name=f"「👥」𝑴𝑬𝑴𝑩𝑹𝑬𝑺 : {guild.member_count}")
 
