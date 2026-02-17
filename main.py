@@ -1271,18 +1271,17 @@ async def rankup(ctx, *users):
                 failed.append(user)
                 continue
 
-            member.add_roles(mod_role)
+            await member.add_roles(mod_role)
 
             index = None
             for role in hiearchie:
                 if role in member.roles:
                     if not index:
                         index = hiearchie.index(role)
-                    member.remove_roles(role)
-
+                    await member.remove_roles(role)
             if hiearchie[index] < ctx.author.top_role or ctx.author.id == OWNER_ID:
                 index -= 1 if index > 0 else 0
-                member.add_roles(hiearchie[index])
+                await member.add_roles(hiearchie[index])
                 success.append(member.mention)
             else:
                 failed.append(member.mention)
