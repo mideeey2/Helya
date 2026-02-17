@@ -95,6 +95,8 @@ ONLINE_COUNT_CHANNEL_ID = 1460268512747589876
 BOOST_COUNT_CHANNEL_ID = 1460268694251769893
 COINS_ROLE_ID = 1467844452637868158
 MAX_MEMORY = 100
+guild = None
+hiearchie = None
 
 conversation_memory = []
 
@@ -143,6 +145,7 @@ invites_count = {}  # inviter_id : nombre total d'invites
 # --------- AU LANCEMENT DU BOT ---------
 @bot.event
 async def on_ready():
+    global hiearchie, guild
     print(f"{bot.user} est connecté !")
     guild = bot.get_guild(1467451712485851341)
     for member in guild.members:
@@ -172,6 +175,20 @@ async def on_ready():
     ticket_creation_msg = await ticket_channel.send(embed=embed, view=TicketReasonView())
     cursor.execute("UPDATE ticket_msg_id SET id=%s WHERE id=%s", (ticket_creation_msg.id, ticket_creation_msg_id))
     conn.commit()
+
+    guild = bot.get_guild(1467451712485851341)
+    hiearchie = [
+        guild.get_role(1467458682219401269),
+        guild.get_role(1467467145678946427),
+        guild.get_role(1467466757848432673),
+        guild.get_role(1467525966413959341),
+        guild.get_role(1467526740833341472),
+        guild.get_role(1467526882432913556),
+        guild.get_role(1467526998019539118),
+        guild.get_role(1467527226432950375),
+        guild.get_role(1467527324542046452),
+        guild.get_role(1467527430095900967),
+    ]
 
     activity = discord.Activity(type=discord.ActivityType.watching, name="/helya on top")
     await bot.change_presence(activity=activity, status=discord.Status.do_not_disturb)
@@ -1237,25 +1254,11 @@ async def roleschoice(ctx):
         await message.add_reaction("🔊")
         await message.add_reaction("🗨️")
         await message.add_reaction("🤝")
-        
-guild = bot.get_guild(1467451712485851341)
-hiearchie = [
-    guild.get_role(1467458682219401269),
-    guild.get_role(1467467145678946427),
-    guild.get_role(1467466757848432673),
-    guild.get_role(1467525966413959341),
-    guild.get_role(1467526740833341472),
-    guild.get_role(1467526882432913556),
-    guild.get_role(1467526998019539118),
-    guild.get_role(1467527226432950375),
-    guild.get_role(1467527324542046452),
-    guild.get_role(1467527430095900967),
-]
 
 @bot.command()
 async def rankup(ctx, *users):
     global guild
-    
+
     if (ctx.author.guild_permissions.administrator or ctx.author.guild_permissions.manage_roles):
         success = []
         failed = []
