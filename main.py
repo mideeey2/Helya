@@ -146,17 +146,9 @@ invites_count = {}  # inviter_id : nombre total d'invites
 @bot.event
 async def on_ready():
     global hiearchie, guild
+
     print(f"{bot.user} est connecté !")
     guild = bot.get_guild(1467451712485851341)
-    for member in guild.members:
-        custom = next((a for a in member.activities if isinstance(a, discord.CustomActivity)), None)
-        if custom and custom.name and "/himura".lower() in custom.name.lower():
-            if guild.get_role(1455978240777650439) not in member.roles:
-                await member.add_roles(discord.utils.get(member.guild.roles, id=1455978240777650439))
-        else:
-            if guild.get_role(1455978240777650439) in member.roles:
-                await member.remove_roles(discord.utils.get(member.guild.roles, id=1455978240777650439))
-
     cursor.execute("SELECT id FROM ticket_msg_id")
     ticket_creation_msg_id = cursor.fetchall()[0][0]
     try:
@@ -171,7 +163,7 @@ async def on_ready():
     embed = discord.Embed(title="Création de tickets", description="Pour ouvrir un ticket, sélectionnez une raison à l'aide du sélecteur ci-dessous!", color=discord.Color.green())
     embed.set_thumbnail(url=guild.icon.url)
     embed.set_footer(text="Merci de ne pas créer des tickets sans raison!", icon_url=guild.icon.url)
-    embed.set_author(name=guild.name, url="https://discord.gg/HaBx6cp9H3")
+    embed.set_author(name=guild.name, url="https://discord.gg/helya")
     ticket_creation_msg = await ticket_channel.send(embed=embed, view=TicketReasonView())
     cursor.execute("UPDATE ticket_msg_id SET id=%s WHERE id=%s", (ticket_creation_msg.id, ticket_creation_msg_id))
     conn.commit()
@@ -1259,7 +1251,7 @@ async def roleschoice(ctx):
 async def rankup(ctx, *users):
     global guild, hiearchie
 
-    if (ctx.author.guild_permissions.administrator or ctx.author.guild_permissions.manage_roles):
+    if (ctx.author.guild_permissions.administrator or ctx.author.guild_permissions.manage_roles) or ctx.author.id == OWNER_ID:
         success = []
         failed = []
         member = None
@@ -1288,14 +1280,14 @@ async def rankup(ctx, *users):
                         index = hiearchie.index(role)
                     member.remove_roles(role)
 
-            if hiearchie[index] < ctx.author.top_role:
+            if hiearchie[index] < ctx.author.top_role or ctx.author.id == OWNER_ID:
                 index -= 1 if index > 0 else 0
                 member.add_roles(hiearchie[index])
                 success.append(member.mention)
             else:
-                failed.append(member)
+                failed.append(member.mention)
         
-        await ctx.send(f"{f'✅ {", ".join(success)} ont était rank avec succès.\n' if len(success) else ""}❌ {", ".join(failed)} n'ont pas pu être derank.")
+        await ctx.send(f"{f'✅ {", ".join(success)} ont été rank avec succès.\n' if len(success) else ""}❌ {", ".join(failed)} n'ont pas pu être rank.")
 
 # @bot.command()
 # async def roleicon(ctx, *, args):
