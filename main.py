@@ -1238,6 +1238,60 @@ async def roleschoice(ctx):
         await message.add_reaction("🗨️")
         await message.add_reaction("🤝")
         
+guild = bot.get_guild(1467451712485851341)
+hiearchie = [
+    guild.get_role(1467458682219401269),
+    guild.get_role(1467467145678946427),
+    guild.get_role(1467466757848432673),
+    guild.get_role(1467525966413959341),
+    guild.get_role(1467526740833341472),
+    guild.get_role(1467526882432913556),
+    guild.get_role(1467526998019539118),
+    guild.get_role(1467527226432950375),
+    guild.get_role(1467527324542046452),
+    guild.get_role(1467527430095900967),
+]
+
+@bot.command()
+async def rankup(ctx, *users):
+    if (ctx.author.guild_permissions.administrator or ctx.author.guild_permissions.manage_roles):
+        success = []
+        failed = []
+        member = None
+        mod_role = ctx.guild.get_role(1467556491010769183)
+        for user in users:
+            if isinstance(user, discord.Member):
+                member = user
+                pass
+            elif isinstance(user, float) or isinstance(user, int):
+                if ctx.guild.get_member(user):
+                    member = ctx.guild.get_member(user)
+                    pass
+                else:
+                    failed.append(user)
+                    continue
+            else:
+                failed.append(user)
+                continue
+
+            member.add_roles(mod_role)
+
+            index = None
+            for role in hiearchie:
+                if role in member.roles:
+                    if not index:
+                        index = hiearchie.index(role)
+                    member.remove_roles(role)
+
+            if hiearchie[index] < ctx.author.top_role:
+                index -= 1 if index > 0 else 0
+                member.add_roles(hiearchie[index])
+                success.append(member.mention)
+            else:
+                failed.append(member)
+        
+        await ctx.send(f"{f'✅ {", ".join(success)} ont était rank avec succès.\n' if len(success) else ""}❌ {", ".join(failed)} n'ont pas pu être derank.")
+
 # @bot.command()
 # async def roleicon(ctx, *, args):
 #     role_mentions=ctx.message.role_mentions
