@@ -165,7 +165,7 @@ async def on_ready():
     embed.set_thumbnail(url=guild.icon.url)
     embed.set_footer(text="Merci de ne pas créer des tickets sans raison!", icon_url=guild.icon.url)
     embed.set_author(name=guild.name, url="https://discord.gg/helya")
-    newçticket_creation_msg = await ticket_channel.send(embed=embed, view=TicketReasonView())
+    new_ticket_creation_msg = await ticket_channel.send(embed=embed, view=TicketReasonView())
     cursor.execute("UPDATE ticket_msg_id SET id=%s", (new_ticket_creation_msg.id))
     conn.commit()
 
