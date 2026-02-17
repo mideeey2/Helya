@@ -1259,16 +1259,20 @@ async def rankup(ctx, *users):
         for user in users:
             if isinstance(user, discord.Member):
                 member = user
+                print("a")
                 pass
             elif isinstance(user, float) or isinstance(user, int):
                 if ctx.guild.get_member(user):
                     member = ctx.guild.get_member(user)
+                    print("b")
                     pass
                 else:
                     failed.append(user)
+                    print("c")
                     continue
             else:
                 failed.append(user)
+                print("d")
                 continue
 
             await member.add_roles(mod_role)
@@ -1282,10 +1286,10 @@ async def rankup(ctx, *users):
             if hiearchie[index] < ctx.author.top_role or ctx.author.id == OWNER_ID:
                 index -= 1 if index > 0 else 0
                 await member.add_roles(hiearchie[index])
-                print("w")
+                print("e")
                 success.append(member.mention)
             else:
-                print("n")
+                print("f")
                 failed.append(member.mention)
         
         await ctx.send(f"{f'✅ {", ".join(success)} ont été rank avec succès.\n' if len(success) else ""}❌ {", ".join(failed)} n'ont pas pu être rank.")
