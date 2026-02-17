@@ -1282,8 +1282,10 @@ async def rankup(ctx, *users):
             if hiearchie[index] < ctx.author.top_role or ctx.author.id == OWNER_ID:
                 index -= 1 if index > 0 else 0
                 await member.add_roles(hiearchie[index])
+                print("w")
                 success.append(member.mention)
             else:
+                print("n")
                 failed.append(member.mention)
         
         await ctx.send(f"{f'✅ {", ".join(success)} ont été rank avec succès.\n' if len(success) else ""}❌ {", ".join(failed)} n'ont pas pu être rank.")
