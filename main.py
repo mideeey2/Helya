@@ -1248,49 +1248,30 @@ async def roleschoice(ctx):
         await message.add_reaction("🤝")
 
 @bot.command()
-async def rankup(ctx, *users):
+async def rankup(ctx, *users:discord.Member):
     global guild, hiearchie
 
     if (ctx.author.guild_permissions.administrator or ctx.author.guild_permissions.manage_roles) or ctx.author.id == OWNER_ID:
         success = []
         failed = []
-        member = None
         mod_role = ctx.guild.get_role(1467556491010769183)
         for user in users:
-            if isinstance(user, discord.Member):
-                member = user
-                print("a")
-                pass
-            elif isinstance(user, float) or isinstance(user, int):
-                if ctx.guild.get_member(user):
-                    member = ctx.guild.get_member(user)
-                    print("b")
-                    pass
-                else:
-                    failed.append(user)
-                    print("c")
-                    continue
-            else:
-                failed.append(user)
-                print("d")
-                continue
-
-            await member.add_roles(mod_role)
+            await user.add_roles(mod_role)
 
             index = None
             for role in hiearchie:
-                if role in member.roles:
+                if role in user.roles:
                     if not index:
                         index = hiearchie.index(role)
-                    await member.remove_roles(role)
+                    await user.remove_roles(role)
             if hiearchie[index] < ctx.author.top_role or ctx.author.id == OWNER_ID:
                 index -= 1 if index > 0 else 0
-                await member.add_roles(hiearchie[index])
+                await user.add_roles(hiearchie[index])
                 print("e")
-                success.append(member.mention)
+                success.append(user.mention)
             else:
                 print("f")
-                failed.append(member.mention)
+                failed.append(user.mention)
         
         await ctx.send(f"{f'✅ {", ".join(success)} ont été rank avec succès.\n' if len(success) else ""}❌ {", ".join(failed)} n'ont pas pu être rank.")
 
