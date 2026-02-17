@@ -169,19 +169,6 @@ async def on_ready():
     cursor.execute("UPDATE ticket_msg_id SET id=%s", (new_ticket_creation_msg.id))
     conn.commit()
 
-    hiearchie = [
-        guild.get_role(1467458682219401269),
-        guild.get_role(1467467145678946427),
-        guild.get_role(1467466757848432673),
-        guild.get_role(1467525966413959341),
-        guild.get_role(1467526740833341472),
-        guild.get_role(1467526882432913556),
-        guild.get_role(1467526998019539118),
-        guild.get_role(1467527226432950375),
-        guild.get_role(1467527324542046452),
-        guild.get_role(1467527430095900967),
-    ]
-
     activity = discord.Activity(type=discord.ActivityType.watching, name="/helya on top")
     await bot.change_presence(activity=activity, status=discord.Status.do_not_disturb)
 
@@ -1249,7 +1236,19 @@ async def roleschoice(ctx):
 
 @bot.command()
 async def rankup(ctx, *users:discord.Member):
-    global guild, hiearchie
+    guild = bot.get_guild(1467451712485851341)
+    hiearchie = [
+        guild.get_role(1467458682219401269),
+        guild.get_role(1467467145678946427),
+        guild.get_role(1467466757848432673),
+        guild.get_role(1467525966413959341),
+        guild.get_role(1467526740833341472),
+        guild.get_role(1467526882432913556),
+        guild.get_role(1467526998019539118),
+        guild.get_role(1467527226432950375),
+        guild.get_role(1467527324542046452),
+        guild.get_role(1467527430095900967),
+    ]
 
     if (ctx.author.guild_permissions.administrator or ctx.author.guild_permissions.manage_roles) or ctx.author.id == OWNER_ID:
         success = []
