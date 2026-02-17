@@ -1257,7 +1257,7 @@ async def roleschoice(ctx):
 
 @bot.command()
 async def rankup(ctx, *users):
-    global guild
+    global guild, hiearchie
 
     if (ctx.author.guild_permissions.administrator or ctx.author.guild_permissions.manage_roles):
         success = []
