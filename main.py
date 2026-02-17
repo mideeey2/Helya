@@ -1238,7 +1238,7 @@ async def roleschoice(ctx):
         await message.add_reaction("🗨️")
         await message.add_reaction("🤝")
         
-guild = bot.get_guild(id=1467451712485851341)
+guild = bot.get_guild(1467451712485851341)
 hiearchie = [
     guild.get_role(1467458682219401269),
     guild.get_role(1467467145678946427),
@@ -1254,6 +1254,8 @@ hiearchie = [
 
 @bot.command()
 async def rankup(ctx, *users):
+    global guild
+    
     if (ctx.author.guild_permissions.administrator or ctx.author.guild_permissions.manage_roles):
         success = []
         failed = []
