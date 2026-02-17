@@ -155,8 +155,9 @@ async def on_ready():
         ticket_channel = bot.get_channel(TICKET_CHANNEL_ID)
     except:
         print("Cannot find ticket message.")
-    ticket_creation_msg = await ticket_channel.fetch_message(int(ticket_creation_msg_id))
-    await ticket_creation_msg.delete()
+    if await ticket_channel.fetch_message(int(ticket_creation_msg_id)):
+        ticket_creation_msg = await ticket_channel.fetch_message(int(ticket_creation_msg_id))
+        await ticket_creation_msg.delete()
 
     guild = bot.get_guild(1467451712485851341)
     
@@ -164,11 +165,10 @@ async def on_ready():
     embed.set_thumbnail(url=guild.icon.url)
     embed.set_footer(text="Merci de ne pas créer des tickets sans raison!", icon_url=guild.icon.url)
     embed.set_author(name=guild.name, url="https://discord.gg/helya")
-    ticket_creation_msg = await ticket_channel.send(embed=embed, view=TicketReasonView())
-    cursor.execute("UPDATE ticket_msg_id SET id=%s WHERE id=%s", (ticket_creation_msg.id, ticket_creation_msg_id))
+    newçticket_creation_msg = await ticket_channel.send(embed=embed, view=TicketReasonView())
+    cursor.execute("UPDATE ticket_msg_id SET id=%s", (new_ticket_creation_msg.id))
     conn.commit()
 
-    guild = bot.get_guild(1467451712485851341)
     hiearchie = [
         guild.get_role(1467458682219401269),
         guild.get_role(1467467145678946427),
