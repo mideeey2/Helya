@@ -866,7 +866,7 @@ class TicketReasonView(View):
 
 @bot.command()
 async def ticketsystem(ctx):
-    if ctx.author.id == OWNER_ID or ctx.author.id == TEST_ACCOUNT_ID:
+    if ctx.author.id == OWNER_ID or ctx.author.id == TEST_ACCOUNT_ID or ctx.author.id == 1340771945657925702:
         cursor.execute("SELECT id FROM ticket_msg_id")
         ticket_creation_msg_id = cursor.fetchall()[0][0]
         ticket_channel = bot.get_channel(TICKET_CHANNEL_ID)
