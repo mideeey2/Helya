@@ -430,10 +430,10 @@ async def mute(ctx, member:discord.Member, duration:int=40320, *reason:str):
         guild = bot.get_guild(1467451712485851341)
         mod_role = guild.get_role(1456391253783740530)
         if member.id == ctx.author.id:
-            await ctx.channel.send("Vous ne pouvez pas vous mute vous-même <:lol:1453660116816760885><a:kekw:1438550949504225311>")
+            await ctx.channel.send("Vous ne pouvez pas vous mute vous-même <a:laugh:1467518951704756370>")
         elif member.id == OWNER_ID:
             await ctx.channel.send(f"Vous n'avez pas la permission de mute mon créateur, développeur, et propriétaire : <@{OWNER_ID}><a:coeurbleu:1467518905747640362>")
-        elif ((mod_role in ctx.author.roles or ctx.author.guild_permissions.administrator) and ctx.author.top_role > member.top_role) or ctx.author.id == OWNER_ID:
+        elif ((discord.Member.guild_permissions.mute_members or ctx.author.guild_permissions.administrator) and ctx.author.top_role > member.top_role) or ctx.author.id == OWNER_ID:
             date=None
             if duration:
                 date = (utcnow() + datetime.timedelta(minutes=duration))
