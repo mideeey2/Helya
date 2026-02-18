@@ -452,7 +452,7 @@ async def mute(ctx, member:discord.Member, duration:int=40320, *reason:str):
                         await member.send(f"Le mute qui vous avait été appliqué sur le serveur {ctx.guild.name} a été annulé par {interaction.user.mention}.")
                         await interaction.response.send_message(content=f"{user.mention} vient tout juste d'annuler le mute de {member.mention}.", ephemeral=False, delete_after=20)
                         button.disabled=True
-                        interaction.edit_original_response(view=self)
+                        await interaction.edit_original_response(view=self)
                     else:
                         await interaction.response.send_message("Vous n'avez pas la permission d'utiliser cette commande.", ephemeral=True)
             await member.edit(timed_out_until=date, reason=reason)
