@@ -1243,6 +1243,7 @@ async def rankup(ctx, *users:discord.Member):
         guild.get_role(1467466757848432673),
         guild.get_role(1467525966413959341),
         guild.get_role(1467526740833341472),
+        guild.get_role(1467525966413959341),
         guild.get_role(1467526882432913556),
         guild.get_role(1467526998019539118),
         guild.get_role(1467527226432950375),
