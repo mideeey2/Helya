@@ -1269,7 +1269,7 @@ async def rankup(ctx, *users:discord.Member):
                 index -= 1 if index > 0 else 0
                 await user.add_roles(hiearchie[index])
                 print("e")
-                user_role[user] = index
+                user_role[user.id] = index
                 success.append(user)
             else:
                 print("f")
@@ -1278,7 +1278,7 @@ async def rankup(ctx, *users:discord.Member):
         await ctx.send(f"{f'✅ {", ".join(success)} ont été rank avec succès.\n' if len(success) else ""}{f'❌ {", ".join(failed)} n\'ont pas pu être rank.' if len(failed) else ""}")
 
         for success_member in success:
-            await success_member.send(f"## Coucou {success_member}! \nTu as été rank up sur le serveur **{ctx.guild.name}** par {ctx.author.mention}! Tu étais rank **{hiearchie[user_role[success_member]]}** et tu es désormais rank **{hiearchie[user_role[success_member]]}**!")
+            await success_member.send(f"## Coucou {success_member}! \nTu as été rank up sur le serveur **{ctx.guild.name}** par {ctx.author.mention}! Tu étais rank **{hiearchie[user_role[success_member.id]]}** et tu es désormais rank **{hiearchie[user_role[success_member.id]]}**!")
 
 
 # @bot.command()
