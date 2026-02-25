@@ -447,7 +447,7 @@ async def mute(ctx, member:discord.Member, duration:int=40320, *reason:str):
                     guild = bot.get_guild(1467451712485851341)
                     user = guild.get_member(interaction.user.id)
                     mod_role = guild.get_role(1456391253783740530)
-                    if (mod_role in user.roles or user.guild_permissions.administrator) and user.top_role > member.top_role and member.id != OWNER_ID and member.id != user.id:
+                    if (ctx.author.guild_permissions.mute_members or user.guild_permissions.administrator) and user.top_role > member.top_role and member.id != OWNER_ID and member.id != user.id:
                         await member.edit(timed_out_until=None)
                         await member.send(f"Le mute qui vous avait été appliqué sur le serveur {ctx.guild.name} a été annulé par {interaction.user.mention}.")
                         await interaction.response.send_message(content=f"{user.mention} vient tout juste d'annuler le mute de {member.mention}.", ephemeral=False, delete_after=20)
@@ -474,11 +474,11 @@ async def mute(ctx, member:discord.Member, duration:int=40320, *reason:str):
 async def unmute(ctx, member:discord.Member, *, args=None):
     guild = bot.get_guild(1467451712485851341)
     mod_role = guild.get_role(1456391253783740530)
-    if (ctx.author.id == OWNER_ID or (mod_role in ctx.author.roles or ctx.author.guild_permissions.administrator) and ctx.author.top_role > member.top_role) and member.is_timed_out():
+    if (ctx.author.id == OWNER_ID or (ctx.author.guild_permissions.mute_members or ctx.author.guild_permissions.administrator) and ctx.author.top_role > member.top_role) and member.is_timed_out():
         await member.edit(timed_out_until=None)
         await ctx.channel.send(content=f"{member.mention} a été unmute.")
         await member.send(f"Vous avez été unmute sur le serveur {ctx.guild.name} par {ctx.author.mention}{f" pour la raison `{args}`" if args else ""}.")
-    elif mod_role not in ctx.author.roles and ctx.author.guild_permissions.administrator:
+    elif ctx.author.guild_permissions.mute_members and ctx.author.guild_permissions.administrator:
         await ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande car vous n'êtes pas modérateur sur le serveur.")
     elif ctx.author.top_role <= member.top_role:
         await ctx.channel.send("Vous n'avez pas la permission d'utiliser cette commande car ce membre a un rôle égal ou plus haut que le vôtre.")
@@ -493,7 +493,7 @@ async def kick(ctx, member:discord.Member, *, args=None):
     mod_role = guild.get_role(1456391253783740530)
     try:
         if member.id == ctx.author.id:
-            await ctx.channel.send("Vous ne pouvez pas vous expulser vous-même <:lol:1453660116816760885><a:kekw:1438550949504225311>")
+            await ctx.channel.send("Vous ne pouvez pas vous expulser vous-même <a:laugh:1467518951704756370>")
         elif member.id == OWNER_ID:
             await ctx.channel.send(f"Vous n'avez pas la permission d'expulser mon créateur, développeur, et propriétaire : <@{OWNER_ID}><a:coeurbleu:1467518905747640362>")
         elif (ctx.author.id == OWNER_ID or (mod_role in ctx.author.roles or ctx.author.guild_permissions.administrator) and ctx.author.top_role > member.top_role):
@@ -1253,6 +1253,7 @@ async def rankup(ctx, *users:discord.Member):
     if (ctx.author.guild_permissions.administrator or ctx.author.guild_permissions.manage_roles) or ctx.author.id == OWNER_ID:
         success = []
         failed = []
+        user_role = {}
         mod_role = ctx.guild.get_role(1467556491010769183)
         for user in users:
             await user.add_roles(mod_role)
@@ -1267,12 +1268,17 @@ async def rankup(ctx, *users:discord.Member):
                 index -= 1 if index > 0 else 0
                 await user.add_roles(hiearchie[index])
                 print("e")
+                user_role[user] = index
                 success.append(user.mention)
             else:
                 print("f")
                 failed.append(user.mention)
         
-        await ctx.send(f"{f'✅ {", ".join(success)} ont été rank avec succès.\n' if len(success) else ""}❌ {", ".join(failed)} n'ont pas pu être rank.")
+        await ctx.send(f"{f'✅ {", ".join(success)} ont été rank avec succès.\n' if len(success) else ""}{f'❌ {", ".join(failed)} n\'ont pas pu être rank.' if len(failed) else ""}")
+
+        for success_member in success:
+            success_member.send(f"## Coucou {success_member.mention}! \nTu as été rank up sur le serveur **{ctx.guild.name}** par {ctx.author.mention}! Tu étais rank **{hiearchie[user_role[success_member]]}** et tu es désormais rank {hiearchie[user_role[success_member]]}!")
+
 
 # @bot.command()
 # async def roleicon(ctx, *, args):
